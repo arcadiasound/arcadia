@@ -18,14 +18,18 @@
   },
   "dependencies": {
     "@next/font": "13.1.6",
+    "@stitches/react": "1.2.8",
     "arconnect": "0.4.2",
     "arweave": "1.12.4",
-    "arweave-account": "1.3.4",
     "arweave-graphql": "0.0.5",
     "arweave-wallet-connector": "0.0.31",
+    "arweave-wallet-ui-test": "0.0.12",
     "next": "13.1.6",
+    "next-themes": "0.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-icons": "4.7.1",
+    "react-router-dom": "6.11.2",
     "warp-contracts": "1.2.52"
   },
   "devDependencies": {
