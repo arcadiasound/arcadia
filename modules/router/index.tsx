@@ -11,18 +11,23 @@ export const AppRouter = () => (
     <AppHeader />
     <Box
       css={{
+        // backgroundColor: "$green3",
         maxWidth: "100%",
         px: "$5",
         mx: "auto",
 
         "@bp3": {
-          maxWidth: 800,
+          px: 0,
+          // backgroundColor: "$yellow3",
+          maxWidth: 920,
         },
         "@bp4": {
-          maxWidth: 1000,
+          // backgroundColor: "$blue3",
+          maxWidth: 1200,
         },
         "@bp5": {
-          maxWidth: 1320,
+          // backgroundColor: "$red3",
+          maxWidth: 1400,
         },
       }}
     >
