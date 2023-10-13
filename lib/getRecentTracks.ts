@@ -4,7 +4,7 @@ import { arweave } from "./arweave";
 export const getRecentTracks = async (gateway: string) => {
   try {
     const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
-      first: 6,
+      first: 10,
       sort: SortOrder.HeightAsc,
       tags: [
         {
