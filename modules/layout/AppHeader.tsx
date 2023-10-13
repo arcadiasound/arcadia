@@ -1,6 +1,5 @@
-import { Box } from "@/components/Box";
-import { Button } from "@/components/Button";
-import { Flex } from "@/components/Flex";
+import { Button } from "@/ui/Button";
+import { Flex } from "@/ui/Flex";
 import { styled } from "@/stitches.config";
 import { abbreviateAddress } from "@/utils";
 import { ConnectWallet, useConnect } from "arweave-wallet-ui-test";
@@ -14,15 +13,14 @@ import {
   BsCloudUploadFill,
 } from "react-icons/bs";
 import { useEffect } from "react";
-import { Image } from "@/components/Image";
+import { Image } from "@/ui/Image";
 
 const NavLink = styled(Link, {
   display: "flex",
   gap: "$2",
   fontSize: "$3",
   alignItems: "center",
-  py: "$3",
-  px: "$5",
+  p: "$2",
   color: "$slate11",
 
   "&:hover": {
@@ -42,49 +40,39 @@ export const AppHeader = () => {
   const { profile, walletAddress } = useConnect();
   const location = useLocation();
 
-  useEffect(() => {
-    if (location) {
-      console.log(location);
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   if (location) {
+  //     console.log(location);
+  //   }
+  // }, [location]);
 
   return (
     <Flex
       as="header"
       css={{
-        p: "$5",
-        mb: "$10",
+        py: "$3",
+        px: "$10",
+        mb: "$20",
       }}
       justify="between"
       align="center"
     >
       <Image
-        src="arcade-logo-text.svg"
+        src="arcadia_logo_text_white.svg"
         css={{
-          width: 160,
-          height: 24,
+          width: 94,
+          height: 17,
         }}
       />
-      <Flex as="nav" gap="10">
+      <Flex as="nav" gap="5">
         <NavLink selected={location.pathname === "/"} to={"/"}>
-          {location.pathname === "/" ? <BsDiscFill /> : <BsDisc />}
-          Discover
+          discover
         </NavLink>
-        <NavLink selected={location.pathname === "/library"} to={"/library"}>
-          {location.pathname === "/library" ? (
-            <BsCollectionFill />
-          ) : (
-            <BsCollection />
-          )}
-          Library
-        </NavLink>
-        <NavLink selected={location.pathname === "/upload"} to={"/upload"}>
-          {location.pathname === "/upload" ? (
-            <BsCloudUploadFill />
-          ) : (
-            <BsCloudUpload />
-          )}
-          Upload
+        {/* <NavLink selected={location.pathname === "/upload"} to={"/upload"}>
+          upload
+        </NavLink> */}
+        <NavLink selected={location.pathname === "/profile"} to={"/library"}>
+          profile
         </NavLink>
       </Flex>
       {walletAddress ? (

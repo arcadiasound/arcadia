@@ -1,5 +1,5 @@
-import { Flex } from "@/components/Flex";
-import { Typography } from "@/components/Typography";
+import { Flex } from "@/ui/Flex";
+import { Typography } from "@/ui/Typography";
 
 export const Library = () => {
   return (

@@ -1,3 +1,4 @@
+import { AudioPlayer } from "@/modules/audioPlayer/AudioPlayer";
 import { AppRouter as StaticRouter } from "../modules/router";
 import dynamic from "next/dynamic";
 
@@ -9,5 +10,10 @@ const Router = dynamic<React.ComponentProps<typeof StaticRouter>>(
 );
 
 export default function Home() {
-  return <Router />;
+  return (
+    <>
+      <Router />
+      <AudioPlayer />
+    </>
+  );
 }

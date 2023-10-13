@@ -3,6 +3,7 @@ import { ConnectProvider } from "arweave-wallet-ui-test";
 import type { AppProps } from "next/app";
 import { ThemeProvider } from "next-themes";
 import { darkTheme, globalCss } from "@/stitches.config";
+import { AudioPlayerProvider } from "@/hooks/AudioPlayerContext";
 
 const globalStyles = globalCss({
   "@dark": {
@@ -45,16 +46,18 @@ globalStyles();
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider
-      disableTransitionOnChange
-      attribute="class"
-      value={{ light: "light-theme", dark: darkTheme.className }}
-      forcedTheme="dark"
-      defaultTheme="dark"
-    >
-      <ConnectProvider>
-        <Component {...pageProps} />
-      </ConnectProvider>
-    </ThemeProvider>
+    <AudioPlayerProvider>
+      <ThemeProvider
+        disableTransitionOnChange
+        attribute="class"
+        value={{ light: "light-theme", dark: darkTheme.className }}
+        forcedTheme="dark"
+        defaultTheme="dark"
+      >
+        <ConnectProvider>
+          <Component {...pageProps} />
+        </ConnectProvider>
+      </ThemeProvider>
+    </AudioPlayerProvider>
   );
 }

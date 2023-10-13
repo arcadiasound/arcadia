@@ -4,25 +4,30 @@ import { AppHeader } from "../layout/AppHeader";
 import { Discover } from "../discover";
 import { Library } from "../library";
 import { Upload } from "../upload";
-import { Box } from "@/components/Box";
+import { Box } from "@/ui/Box";
 
 export const AppRouter = () => (
   <HashRouter>
     <AppHeader />
     <Box
       css={{
+        // backgroundColor: "$green3",
         maxWidth: "100%",
         px: "$5",
         mx: "auto",
 
         "@bp3": {
-          maxWidth: 800,
+          px: 0,
+          // backgroundColor: "$yellow3",
+          maxWidth: 920,
         },
         "@bp4": {
-          maxWidth: 1000,
+          // backgroundColor: "$blue3",
+          maxWidth: 1200,
         },
         "@bp5": {
-          maxWidth: 1320,
+          // backgroundColor: "$red3",
+          maxWidth: 1400,
         },
       }}
     >
