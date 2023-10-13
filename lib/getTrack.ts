@@ -1,11 +1,12 @@
 import arweaveGql, { SortOrder, Transaction } from "arweave-graphql";
 import { arweave } from "./arweave";
 
-export const getRecentTracks = async (gateway: string) => {
+export const getTrack = async (id: string, gateway?: string) => {
   try {
-    const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
-      first: 10,
-      sort: SortOrder.HeightAsc,
+    const res = await arweaveGql(
+      `${gateway || "https://arweave.net"}/graphql`
+    ).getTransactions({
+      ids: [id],
       tags: [
         {
           name: "Content-Type",
@@ -23,23 +24,17 @@ export const getRecentTracks = async (gateway: string) => {
           name: "App-Version",
           values: ["0.3.0"],
         },
-        {
-          name: "Contract-Src",
-          values: ["Of9pi--Gj7hCTawhgxOwbuWnFI1h24TTgO5pw8ENJNQ"],
-        },
       ],
     });
-
-    // console.log("res", res);
 
     const data = res.transactions.edges
       .filter((edge) => Number(edge.node.data.size) < 1e7)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
-      .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
+      .map((edge) =>
+        setTrackInfo(edge.node as Transaction, gateway || "https://arweave.net")
+      );
 
-    // console.log(data);
-
-    return data;
+    return data[0];
   } catch (error: any) {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);
@@ -48,6 +43,7 @@ export const getRecentTracks = async (gateway: string) => {
 
 const setTrackInfo = (node: Transaction, gateway: string) => {
   const title = node.tags.find((x) => x.name === "Title")?.value;
+  const description = node.tags.find((x) => x.name === "Description")?.value;
 
   let hasLicense = false;
 
@@ -86,6 +82,7 @@ const setTrackInfo = (node: Transaction, gateway: string) => {
 
   return {
     title,
+    description,
     creator,
     artworkId,
     src,
