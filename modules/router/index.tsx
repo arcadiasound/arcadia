@@ -5,6 +5,7 @@ import { Discover } from "../discover";
 import { Library } from "../library";
 import { Upload } from "../upload";
 import { Box } from "@/ui/Box";
+import { Track } from "../track";
 
 export const AppRouter = () => (
   <HashRouter>
@@ -34,6 +35,7 @@ export const AppRouter = () => (
       <Routes>
         <Route path={"/"} element={<Discover />} />
         <Route path={"/library"} element={<Library />} />
+        <Route path={"/track"} element={<Track />} />
         <Route path={"/upload"} element={<Upload />} />
       </Routes>
     </Box>

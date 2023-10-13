@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { IconButton } from "@/ui/IconButton";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
+import { Link } from "react-router-dom";
 
 const TrackCard = ({
   track,
@@ -29,11 +30,6 @@ const TrackCard = ({
     setCurrentTrackId,
     setCurrentTrackIndex,
   } = useAudioPlayer();
-
-  // useEffect(() => {
-  //   console.log({ track });
-  //   console.log({ trackIndex });
-  // }, []);
 
   const handleClick = () => {
     if (currentTrackId === track.txid) {
@@ -79,10 +75,7 @@ const TrackCard = ({
     <Flex direction="column" gap="2">
       <Box
         css={{
-          width: 200,
-          height: 200,
           position: "relative",
-
           "& [data-overlay]": {
             display: "none",
           },
@@ -102,13 +95,26 @@ const TrackCard = ({
           },
         }}
       >
-        <Box
-          data-overlay
-          css={{
-            width: "100%",
-            height: "100%",
-            position: "absolute",
-            background: `linear-gradient(
+        <Link
+          to={{
+            pathname: "/track",
+            search: `?tx=${track.txid}`,
+          }}
+        >
+          <Box
+            css={{
+              width: 200,
+              height: 200,
+              position: "relative",
+            }}
+          >
+            <Box
+              data-overlay
+              css={{
+                width: "100%",
+                height: "100%",
+                position: "absolute",
+                background: `linear-gradient(
               to top,
               hsl(0, 0%, 0%) 0%,
               hsla(0, 0%, 0%, 0.738) 19%,
@@ -124,16 +130,18 @@ const TrackCard = ({
               hsla(0, 0%, 0%, 0.002) 98.2%,
               hsla(0, 0%, 0%, 0) 100%
             )`,
-            opacity: 0.7,
-          }}
-        ></Box>
-        <Image
-          src={
-            track.artworkId
-              ? `https://arweave.net/${track.artworkId}`
-              : `https://source.boringavatars.com/marble/200/${track.creator}?square=true`
-          }
-        />
+                opacity: 0.7,
+              }}
+            ></Box>
+            <Image
+              src={
+                track.artworkId
+                  ? `https://arweave.net/${track.artworkId}`
+                  : `https://source.boringavatars.com/marble/200/${track.txid}?square=true`
+              }
+            />
+          </Box>
+        </Link>
         <IconButton
           css={{
             br: 9999,
@@ -151,6 +159,7 @@ const TrackCard = ({
             bottom: 0,
             mt: "auto",
             mb: "auto",
+            zindex: 999,
 
             "& svg": {
               fontSize: 28,
@@ -198,7 +207,7 @@ export const Discover = () => {
   }, []);
 
   const fetchTracks = async () => {
-    const tracks = await getRecentTracks("https://arweave.net");
+    const tracks = await getRecentTracks("https://g8way.io");
     setRecentTracks(tracks);
   };
 
