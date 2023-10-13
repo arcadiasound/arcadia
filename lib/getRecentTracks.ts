@@ -1,10 +1,11 @@
-import arweaveGql, { Transaction } from "arweave-graphql";
+import arweaveGql, { SortOrder, Transaction } from "arweave-graphql";
 import { arweave } from "./arweave";
 
 export const getRecentTracks = async (gateway: string) => {
   try {
     const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
       first: 6,
+      sort: SortOrder.HeightAsc,
       tags: [
         {
           name: "Content-Type",
@@ -25,14 +26,14 @@ export const getRecentTracks = async (gateway: string) => {
       ],
     });
 
-    console.log("res", res);
+    // console.log("res", res);
 
     const data = res.transactions.edges
       .filter((edge) => Number(edge.node.data.size) < 1e7)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
 
-    console.log(data);
+    // console.log(data);
 
     return data;
   } catch (error: any) {

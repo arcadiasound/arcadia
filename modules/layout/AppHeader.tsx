@@ -1,5 +1,5 @@
-import { Button } from "@/components/Button";
-import { Flex } from "@/components/Flex";
+import { Button } from "@/ui/Button";
+import { Flex } from "@/ui/Flex";
 import { styled } from "@/stitches.config";
 import { abbreviateAddress } from "@/utils";
 import { ConnectWallet, useConnect } from "arweave-wallet-ui-test";
@@ -13,7 +13,7 @@ import {
   BsCloudUploadFill,
 } from "react-icons/bs";
 import { useEffect } from "react";
-import { Image } from "@/components/Image";
+import { Image } from "@/ui/Image";
 
 const NavLink = styled(Link, {
   display: "flex",

@@ -4,7 +4,7 @@ import { AppHeader } from "../layout/AppHeader";
 import { Discover } from "../discover";
 import { Library } from "../library";
 import { Upload } from "../upload";
-import { Box } from "@/components/Box";
+import { Box } from "@/ui/Box";
 
 export const AppRouter = () => (
   <HashRouter>
