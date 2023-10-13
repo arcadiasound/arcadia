@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 import { ThemeProvider } from "next-themes";
 import { darkTheme, globalCss } from "@/stitches.config";
 import { AudioPlayerProvider } from "@/hooks/AudioPlayerContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const globalStyles = globalCss({
   "@dark": {
@@ -44,20 +45,24 @@ const globalStyles = globalCss({
 
 globalStyles();
 
+const queryClient = new QueryClient();
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <AudioPlayerProvider>
-      <ThemeProvider
-        disableTransitionOnChange
-        attribute="class"
-        value={{ light: "light-theme", dark: darkTheme.className }}
-        forcedTheme="dark"
-        defaultTheme="dark"
-      >
-        <ConnectProvider>
-          <Component {...pageProps} />
-        </ConnectProvider>
-      </ThemeProvider>
-    </AudioPlayerProvider>
+    <QueryClientProvider client={queryClient}>
+      <AudioPlayerProvider>
+        <ThemeProvider
+          disableTransitionOnChange
+          attribute="class"
+          value={{ light: "light-theme", dark: darkTheme.className }}
+          forcedTheme="dark"
+          defaultTheme="dark"
+        >
+          <ConnectProvider>
+            <Component {...pageProps} />
+          </ConnectProvider>
+        </ThemeProvider>
+      </AudioPlayerProvider>
+    </QueryClientProvider>
   );
 }
