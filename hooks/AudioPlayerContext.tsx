@@ -21,6 +21,7 @@ type AudioPlayerState = {
   loop: boolean;
   tracklist: Tracklist;
   currentTrackIndex: number;
+  currentTrackId: string;
 };
 
 type AudioPlayerActionType =
@@ -29,6 +30,7 @@ type AudioPlayerActionType =
   | "SET_GAIN_REF"
   | "SET_TRACKLIST"
   | "SET_CURRENT_TRACK_INDEX"
+  | "SET_CURRENT_TRACK_ID"
   | "PLAYING"
   | "SHUFFLE"
   | "LOOP";
@@ -49,6 +51,7 @@ const initialState: AudioPlayerState = {
   loop: false,
   tracklist: [],
   currentTrackIndex: 0,
+  currentTrackId: "",
 };
 
 export const AudioPlayerContext = createContext<{
@@ -66,7 +69,9 @@ export const AudioPlayerContext = createContext<{
   shuffle: boolean;
   loop: boolean;
   currentTrackIndex: number;
+  currentTrackId: string;
   setCurrentTrackIndex?: (index: number) => void;
+  setCurrentTrackId?: (id: string) => void;
   togglePlaying?: () => void;
   toggleShuffle?: (shuffle: boolean) => void;
   toggleLoop?: (loop: boolean) => void;
@@ -90,6 +95,7 @@ export const AudioPlayerContext = createContext<{
   shuffle: false,
   loop: false,
   currentTrackIndex: 0,
+  currentTrackId: "",
 });
 
 const audioPlayerReducer = (
@@ -122,6 +128,11 @@ const audioPlayerReducer = (
         ...state,
         currentTrackIndex: action.payload,
         playing: true,
+      };
+    case "SET_CURRENT_TRACK_ID":
+      return {
+        ...state,
+        currentTrackId: action.payload,
       };
     case "PLAYING":
       return {
@@ -170,9 +181,12 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
   }, []);
 
   const setCurrentTrackIndex = (index: number) => {
-    console.log("updating track index to ", index);
     dispatch({ type: "SET_CURRENT_TRACK_INDEX", payload: index });
     audioRef.current?.load();
+  };
+
+  const setCurrentTrackId = (id: string) => {
+    dispatch({ type: "SET_CURRENT_TRACK_ID", payload: id });
   };
 
   const setTracklist = (tracklist: Tracklist) => {
@@ -265,7 +279,9 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
         shuffle: state.shuffle,
         loop: state.loop,
         currentTrackIndex: state.currentTrackIndex,
+        currentTrackId: state.currentTrackId,
         setCurrentTrackIndex,
+        setCurrentTrackId,
         handleNextTrack,
         handlePrevTrack,
         handleTrackEnd,

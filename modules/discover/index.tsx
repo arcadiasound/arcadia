@@ -21,12 +21,12 @@ const TrackCard = ({
   tracks: Tracklist;
 }) => {
   const {
-    audioCtxRef,
-    playing,
     audioRef,
+    playing,
     togglePlaying,
-    tracklist,
+    currentTrackId,
     setTracklist,
+    setCurrentTrackId,
     setCurrentTrackIndex,
   } = useAudioPlayer();
 
@@ -36,19 +36,44 @@ const TrackCard = ({
   // }, []);
 
   const handleClick = () => {
-    // run function that takes index of current track within tracklist array, and creates tracklist of remaining tracks
-    if (trackIndex >= 0) {
-      // create a new tracklist starting from the selected track index
-      const newTracklist = tracks.slice(trackIndex);
+    if (currentTrackId === track.txid) {
+      togglePlaying?.();
+      handlePlayPause();
+    } else {
+      // run function that takes index of current track within tracklist array, and creates tracklist of remaining tracks
+      if (trackIndex >= 0) {
+        // create a new tracklist starting from the selected track index
+        const newTracklist = tracks.slice(trackIndex);
 
-      console.log({ newTracklist });
+        console.log({ newTracklist });
 
-      setTracklist?.(newTracklist);
-      setCurrentTrackIndex?.(0);
+        setTracklist?.(newTracklist);
+        setCurrentTrackId?.(track.txid);
+        setCurrentTrackIndex?.(0);
 
-      // audioRef.current?.load();
+        // audioRef.current?.load();
+      }
     }
   };
+
+  const handlePlayPause = () => {
+    if (!audioRef.current) return;
+
+    if (audioRef.current.paused) {
+      audioRef.current.play();
+    } else {
+      audioRef.current.pause();
+    }
+  };
+
+  const isPlaying = playing && currentTrackId === track.txid;
+
+  useEffect(() => {
+    if (currentTrackId === track.txid) {
+      console.log(currentTrackId);
+      console.log(isPlaying);
+    }
+  }, [currentTrackId]);
 
   return (
     <Flex direction="column" gap="2">
@@ -129,7 +154,7 @@ const TrackCard = ({
 
             "& svg": {
               fontSize: 28,
-              transform: playing ? "translateX(0)" : "translateX(1px)",
+              transform: isPlaying ? "translateX(0)" : "translateX(1px)",
             },
 
             "&:hover": {
@@ -142,12 +167,12 @@ const TrackCard = ({
             },
           }}
           size="3"
-          data-playing={playing}
-          aria-checked={playing}
+          data-playing={isPlaying}
+          aria-checked={isPlaying}
           role="switch"
           onClick={handleClick}
         >
-          {playing ? <IoPauseSharp /> : <IoPlaySharp />}
+          {isPlaying ? <IoPauseSharp /> : <IoPlaySharp />}
         </IconButton>
       </Box>
       <Box>
