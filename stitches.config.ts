@@ -168,3 +168,9 @@ export const darkTheme = createTheme("dark-theme", {
 });
 
 export type CSS = Stitches.CSS<typeof config>;
+export type {
+  ComponentProps,
+  VariantProps,
+  PropertyValue,
+  ScaleValue,
+} from "@stitches/react";

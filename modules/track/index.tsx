@@ -1,6 +1,6 @@
 import { Track as TrackType } from "@/types";
 import { Flex } from "@/ui/Flex";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { getTrack } from "@/lib/getTrack";
 import { Image } from "@/ui/Image";
@@ -12,6 +12,8 @@ import { IconButton } from "@/ui/IconButton";
 import { Typography } from "@/ui/Typography";
 import { abbreviateAddress } from "@/utils";
 import { Button } from "@/ui/Button";
+import { getProfile } from "@/lib/getProfile";
+import { appConfig } from "@/appConfig";
 
 export const Track = () => {
   const location = useLocation();
@@ -42,6 +44,17 @@ export const Track = () => {
       }
 
       return getTrack(id);
+    },
+  });
+
+  const { data: account } = useQuery({
+    queryKey: [`profile-${track?.creator}`],
+    queryFn: () => {
+      if (!track?.creator) {
+        throw new Error("No profile has been found");
+      }
+
+      return getProfile(track.creator);
     },
   });
 
@@ -78,6 +91,8 @@ export const Track = () => {
   };
 
   const isPlaying = playing && currentTrackId === track?.txid;
+
+  const avatarUrl = account?.profile.avatarURL;
 
   return (
     <Flex gap="10">
@@ -158,20 +173,46 @@ export const Track = () => {
             </Typography>
           </Flex>
         </Flex>
-        <Flex direction="column" gap="7">
-          <Flex gap="3" align="center">
-            <Box
-              css={{
-                width: 48,
-                height: 48,
-                backgroundColor: "$slate3",
-                br: 9999,
-              }}
-            />
-            <Typography size="4">
-              {abbreviateAddress({ address: track?.creator })}
-            </Typography>
-          </Flex>
+        <Flex css={{ alignSelf: "start" }} direction="column" gap="7">
+          <Link
+            to={{
+              pathname: "/profile",
+              search: `?addr=${track?.creator}`,
+            }}
+          >
+            <Flex gap="3" align="center">
+              {account ? (
+                <Image
+                  css={{
+                    width: 40,
+                    height: 40,
+                    br: 9999,
+                  }}
+                  src={
+                    avatarUrl === appConfig.accountAvatarDefault
+                      ? `https://source.boringavatars.com/marble/100/${account?.txid}?square=true`
+                      : avatarUrl
+                  }
+                />
+              ) : (
+                <Box
+                  css={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: "$slate3",
+                    br: 9999,
+                  }}
+                />
+              )}
+              <Typography size="4">
+                {account?.profile.name ||
+                  abbreviateAddress({
+                    address: track?.creator,
+                    options: { startChars: 6, endChars: 6 },
+                  })}
+              </Typography>
+            </Flex>
+          </Link>
           <Typography
             css={{
               // fix needed: webkit-box removes space between this section and button

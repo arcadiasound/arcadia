@@ -17,6 +17,7 @@ import { MdVolumeDown, MdVolumeUp } from "react-icons/md";
 // import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { styled } from "@/stitches.config";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
+import { appConfig } from "@/appConfig";
 
 const PlayPauseButton = styled(IconButton, {
   br: 9999,
@@ -267,6 +268,7 @@ export const AudioPlayer = () => {
         position: "fixed",
         bottom: 0,
         backgroundColor: "$blackA12",
+        maxHeight: appConfig.playerMaxHeight,
       }}
       gap="3"
     >

@@ -35,7 +35,7 @@ const globalStyles = globalCss({
     },
   },
   "html, body, #root, #__next": {
-    height: "100%",
+    minHeight: "100vh",
     fontFamily: "$body",
     margin: 0,
     backgroundColor: "$slate1",

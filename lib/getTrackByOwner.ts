@@ -1,12 +1,12 @@
-import { removeDuplicatesByTxid } from "@/utils";
 import { setTrackInfo } from "@/utils/setTrackInfo";
 import arweaveGql, { SortOrder, Transaction } from "arweave-graphql";
 
-export const getRecentTracks = async (gateway: string) => {
+export const getTrackByOwners = async (address: string, gateway?: string) => {
   try {
-    const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
-      first: 10,
-      sort: SortOrder.HeightAsc,
+    const res = await arweaveGql(
+      `${gateway || "https://arweave.net"}/graphql`
+    ).getTransactions({
+      first: 100,
       tags: [
         {
           name: "Content-Type",
@@ -31,19 +31,33 @@ export const getRecentTracks = async (gateway: string) => {
       ],
     });
 
-    console.log("res", res);
-
     const data = res.transactions.edges
       .filter((edge) => Number(edge.node.data.size) < 1e7)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
-      // .filter(
-      //   (edge) => edge.node.tags.find((x) => x.name === "Thumbnail")?.value
-      // )
-      .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
+      .filter((edge) => {
+        const initStateTag = edge.node.tags.find(
+          (x) => x.name === "Init-State"
+        )?.value;
 
-    const dedupedData = removeDuplicatesByTxid(data);
+        console.log(initStateTag);
 
-    return dedupedData;
+        const initState = initStateTag ? JSON.parse(initStateTag) : undefined;
+
+        const isOwner = Object.keys(initState.balances).includes(address);
+
+        if (isOwner) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .map((edge) =>
+        setTrackInfo(edge.node as Transaction, gateway || "https://arweave.net")
+      );
+
+    console.log(data);
+
+    return data;
   } catch (error: any) {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);
