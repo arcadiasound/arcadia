@@ -50,9 +50,10 @@ export const AppHeader = () => {
     <Flex
       as="header"
       css={{
+        backgroundColor: "$slate2",
         py: "$3",
         px: "$10",
-        mb: "$20",
+        mb: location.pathname === "/profile" ? 0 : "$20",
       }}
       justify="between"
       align="center"
@@ -71,7 +72,7 @@ export const AppHeader = () => {
         {/* <NavLink selected={location.pathname === "/upload"} to={"/upload"}>
           upload
         </NavLink> */}
-        <NavLink selected={location.pathname === "/profile"} to={"/library"}>
+        <NavLink selected={location.pathname === "/profile"} to={"/profile"}>
           profile
         </NavLink>
       </Flex>

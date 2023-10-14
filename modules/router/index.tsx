@@ -2,10 +2,11 @@ import { HashRouter, useLocation } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import { AppHeader } from "../layout/AppHeader";
 import { Discover } from "../discover";
-import { Library } from "../library";
+import { Profile } from "../profile";
 import { Upload } from "../upload";
 import { Box } from "@/ui/Box";
 import { Track } from "../track";
+import { appConfig } from "@/appConfig";
 
 export const AppRouter = () => (
   <HashRouter>
@@ -30,11 +31,13 @@ export const AppRouter = () => (
           // backgroundColor: "$red3",
           maxWidth: 1400,
         },
+
+        pb: appConfig.playerMaxHeight + 20,
       }}
     >
       <Routes>
         <Route path={"/"} element={<Discover />} />
-        <Route path={"/library"} element={<Library />} />
+        <Route path={"/profile"} element={<Profile />} />
         <Route path={"/track"} element={<Track />} />
         <Route path={"/upload"} element={<Upload />} />
       </Routes>
