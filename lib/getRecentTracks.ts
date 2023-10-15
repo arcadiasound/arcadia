@@ -36,9 +36,6 @@ export const getRecentTracks = async (gateway: string) => {
     const data = res.transactions.edges
       .filter((edge) => Number(edge.node.data.size) < 1e7)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
-      // .filter(
-      //   (edge) => edge.node.tags.find((x) => x.name === "Thumbnail")?.value
-      // )
       .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
 
     const dedupedData = removeDuplicatesByTxid(data);

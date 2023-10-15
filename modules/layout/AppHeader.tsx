@@ -14,6 +14,8 @@ import {
 } from "react-icons/bs";
 import { useEffect } from "react";
 import { Image } from "@/ui/Image";
+import { SearchBar } from "../search/SearchBar";
+import { Box } from "@/ui/Box";
 
 const NavLink = styled(Link, {
   display: "flex",
@@ -37,20 +39,15 @@ const NavLink = styled(Link, {
 });
 
 export const AppHeader = () => {
-  const { profile, walletAddress } = useConnect();
+  const { walletAddress } = useConnect();
   const location = useLocation();
-
-  // useEffect(() => {
-  //   if (location) {
-  //     console.log(location);
-  //   }
-  // }, [location]);
 
   return (
     <Flex
       as="header"
       css={{
-        backgroundColor: "$slate2",
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr 1fr",
         py: "$3",
         px: "$10",
         mb: location.pathname === "/profile" ? 0 : "$20",
@@ -58,14 +55,17 @@ export const AppHeader = () => {
       justify="between"
       align="center"
     >
-      <Image
-        src="arcadia_logo_text_white.svg"
-        css={{
-          width: 94,
-          height: 17,
-        }}
-      />
-      <Flex as="nav" gap="5">
+      <Flex gap="10" align="center">
+        <Image
+          src="arcadia_logo_text_white.svg"
+          css={{
+            width: 94,
+            height: 17,
+          }}
+        />
+        <SearchBar />
+      </Flex>
+      <Flex as="nav" gap="5" justify="center">
         <NavLink selected={location.pathname === "/"} to={"/"}>
           discover
         </NavLink>
@@ -76,19 +76,31 @@ export const AppHeader = () => {
           profile
         </NavLink>
       </Flex>
-      {walletAddress ? (
-        <Button>{abbreviateAddress({ address: walletAddress })}</Button>
-      ) : (
-        <ConnectWallet
-          permissions={[
-            "ACCESS_ADDRESS",
-            "DISPATCH",
-            "SIGN_TRANSACTION",
-            "ACCESS_ARWEAVE_CONFIG",
-          ]}
-          appName="Arcade"
-        />
-      )}
+      <Flex justify="end">
+        {walletAddress ? (
+          <Button>{abbreviateAddress({ address: walletAddress })}</Button>
+        ) : (
+          <ConnectWallet
+            permissions={[
+              "ACCESS_ADDRESS",
+              "DISPATCH",
+              "SIGN_TRANSACTION",
+              "ACCESS_ARWEAVE_CONFIG",
+            ]}
+            options={{
+              connectButtonVariant: "ghost",
+              connectButtonLabel: "connect wallet",
+              connectButtonStyles: {
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  color: "$slate12",
+                },
+              },
+            }}
+            appName="Arcadia"
+          />
+        )}
+      </Flex>
     </Flex>
   );
 };

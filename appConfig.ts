@@ -1,5 +1,6 @@
 export const appConfig = {
   defaultGateway: "https://arweave.net",
+  goldskyUrl: "https://arweave-search.goldsky.com",
   accountBannerDefault:
     "https://arweave.net:443/a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k",
   accountAvatarDefault:
