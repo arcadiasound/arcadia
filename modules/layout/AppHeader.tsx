@@ -87,7 +87,17 @@ export const AppHeader = () => {
               "SIGN_TRANSACTION",
               "ACCESS_ARWEAVE_CONFIG",
             ]}
-            appName="Arcade"
+            options={{
+              connectButtonVariant: "ghost",
+              connectButtonLabel: "connect wallet",
+              connectButtonStyles: {
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  color: "$slate12",
+                },
+              },
+            }}
+            appName="Arcadia"
           />
         )}
       </Flex>

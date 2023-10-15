@@ -56,53 +56,19 @@ export const IconButton = styled("button", {
     },
     variant: {
       subtle: {
-        color: "$$color",
-        backgroundColor: "$$bgSubtle",
+        color: "$slate11",
+        backgroundColor: "$slate3",
 
         "&:hover": {
-          backgroundColor: "$$bgSubtleHover",
+          backgroundColor: "$slate4",
         },
 
         "&:active": {
-          backgroundColor: "$$bgSubtleActive",
+          backgroundColor: "$slate5",
         },
 
         "&:focus-visible": {
-          boxShadow: "0 0 0 2px $$focus",
-        },
-      },
-      outline: {
-        color: "$$color",
-        backgroundColor: "transparent",
-        boxShadow: "inset 0 0 0 1px $$border",
-
-        "&:hover": {
-          boxShadow: "inset 0 0 0 1px $$borderHover",
-        },
-
-        "&:active": {
-          backgroundColor: "$$bgActive",
-          boxShadow: "inset 0 0 0 1px $$borderActive",
-        },
-
-        "&:focus-visible": {
-          boxShadow: "0 0 0 2px $$focus",
-        },
-      },
-      solid: {
-        backgroundColor: "$$bgSolid",
-        color: "$$colorSolid",
-
-        "&:hover": {
-          backgroundColor: "$$bgSolidHover",
-        },
-
-        "&:active": {
-          backgroundColor: "$$bgSolidActive",
-        },
-
-        "&:focus-visible": {
-          boxShadow: "0 0 0 2px $colors$blue8",
+          boxShadow: "0 0 0 2px $colors$slate8",
         },
       },
       ghost: {
@@ -119,6 +85,14 @@ export const IconButton = styled("button", {
 
         "&:focus-visible": {
           boxShadow: "0 0 0 2px $$focus",
+        },
+      },
+      transparent: {
+        backgroundColor: "transparent",
+        color: "$slate11",
+
+        "&:hover": {
+          color: "$slate12",
         },
       },
     },
