@@ -6,6 +6,7 @@ export const getTrack = async (id: string, gateway?: string) => {
     const res = await arweaveGql(
       `${gateway || "https://arweave.net"}/graphql`
     ).getTransactions({
+      first: 1,
       ids: [id],
       tags: [
         {
@@ -27,12 +28,16 @@ export const getTrack = async (id: string, gateway?: string) => {
       ],
     });
 
+    console.log({ res });
+
     const data = res.transactions.edges
-      .filter((edge) => Number(edge.node.data.size) < 1e7)
+      // .filter((edge) => Number(edge.node.data.size) < 1e7)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .map((edge) =>
         setTrackInfo(edge.node as Transaction, gateway || "https://arweave.net")
       );
+
+    console.log({ data });
 
     return data[0];
   } catch (error: any) {

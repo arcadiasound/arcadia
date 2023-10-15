@@ -167,9 +167,11 @@ export const Track = () => {
               {track?.title}
             </Typography>
             <Typography size="4">
-              {abbreviateAddress({
-                address: track?.creator,
-              })}
+              {account?.profile.name ||
+                abbreviateAddress({
+                  address: track?.creator,
+                  options: { startChars: 6, endChars: 6 },
+                })}
             </Typography>
           </Flex>
         </Flex>

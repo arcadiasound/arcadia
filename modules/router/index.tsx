@@ -7,6 +7,7 @@ import { Upload } from "../upload";
 import { Box } from "@/ui/Box";
 import { Track } from "../track";
 import { appConfig } from "@/appConfig";
+import { Search } from "../search";
 
 export const AppRouter = () => (
   <HashRouter>
@@ -40,6 +41,7 @@ export const AppRouter = () => (
         <Route path={"/profile"} element={<Profile />} />
         <Route path={"/track"} element={<Track />} />
         <Route path={"/upload"} element={<Upload />} />
+        <Route path={"/search"} element={<Search />} />
       </Routes>
     </Box>
   </HashRouter>

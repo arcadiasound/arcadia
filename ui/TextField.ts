@@ -22,7 +22,7 @@ export const TextField = styled("input", {
     // custom
     backgroundColor: "transparent",
     minWidth: 200,
-    br: "$2",
+    br: "$1",
     px: "$4",
     color: "$slate12",
 

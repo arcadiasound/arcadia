@@ -112,6 +112,19 @@ export const SearchBar = () => {
   const [showResultsDropdown, setShowResultsDropdown] = useState(false);
   const searchFieldRef = useRef<HTMLInputElement | null>(null);
 
+  const debounceRequest = useDebounce(() => {
+    if (searchValue) {
+      refetch();
+    }
+    console.log(searchValue);
+  });
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value);
+
+    debounceRequest();
+  };
+
   const handleShowResultsDropdown = () => setShowResultsDropdown(true);
   const handleCancelResultsDropdown = () => setShowResultsDropdown(false);
 
@@ -138,14 +151,9 @@ export const SearchBar = () => {
   });
 
   useEffect(() => {
-    console.log("mounted");
-  }, []);
-
-  useEffect(() => {
     if (searchFieldRef.current) {
       searchFieldRef.current.blur();
     }
-    console.log("location changed");
     setShowResultsDropdown(false);
   }, [location]);
 
@@ -154,10 +162,6 @@ export const SearchBar = () => {
       console.log("refetching");
     }
   }, [searchResults, isRefetching]);
-
-  if (location.pathname === "/search") {
-    return null;
-  }
 
   const formik = useFormik<{ value: string }>({
     initialValues: {
@@ -168,18 +172,9 @@ export const SearchBar = () => {
     onSubmit: () => {},
   });
 
-  const debounceRequest = useDebounce(() => {
-    if (searchValue) {
-      refetch();
-    }
-    console.log(searchValue);
-  });
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
-
-    debounceRequest();
-  };
+  if (location.pathname === "/search") {
+    return null;
+  }
 
   return (
     <Flex
@@ -243,6 +238,12 @@ export const SearchBar = () => {
                 css={{
                   backgroundColor: "$slate2",
                 }}
+                hideOnClick
+                render={
+                  <LinkItem
+                    to={{ pathname: "/search", search: `?q=${searchValue}` }}
+                  />
+                }
               >
                 Search for "{searchValue}"
               </StyledComboboxItem>
