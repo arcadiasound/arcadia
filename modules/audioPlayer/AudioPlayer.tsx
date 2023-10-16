@@ -163,18 +163,6 @@ export const AudioPlayer = () => {
     }
   }, []);
 
-  //   useEffect(() => {
-  //     if (gainRef.current) {
-  //       console.log("gain set");
-  //     } else {
-  //         setGainRef?.()
-  //     }
-  //   }, [gainRef.current]);
-
-  // useEffect(() => {
-  //   console.log("tracklist", tracklist);
-  // }, []);
-
   /* EVENT HANDLERS */
 
   const handleValueChange = (e: number[]) => {
@@ -222,13 +210,6 @@ export const AudioPlayer = () => {
     console.log(currentTrackIndex);
     if (currentTrackIndex >= 0) {
       console.log(currentTrackIndex);
-      if (audioRef.current) {
-        // audioRef.current.src = tracklist[currentTrackIndex]?.src;
-        // audioRef.current.load();
-        // if (audioRef.current.readyState >= 2 && audioRef.current.paused) {
-        //     audioRef.current.play();
-        // }
-      }
     }
   }, [currentTrackIndex]);
 
