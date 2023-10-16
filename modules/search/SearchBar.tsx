@@ -111,12 +111,13 @@ export const SearchBar = () => {
   const location = useLocation();
   const [showResultsDropdown, setShowResultsDropdown] = useState(false);
   const searchFieldRef = useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const debounceRequest = useDebounce(() => {
     if (searchValue) {
+      setIsLoading(true);
       refetch();
     }
-    console.log(searchValue);
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +134,6 @@ export const SearchBar = () => {
     isError,
     refetch,
     isRefetching,
-    isLoading,
   } = useQuery({
     queryKey: [`trackResults`, searchValue],
     queryFn: () => {
@@ -146,6 +146,7 @@ export const SearchBar = () => {
     refetchOnWindowFocus: false,
     enabled: false,
     onSuccess: () => {
+      setIsLoading(false);
       handleShowResultsDropdown();
     },
   });
@@ -281,15 +282,14 @@ export const SearchBar = () => {
             )}
           </StyledComboboxPopover>
         </ComboboxProvider>
-        {isLoading ||
-          (isRefetching && (
-            <LoadingSpinner
-              css={{
-                position: "absolute",
-                right: "$10",
-              }}
-            />
-          ))}
+        {isLoading && (
+          <LoadingSpinner
+            css={{
+              position: "absolute",
+              right: "$10",
+            }}
+          />
+        )}
         <IconButton
           css={{
             position: "absolute",

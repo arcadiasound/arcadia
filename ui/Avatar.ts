@@ -15,49 +15,56 @@ export const Avatar = styled(AvatarPrimitive.Root, {
   variants: {
     size: {
       1: {
-        size: "$5",
+        width: "$6",
+        height: "$6",
         '& span[data-avatar="fallback"]': {
           fontSize: "$1",
           lineHeight: "$1",
         },
       },
       2: {
-        size: "$6",
+        width: "$7",
+        height: "$7",
         '& span[data-avatar="fallback"]': {
           fontSize: "$1",
           lineHeight: "$1",
         },
       },
       3: {
-        size: "$7",
+        width: "$8",
+        height: "$8",
         '& span[data-avatar="fallback"]': {
           fontSize: "$2",
           lineHeight: "$2",
         },
       },
       4: {
-        size: "$10",
+        width: "$10",
+        height: "$10",
         '& span[data-avatar="fallback"]': {
           fontSize: "$2",
           lineHeight: "$2",
         },
       },
       5: {
-        size: "$16",
+        width: "$16",
+        height: "$16",
         '& span[data-avatar="fallback"]': {
           fontSize: "$5",
           lineHeight: "$5",
         },
       },
       6: {
-        size: "$20",
+        width: "$20",
+        height: "$20",
         '& span[data-avatar="fallback"]': {
           fontSize: "$6",
           lineHeight: "$6",
         },
       },
       7: {
-        size: 96,
+        width: 96,
+        height: 96,
         '& span[data-avatar="fallback"]': {
           fontSize: "$7",
           lineHeight: "$7",

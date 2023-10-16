@@ -35,18 +35,7 @@ export const Discover = () => {
             ))}
           </Flex>
         )}
-      </Flex>{" "}
-      {/* <Flex direction="column">
-        <Typography
-          css={{ mb: "$3" }}
-          as="h2"
-          size="6"
-          weight="4"
-          contrast="hi"
-        >
-          latest albums
-        </Typography>
-      </Flex> */}
+      </Flex>
     </Flex>
   );
 };

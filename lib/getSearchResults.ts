@@ -6,6 +6,11 @@ import arweaveGql, {
 } from "arweave-graphql";
 import { arweave } from "./arweave";
 import { appConfig } from "@/appConfig";
+import { userPreferredGateway } from "@/utils";
+import {
+  removeDuplicatesByCreator,
+  removeDuplicatesByTxid,
+} from "@/utils/query";
 
 export const getSearchResults = async (
   searchValue: string,
@@ -17,12 +22,16 @@ export const getSearchResults = async (
     console.log(trackResults);
 
     const data = trackResults.transactions.edges.map((edge) =>
-      setTrackResultInfo(edge.node as Transaction)
+      setTrackInfo(
+        edge.node as Transaction,
+        userPreferredGateway() || appConfig.defaultGateway
+      )
     );
     // get profiles
 
-    // combine to single returned array
-    return data;
+    const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
+
+    return dedupedData;
   } catch (error: any) {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);

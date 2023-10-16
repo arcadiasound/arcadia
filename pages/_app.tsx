@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { darkTheme, globalCss } from "@/stitches.config";
 import { AudioPlayerProvider } from "@/hooks/AudioPlayerContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ArweaveWebWallet } from "arweave-wallet-connector";
 
 const globalStyles = globalCss({
   "@dark": {
@@ -47,6 +48,10 @@ globalStyles();
 
 const queryClient = new QueryClient();
 
+const webWallet = new ArweaveWebWallet({
+  name: "Arcadia",
+});
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
@@ -58,7 +63,11 @@ export default function App({ Component, pageProps }: AppProps) {
           forcedTheme="dark"
           defaultTheme="dark"
         >
-          <ConnectProvider>
+          <ConnectProvider
+            webWallet={webWallet}
+            includeProfile
+            detectWalletSwitch
+          >
             <Component {...pageProps} />
           </ConnectProvider>
         </ThemeProvider>

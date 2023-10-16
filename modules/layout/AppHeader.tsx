@@ -11,11 +11,17 @@ import {
   BsCollectionFill,
   BsCloudUpload,
   BsCloudUploadFill,
+  BsSun,
 } from "react-icons/bs";
 import { useEffect } from "react";
 import { Image } from "@/ui/Image";
 import { SearchBar } from "../search/SearchBar";
 import { Box } from "@/ui/Box";
+import { useQuery } from "@tanstack/react-query";
+import { getProfile } from "@/lib/getProfile";
+import { HeaderDropdown } from "./HeaderDropdown";
+import { useTheme } from "next-themes";
+import { IconButton } from "@/ui/IconButton";
 
 const NavLink = styled(Link, {
   display: "flex",
@@ -41,6 +47,33 @@ const NavLink = styled(Link, {
 export const AppHeader = () => {
   const { walletAddress } = useConnect();
   const location = useLocation();
+  const { resolvedTheme, setTheme } = useTheme();
+
+  const { data: account, isError } = useQuery({
+    queryKey: [`profile-${walletAddress}`],
+    queryFn: () => {
+      if (!walletAddress) {
+        throw new Error("No profile has been found");
+      }
+
+      return getProfile(walletAddress);
+    },
+  });
+
+  const toggleTheme = () => {
+    resolvedTheme === "dark" ? setTheme("light") : setTheme("dark");
+  };
+
+  let src;
+
+  switch (resolvedTheme) {
+    case "dark":
+      src = "arcadia_logo_text_white.svg";
+      break;
+    default:
+      src = "arcadia_logo_text_black.svg";
+      break;
+  }
 
   return (
     <Flex
@@ -56,13 +89,19 @@ export const AppHeader = () => {
       align="center"
     >
       <Flex gap="10" align="center">
-        <Image
-          src="arcadia_logo_text_white.svg"
-          css={{
-            width: 94,
-            height: 17,
+        <Link
+          to={{
+            pathname: "/",
           }}
-        />
+        >
+          <Image
+            src="arcadia_logo_text_white.svg"
+            css={{
+              width: 94,
+              height: 17,
+            }}
+          />
+        </Link>
         <SearchBar />
       </Flex>
       <Flex as="nav" gap="5" justify="center">
@@ -76,9 +115,25 @@ export const AppHeader = () => {
           profile
         </NavLink>
       </Flex>
-      <Flex justify="end">
+      <Flex align="center" justify="end" gap="2">
+        {/* <IconButton
+          css={{
+            backgroundColor: "transparent",
+
+            "&:hover": {
+              backgroundColor: "transparent",
+              color: "$slate12",
+            },
+            "&:active": {
+              backgroundColor: "transparent",
+            },
+          }}
+          onClick={toggleTheme}
+        >
+          <BsSun />
+        </IconButton> */}
         {walletAddress ? (
-          <Button>{abbreviateAddress({ address: walletAddress })}</Button>
+          <HeaderDropdown walletAddress={walletAddress} account={account} />
         ) : (
           <ConnectWallet
             permissions={[
@@ -98,7 +153,22 @@ export const AppHeader = () => {
               },
             }}
             appName="Arcadia"
-          />
+          >
+            <Button
+              css={{
+                fontWeight: 400,
+                fontSize: "$3",
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  color: "$slate12",
+                },
+                "&:active": { backgroundColor: "transparent" },
+              }}
+              variant="ghost"
+            >
+              connect wallet
+            </Button>
+          </ConnectWallet>
         )}
       </Flex>
     </Flex>

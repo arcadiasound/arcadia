@@ -5,17 +5,38 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { getTrack } from "@/lib/getTrack";
 import { Image } from "@/ui/Image";
 import { Box } from "@/ui/Box";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { IconButton } from "@/ui/IconButton";
 import { Typography } from "@/ui/Typography";
-import { abbreviateAddress } from "@/utils";
+import {
+  abbreviateAddress,
+  timestampToDate,
+  userPreferredGateway,
+} from "@/utils";
 import { Button } from "@/ui/Button";
 import { getProfile } from "@/lib/getProfile";
 import { appConfig } from "@/appConfig";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/ui/Accordion";
+import { styled } from "@/stitches.config";
+import { RxCheck, RxClipboardCopy, RxCopy } from "react-icons/rx";
+
+const AccordionContentItem = styled(Flex, {
+  mt: "$2",
+
+  "& p": {
+    color: "$slate12",
+  },
+});
 
 export const Track = () => {
+  const [isCopied, setIsCopied] = useState(false);
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
@@ -90,18 +111,45 @@ export const Track = () => {
     }
   };
 
+  const handleCopy = (tx: string | undefined) => {
+    if (!tx) {
+      return;
+    }
+    navigator.clipboard.writeText(tx).then(() => {
+      setIsCopied(true);
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
+    });
+  };
+
   const isPlaying = playing && currentTrackId === track?.txid;
 
   const avatarUrl = account?.profile.avatarURL;
 
   return (
-    <Flex gap="10">
+    <Flex
+      direction={{
+        "@initial": "column",
+        "@bp4": "row",
+      }}
+      gap="10"
+      align={{
+        "@initial": "center",
+        "@bp4": "start",
+      }}
+    >
       <Box
         css={{
           backgroundColor: "$slate2",
 
           width: 200,
           height: 200,
+
+          "@bp2": {
+            width: 400,
+            height: 400,
+          },
 
           "@bp3": {
             width: 500,
@@ -129,7 +177,11 @@ export const Track = () => {
           />
         )}
       </Box>
-      <Flex direction="column" gap="10">
+      <Flex
+        direction="column"
+        gap="10"
+        css={{ flex: 1, "@bp4": { maxWidth: 500 } }}
+      >
         <Flex gap="3" align="center">
           <IconButton
             css={{
@@ -236,6 +288,98 @@ export const Track = () => {
         >
           View on Bazar
         </Button>
+        {track && (
+          <Accordion type="multiple">
+            <AccordionItem value="details">
+              <AccordionTrigger>Provenance Details</AccordionTrigger>
+              <AccordionContent>
+                <AccordionContentItem justify="between">
+                  <Typography>Transaction ID</Typography>
+                  <Flex align="center" gap="1">
+                    <Typography>
+                      {abbreviateAddress({
+                        address: track.txid,
+                        options: { startChars: 6, endChars: 6 },
+                      })}
+                    </Typography>
+                    <IconButton
+                      onClick={() => handleCopy(track.txid)}
+                      variant="transparent"
+                      css={{
+                        pointerEvents: isCopied ? "none" : "auto",
+                        color: isCopied ? "$green11" : "$slate11",
+                      }}
+                      size="1"
+                    >
+                      {isCopied ? <RxCheck /> : <RxCopy />}
+                    </IconButton>
+                  </Flex>
+                </AccordionContentItem>
+                <AccordionContentItem justify="between">
+                  <Typography>Date Created</Typography>
+                  <Typography>{timestampToDate(track.dateCreated)}</Typography>
+                </AccordionContentItem>
+              </AccordionContent>
+            </AccordionItem>
+            {track.license?.tx && (
+              <>
+                <Box
+                  css={{ height: 1, backgroundColor: "$slate6", my: "$2" }}
+                />
+                <AccordionItem value="license">
+                  <AccordionTrigger>License Information</AccordionTrigger>
+                  <AccordionContent>
+                    <AccordionContentItem justify="between">
+                      <Typography
+                        css={{
+                          color: "$slate12",
+                          boxShadow: "0 1px 0 0 $colors$slate12",
+                          mb: "$3",
+
+                          "&:hover": {
+                            color: "$blue11",
+                            boxShadow: "0 1px 0 0 $colors$blue11",
+                          },
+                        }}
+                        as="a"
+                        href={`${
+                          userPreferredGateway() || appConfig.defaultGateway
+                        }/${track.license?.tx}`}
+                      >
+                        License Text
+                      </Typography>
+                    </AccordionContentItem>
+
+                    {track?.license?.commercial && (
+                      <AccordionContentItem justify="between">
+                        <Typography>Commercial Use</Typography>
+                        <Typography>{track.license.commercial}</Typography>
+                      </AccordionContentItem>
+                    )}
+                    {track?.license?.derivative && (
+                      <AccordionContentItem justify="between">
+                        <Typography>Derivative</Typography>
+                        <Typography>{track.license.derivative}</Typography>
+                      </AccordionContentItem>
+                    )}
+                    {track?.license?.licenseFee && (
+                      <AccordionContentItem justify="between">
+                        <Typography>License Fee</Typography>
+                        <Typography>{track.license.licenseFee}</Typography>
+                      </AccordionContentItem>
+                    )}
+                    {track?.license?.paymentMode && (
+                      <AccordionContentItem justify="between">
+                        <Typography>Payment Mode</Typography>
+                        <Typography>{track.license.paymentMode}</Typography>
+                      </AccordionContentItem>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              </>
+            )}
+          </Accordion>
+        )}
       </Flex>
     </Flex>
   );

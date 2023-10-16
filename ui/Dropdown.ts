@@ -117,5 +117,6 @@ export const RightSlot = styled("div", {
 });
 
 export const DropdownMenuRoot = styled(DropdownMenu.Root);
+export const DropdownMenuSubRoot = styled(DropdownMenu.Sub);
 export const DropdownMenuPortal = styled(DropdownMenu.Portal);
 export const DropdownMenuTrigger = styled(DropdownMenu.Trigger);
