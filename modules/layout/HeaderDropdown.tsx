@@ -26,9 +26,7 @@ import { Flex } from "@/ui/Flex";
 import { Link } from "react-router-dom";
 import { styled } from "@/stitches.config";
 
-const StyledLink = styled(Link, {
-  cursor: "pointer",
-});
+const StyledLink = styled(Link);
 
 interface HeaderDropdownProps {
   account: ArAccount | undefined;
@@ -98,6 +96,9 @@ export const HeaderDropdown = ({
         >
           <DropdownMenuItem asChild>
             <StyledLink
+              css={{
+                cursor: "pointer",
+              }}
               role="menuitem"
               to={{
                 pathname: "profile",
