@@ -1,3 +1,7 @@
+import {
+  removeDuplicatesByCreator,
+  removeDuplicatesByTxid,
+} from "@/utils/query";
 import { setTrackInfo } from "@/utils/setTrackInfo";
 import arweaveGql, { SortOrder, Transaction } from "arweave-graphql";
 
@@ -57,7 +61,9 @@ export const getTrackByOwners = async (address: string, gateway?: string) => {
 
     console.log(data);
 
-    return data;
+    const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
+
+    return dedupedData;
   } catch (error: any) {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);
