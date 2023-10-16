@@ -10,6 +10,51 @@ import { Image } from "@/ui/Image";
 import { appConfig } from "@/appConfig";
 import { BsSoundwave } from "react-icons/bs";
 import { useEffect } from "react";
+import { abbreviateAddress } from "@/utils";
+import { Track } from "@/types";
+import { getProfile } from "@/lib/getProfile";
+
+const SearchResultItem = ({ track }: { track: Track }) => {
+  const { data: account } = useQuery({
+    queryKey: [`profile-${track.creator}`],
+    queryFn: () => getProfile(track.creator),
+  });
+
+  return (
+    <Link to={{ pathname: "/track", search: `?tx=${track.txid}` }}>
+      <Flex
+        css={{ p: "$3", "&:hover": { backgroundColor: "$slate2" } }}
+        justify="between"
+        align="center"
+      >
+        <Flex key={track.txid} align="center" gap="5">
+          <Image
+            css={{
+              width: 48,
+              height: 48,
+            }}
+            src={
+              track.artworkId
+                ? `${appConfig.defaultGateway}/${track.artworkId}`
+                : `https://source.boringavatars.com/marble/20/${track.txid}?square=true`
+            }
+          />
+          <Flex direction="column">
+            <Typography contrast="hi">{track.title}</Typography>
+            <Typography>
+              {account?.profile.name ||
+                abbreviateAddress({
+                  address: track.creator,
+                  options: { endChars: 5, noOfEllipsis: 3 },
+                })}
+            </Typography>
+          </Flex>
+        </Flex>
+        <BsSoundwave />
+      </Flex>
+    </Link>
+  );
+};
 
 export const Search = () => {
   const location = useLocation();
@@ -90,29 +135,7 @@ export const Search = () => {
           gap="3"
         >
           {searchResults.map((track) => (
-            <Link to={{ pathname: "/track", search: `?tx=${track.txid}` }}>
-              <Flex
-                css={{ p: "$3", "&:hover": { backgroundColor: "$slate2" } }}
-                justify="between"
-                align="center"
-              >
-                <Flex key={track.txid} align="center" gap="5">
-                  <Image
-                    css={{
-                      width: 48,
-                      height: 48,
-                    }}
-                    src={
-                      track.artworkId
-                        ? `${appConfig.defaultGateway}/${track.artworkId}`
-                        : `https://source.boringavatars.com/marble/20/${track.txid}?square=true`
-                    }
-                  />
-                  <Typography>{track.title}</Typography>
-                </Flex>
-                <BsSoundwave />
-              </Flex>
-            </Link>
+            <SearchResultItem key={track.txid} track={track} />
           ))}
         </Flex>
       ) : (
