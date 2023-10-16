@@ -49,8 +49,8 @@ export const HeaderDropdown = ({
   };
 
   const name =
-    account && account.handle
-      ? account.handle
+    account && account.profile.name
+      ? account.profile.name
       : abbreviateAddress({ address: account?.addr || walletAddress });
   return (
     <DropdownMenuRoot>
