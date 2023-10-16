@@ -51,3 +51,9 @@ export const removeDuplicatesByTxid = (arr: Track[]) => {
 
   return resultArray;
 };
+
+export const userPreferredGateway = () => {
+  if (typeof window !== undefined) {
+    return localStorage.getItem("gateway");
+  }
+};

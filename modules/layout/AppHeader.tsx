@@ -16,6 +16,9 @@ import { useEffect } from "react";
 import { Image } from "@/ui/Image";
 import { SearchBar } from "../search/SearchBar";
 import { Box } from "@/ui/Box";
+import { useQuery } from "@tanstack/react-query";
+import { getProfile } from "@/lib/getProfile";
+import { HeaderDropdown } from "./HeaderDropdown";
 
 const NavLink = styled(Link, {
   display: "flex",
@@ -41,6 +44,17 @@ const NavLink = styled(Link, {
 export const AppHeader = () => {
   const { walletAddress } = useConnect();
   const location = useLocation();
+
+  const { data: account, isError } = useQuery({
+    queryKey: [`profile-${walletAddress}`],
+    queryFn: () => {
+      if (!walletAddress) {
+        throw new Error("No profile has been found");
+      }
+
+      return getProfile(walletAddress);
+    },
+  });
 
   return (
     <Flex
@@ -78,7 +92,7 @@ export const AppHeader = () => {
       </Flex>
       <Flex justify="end">
         {walletAddress ? (
-          <Button>{abbreviateAddress({ address: walletAddress })}</Button>
+          <HeaderDropdown walletAddress={walletAddress} account={account} />
         ) : (
           <ConnectWallet
             permissions={[
@@ -98,7 +112,21 @@ export const AppHeader = () => {
               },
             }}
             appName="Arcadia"
-          />
+          >
+            <Button
+              css={{
+                fontWeight: 400,
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  color: "$slate12",
+                },
+                "&:active": { backgroundColor: "transparent" },
+              }}
+              variant="ghost"
+            >
+              connect wallet
+            </Button>
+          </ConnectWallet>
         )}
       </Flex>
     </Flex>
