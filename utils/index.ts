@@ -1,5 +1,3 @@
-import { Track } from "@/types";
-
 interface AbbreviateAddressOptions {
   startChars?: number;
   endChars?: number;
@@ -35,21 +33,6 @@ export const formatTime = (time: number): string => {
   }
 
   return `${minutes}:${formattedSeconds}`;
-};
-
-// Function to remove duplicates by the "value" property
-export const removeDuplicatesByTxid = (arr: Track[]) => {
-  const uniqueValues: string[] = [];
-  const resultArray = [];
-
-  for (const item of arr) {
-    if (!uniqueValues.includes(item.txid)) {
-      uniqueValues.push(item.txid);
-      resultArray.push(item);
-    }
-  }
-
-  return resultArray;
 };
 
 export const userPreferredGateway = () => {

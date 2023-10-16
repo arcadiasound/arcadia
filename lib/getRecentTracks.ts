@@ -1,4 +1,8 @@
-import { removeDuplicatesByTxid } from "@/utils";
+import { Track } from "@/types";
+import {
+  removeDuplicatesByCreator,
+  removeDuplicatesByTxid,
+} from "@/utils/query";
 import { setTrackInfo } from "@/utils/setTrackInfo";
 import arweaveGql, { SortOrder, Transaction } from "arweave-graphql";
 
@@ -38,7 +42,7 @@ export const getRecentTracks = async (gateway: string) => {
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
 
-    const dedupedData = removeDuplicatesByTxid(data);
+    const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
 
     return dedupedData;
   } catch (error: any) {
