@@ -55,6 +55,11 @@ const setTrackInfo = (node: Transaction, gateway: string) => {
   const licenseTx = node.tags.find((x) => x.name === "License")?.value;
   const access = node.tags.find((x) => x.name === "Access")?.value;
   const accessFee = node.tags.find((x) => x.name === "Access-Fee")?.value;
+  const commercial = node.tags.find((x) => x.name === "Commercial-Use")?.value;
+  const derivative = node.tags.find((x) => x.name === "Derivative")?.value;
+  const licenseFee = node.tags.find((x) => x.name === "License-Fee")?.value;
+  const currency = node.tags.find((x) => x.name === "Currency")?.value;
+  const paymentMode = node.tags.find((x) => x.name === "Payment-Mode")?.value;
 
   if (
     licenseTx === "yRj4a5KMctX_uOmKWCFJIjmY8DeJcusVk6-HzLiM_t8" &&
@@ -84,6 +89,18 @@ const setTrackInfo = (node: Transaction, gateway: string) => {
 
   const src = gateway + "/" + node.id;
   const txid = node.id;
+  const dateCreated = node.block?.timestamp;
+
+  const license = {
+    tx: licenseTx,
+    access,
+    accessFee,
+    commercial,
+    derivative,
+    licenseFee,
+    paymentMode,
+    currency,
+  };
 
   return {
     title,
@@ -91,8 +108,8 @@ const setTrackInfo = (node: Transaction, gateway: string) => {
     creator,
     artworkId,
     src,
-    hasLicense,
     txid,
-    accessFee,
+    license,
+    dateCreated,
   };
 };

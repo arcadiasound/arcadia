@@ -40,3 +40,9 @@ export const userPreferredGateway = () => {
     return localStorage.getItem("gateway");
   }
 };
+
+export const timestampToDate = (timestamp: number | undefined) => {
+  if (!timestamp) return;
+  const date = new Date(1689598753 * 1000).toDateString();
+  return date;
+};

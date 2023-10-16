@@ -179,6 +179,14 @@ export const Button = styled("button", {
           boxShadow: "0 0 0 2px $$focus",
         },
       },
+      transparent: {
+        backgroundColor: "transparent",
+        color: "$slate11",
+
+        "&:hover": {
+          color: "$slate12",
+        },
+      },
     },
     colorScheme: {
       slate: {},
