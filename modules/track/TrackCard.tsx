@@ -41,18 +41,10 @@ export const TrackCard = ({
       togglePlaying?.();
       handlePlayPause();
     } else {
-      // run function that takes index of current track within tracklist array, and creates tracklist of remaining tracks
       if (trackIndex >= 0) {
-        // create a new tracklist starting from the selected track index
-        const newTracklist = tracks.slice(trackIndex);
-
-        console.log({ newTracklist });
-
-        setTracklist?.(newTracklist);
+        setTracklist?.(tracks);
         setCurrentTrackId?.(track.txid);
-        setCurrentTrackIndex?.(0);
-
-        // audioRef.current?.load();
+        setCurrentTrackIndex?.(trackIndex);
       }
     }
   };
