@@ -18,6 +18,8 @@ import { MdVolumeDown, MdVolumeUp } from "react-icons/md";
 import { styled } from "@/stitches.config";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { appConfig } from "@/appConfig";
+import { useQuery } from "@tanstack/react-query";
+import { getProfile } from "@/lib/getProfile";
 
 const PlayPauseButton = styled(IconButton, {
   br: 9999,
@@ -25,6 +27,10 @@ const PlayPauseButton = styled(IconButton, {
 
 const SkipButton = styled(IconButton, {
   br: 9999,
+
+  "&:hover": {
+    color: "$slate12",
+  },
 });
 
 const Slider = styled(SliderRoot, {
@@ -49,7 +55,21 @@ const Slider = styled(SliderRoot, {
   },
 });
 
-const AudioContainer = styled(Flex);
+const AudioContainer = styled(Box, {
+  display: "grid",
+  gridTemplateColumns: "1fr 2fr 1fr",
+  width: "100%",
+  height: "max-content",
+  py: "$1",
+  px: "$5",
+  overflow: "hidden",
+  position: "fixed",
+  bottom: 0,
+  backgroundColor: "$blackA12",
+  backdropFilter: "blur(4px)",
+  maxHeight: appConfig.playerMaxHeight,
+});
+
 const VolumeSlider = styled(Slider);
 const VolumeContainer = styled("form");
 const ControlsContainer = styled(Flex);
@@ -73,18 +93,6 @@ export const AudioPlayer = () => {
   const [duration, setDuration] = useState<number>();
   const [currentTime, setCurrentTime] = useState<number>(0);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-
-  //   const tracklist: Tracklist = [
-  //     {
-  //       title: "Permanence",
-  //       creator: "nSi-fTP4iqiSZoZRFjAJiZKKYwQc58zz01DjjYmkJ38",
-  //       src: "https://arweave.net/ahthIej9Mq-4i446cgPmUYlmzI5oEGS1MHE6gzWabqo",
-  //       txid: "a4vQDrPj5y0_3IcZIWR7Hx-bSYBYYAH87KfFWmG7YrI",
-  //       accessFee: undefined,
-  //       hasLicense: false,
-  //       artworkId: "AKe4ShpFYlgUDxD8yEnIUJ7NJCN5Q3acQ6FNgotSSjE",
-  //     },
-  //   ];
 
   const {
     audioRef,
@@ -112,6 +120,18 @@ export const AudioPlayer = () => {
       console.log(currentTrack);
     }
   }, [currentTrack]);
+
+  const { data: account, isError } = useQuery({
+    queryKey: [`profile-${currentTrack?.creator}`],
+    queryFn: () => {
+      if (!currentTrack) {
+        return;
+      }
+
+      return getProfile(currentTrack.creator);
+    },
+    enabled: !!currentTrack,
+  });
 
   useEffect(() => {
     if (!audioCtxRef.current) {
@@ -257,21 +277,7 @@ export const AudioPlayer = () => {
   };
 
   return (
-    <AudioContainer
-      id="audio-container"
-      css={{
-        width: "100%",
-        height: "max-content",
-        py: "$1",
-        px: "$5",
-        overflow: "hidden",
-        position: "fixed",
-        bottom: 0,
-        backgroundColor: "$blackA12",
-        maxHeight: appConfig.playerMaxHeight,
-      }}
-      gap="3"
-    >
+    <AudioContainer id="audio-container">
       <audio ref={audioRef}>
         <source src={currentTrack?.src} type="audio/ogg" />
         <source src={currentTrack?.src} type="audio/wav" />
@@ -300,7 +306,7 @@ export const AudioPlayer = () => {
             src={
               currentTrack?.artworkId
                 ? `https://arweave.net/${currentTrack?.artworkId}`
-                : `https://source.boringavatars.com/marble/120/${currentTrack?.creator}?square=true`
+                : `https://source.boringavatars.com/marble/200/${currentTrack?.txid}?square=true`
             }
           />
         </Box>
@@ -311,10 +317,11 @@ export const AudioPlayer = () => {
               {currentTrack?.title ? currentTrack?.title : "(Untitled)"}
             </Typography>
             <Typography size="2">
-              {abbreviateAddress({
-                address: currentTrack?.creator,
-                options: { endChars: 5, noOfEllipsis: 3 },
-              })}
+              {account?.profile.name ||
+                abbreviateAddress({
+                  address: currentTrack.creator,
+                  options: { endChars: 5, noOfEllipsis: 3 },
+                })}
             </Typography>
           </Flex>
         )}
@@ -333,7 +340,7 @@ export const AudioPlayer = () => {
             my: "$3",
           }}
           align="center"
-          gap="3"
+          gap="1"
         >
           <SkipButton
             onClick={() => {
@@ -355,7 +362,6 @@ export const AudioPlayer = () => {
               opacity: 0.9,
 
               "& svg": {
-                size: "$16",
                 transform: playing ? "translateX(0)" : "translateX(1px)",
               },
 
@@ -368,7 +374,7 @@ export const AudioPlayer = () => {
                 transform: "scale(0.95)",
               },
             }}
-            size="3"
+            size="2"
             data-playing={playing}
             aria-checked={playing}
             role="switch"
