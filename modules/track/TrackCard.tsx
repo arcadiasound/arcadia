@@ -22,6 +22,7 @@ export const TrackCard = ({
   tracks: Tracklist;
 }) => {
   const {
+    audioCtxRef,
     audioRef,
     playing,
     togglePlaying,
@@ -37,9 +38,10 @@ export const TrackCard = ({
   });
 
   const handleClick = () => {
+    handlePlayPause();
+
     if (currentTrackId === track.txid) {
       togglePlaying?.();
-      handlePlayPause();
     } else {
       if (trackIndex >= 0) {
         setTracklist?.(tracks);
@@ -50,12 +52,18 @@ export const TrackCard = ({
   };
 
   const handlePlayPause = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !audioCtxRef.current) return;
 
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-    } else {
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+
+    if (playing) {
       audioRef.current.pause();
+    }
+
+    if (!playing && audioRef.current.readyState >= 2) {
+      audioRef.current.play();
     }
   };
 

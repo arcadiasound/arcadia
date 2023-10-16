@@ -1,4 +1,3 @@
-import { Tracklist } from "@/types";
 import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from "@/ui/Slider";
 import { abbreviateAddress, formatTime } from "@/utils";
 import { Box } from "@/ui/Box";
@@ -12,9 +11,7 @@ import {
   IoPlaySkipForwardSharp,
   IoPlaySkipBackSharp,
 } from "react-icons/io5";
-import { BsThreeDots } from "react-icons/bs";
 import { MdVolumeDown, MdVolumeUp } from "react-icons/md";
-// import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { styled } from "@/stitches.config";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { appConfig } from "@/appConfig";
@@ -115,12 +112,6 @@ export const AudioPlayer = () => {
   const currentTrack =
     tracklist.length > 0 ? tracklist[currentTrackIndex] : null;
 
-  useEffect(() => {
-    if (currentTrack) {
-      console.log(currentTrack);
-    }
-  }, [currentTrack]);
-
   const { data: account, isError } = useQuery({
     queryKey: [`profile-${currentTrack?.creator}`],
     queryFn: () => {
@@ -136,11 +127,10 @@ export const AudioPlayer = () => {
   useEffect(() => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new AudioContext();
+      console.log("setting audio context");
     }
 
-    // if (!audioRef) {
-    //   setAudioRef?.();
-    // }
+    console.log("audioCtx", audioCtxRef);
 
     // set gain node
     if (!gainRef.current) {
@@ -197,7 +187,11 @@ export const AudioPlayer = () => {
   };
 
   const handlePlayPause = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !audioCtxRef.current) return;
+
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
 
     if (audioRef.current.paused) {
       audioRef.current.play();
