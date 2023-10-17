@@ -17,7 +17,7 @@ import { useEffect } from "react";
 import { Image } from "@/ui/Image";
 import { SearchBar } from "../search/SearchBar";
 import { Box } from "@/ui/Box";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile } from "@/lib/getProfile";
 import { HeaderDropdown } from "./HeaderDropdown";
 import { useTheme } from "next-themes";
@@ -59,6 +59,12 @@ export const AppHeader = () => {
       return getProfile(walletAddress);
     },
   });
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient.invalidateQueries();
+  }, [walletAddress]);
 
   const toggleTheme = () => {
     resolvedTheme === "dark" ? setTheme("light") : setTheme("dark");
@@ -141,6 +147,7 @@ export const AppHeader = () => {
               "DISPATCH",
               "SIGN_TRANSACTION",
               "ACCESS_ARWEAVE_CONFIG",
+              "ACCESS_PUBLIC_KEY",
             ]}
             options={{
               connectButtonVariant: "ghost",
@@ -158,13 +165,8 @@ export const AppHeader = () => {
               css={{
                 fontWeight: 400,
                 fontSize: "$3",
-                "&:hover": {
-                  backgroundColor: "transparent",
-                  color: "$slate12",
-                },
-                "&:active": { backgroundColor: "transparent" },
               }}
-              variant="ghost"
+              variant="transparent"
             >
               connect wallet
             </Button>

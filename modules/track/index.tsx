@@ -26,6 +26,9 @@ import {
 } from "@/ui/Accordion";
 import { styled } from "@/stitches.config";
 import { RxCheck, RxClipboardCopy, RxCopy } from "react-icons/rx";
+import { getStampCount, hasStampedTx, stamp } from "@/lib/stamps";
+import { BsHeart, BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
+import { useConnect } from "arweave-wallet-ui-test";
 
 const AccordionContentItem = styled(Flex, {
   mt: "$2",
@@ -40,6 +43,8 @@ export const Track = () => {
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
+  const { walletAddress } = useConnect();
+
   const {
     audioRef,
     playing,
@@ -56,6 +61,8 @@ export const Track = () => {
     // return no track view
     // return;
   }
+
+  const queryClient = useQueryClient();
 
   const { data: track, isError } = useQuery({
     queryKey: [`track-${id}`],
@@ -76,6 +83,51 @@ export const Track = () => {
       }
 
       return getProfile(track.creator);
+    },
+  });
+
+  const { data: stamps } = useQuery({
+    queryKey: [`stampCount-${id}`],
+    queryFn: () => {
+      if (!id) {
+        throw new Error("No track ID has been found");
+      }
+
+      return getStampCount(id);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const { data: stamped } = useQuery({
+    queryKey: [`stamped-${id}`],
+    queryFn: () => {
+      if (!walletAddress || !id) {
+        throw new Error("No wallet address found");
+      }
+
+      return hasStampedTx(id, walletAddress);
+    },
+    onSuccess: (data) => {
+      console.log(data);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: stamp,
+    //@ts-ignore
+    onSuccess: (data) => {
+      console.log(data);
+      queryClient.invalidateQueries({
+        queryKey: [`stampCount-${id}`, `stamped-${id}`],
+      });
+    },
+    onError: (error: any) => {
+      console.error(error);
     },
   });
 
@@ -280,14 +332,38 @@ export const Track = () => {
             {track?.description || "No track description."}
           </Typography>
         </Flex>
-        <Button
-          as="a"
-          href={`https://bazar.arweave.dev/#/asset/${track?.txid}`}
-          css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
-          variant="solid"
-        >
-          View on Bazar
-        </Button>
+        <Flex gap="5" align="center">
+          <Button
+            as="a"
+            href={`https://bazar.arweave.dev/#/asset/${track?.txid}`}
+            css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
+            variant="solid"
+          >
+            View on Bazar
+          </Button>
+          <Flex align="center">
+            <IconButton
+              disabled={!stamp || !stamped}
+              css={{
+                "& svg": {
+                  color: stamped ? "$red9" : "$slate11",
+                },
+              }}
+              onClick={() => {
+                if (!track?.txid || stamped) {
+                  return;
+                }
+
+                mutation.mutate(track.txid);
+              }}
+              size="3"
+              variant="transparent"
+            >
+              {stamped ? <BsSuitHeartFill /> : <BsSuitHeart />}
+            </IconButton>
+            {stamps && <Typography>{stamps.total}</Typography>}
+          </Flex>
+        </Flex>
         {track && (
           <Accordion type="multiple">
             <AccordionItem value="details">
