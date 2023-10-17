@@ -245,7 +245,7 @@ export const TrackCard = ({
             position: "absolute",
             bottom: 0,
             width: "100%",
-            p: "$2",
+            p: "$1",
           }}
         >
           <IconButton
@@ -271,7 +271,7 @@ export const TrackCard = ({
 
               mutation.mutate(track.txid);
             }}
-            size="1"
+            // size="1"
             variant="transparent"
           >
             <BsSuitHeartFill />
