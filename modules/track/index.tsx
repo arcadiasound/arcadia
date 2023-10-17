@@ -343,10 +343,16 @@ export const Track = () => {
           </Button>
           <Flex align="center">
             <IconButton
-              disabled={!stamp || !stamped}
+              disabled={!stamp || stamped}
               css={{
                 "& svg": {
                   color: stamped ? "$red9" : "$slate11",
+                },
+
+                "&:hover": {
+                  "& svg": {
+                    color: stamped ? "$red9" : "$slate12",
+                  },
                 },
               }}
               onClick={() => {

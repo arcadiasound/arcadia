@@ -4,26 +4,26 @@ import { InjectedArweaveSigner } from "warp-contracts-plugin-signature";
 import Arweave from "arweave";
 import { userStampedTx } from "./userStampedTx";
 
-export const stamps = async (address?: string) => {
+export const stamps = async () => {
   // if using ArConnect you need to make sure the following PERMISSIONS are enabled
   // * SIGNATURE
   // * ACCESS_PUBLIC_KEY
   // the new signer plugin from warp requires these settings
 
   // Required if you are using Warp v1.4.11 or greater
-  // const signer = new InjectedArweaveSigner(window.arweaveWallet);
+  const signer = new InjectedArweaveSigner(window.arweaveWallet);
 
   // also you need to make sure you set the address function
-  // signer.getAddress = window.arweaveWallet.getActiveAddress;
+  signer.getAddress = window.arweaveWallet.getActiveAddress;
 
   // finally you need to setPublicKey
-  // await signer.setPublicKey();
+  await signer.setPublicKey();
 
   // Initialize STAMPS JS, passing a Warp and Arweave instance
   return Stamps.init({
     warp: WarpFactory.forMainnet(),
     arweave: Arweave.init({}),
-    wallet: address ? new InjectedArweaveSigner(address) : "use_wallet",
+    wallet: signer,
   });
 };
 
@@ -49,4 +49,4 @@ export const hasStampedTx = async (txid: string, address: string) =>
   await userStampedTx(txid, address);
 
 export const balance = async (address: string) =>
-  (await stamps(address)).balance(address);
+  (await stamps()).balance(address);
