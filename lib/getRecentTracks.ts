@@ -4,13 +4,12 @@ import {
   removeDuplicatesByTxid,
 } from "@/utils/query";
 import { setTrackInfo } from "@/utils/setTrackInfo";
-import arweaveGql, { SortOrder, Transaction } from "arweave-graphql";
+import arweaveGql, { Transaction } from "arweave-graphql";
 
 export const getRecentTracks = async (gateway: string) => {
   try {
     const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
-      first: 10,
-      sort: SortOrder.HeightAsc,
+      first: 60,
       tags: [
         {
           name: "Content-Type",
@@ -38,7 +37,7 @@ export const getRecentTracks = async (gateway: string) => {
     console.log("res", res);
 
     const data = res.transactions.edges
-      .filter((edge) => Number(edge.node.data.size) < 1e7)
+      .filter((edge) => Number(edge.node.data.size) < 1e8)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
 

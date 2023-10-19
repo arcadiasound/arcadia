@@ -26,6 +26,7 @@ export const Button = styled("button", {
   // custom
   fontFamily: "inherit",
   fontWeight: "$5",
+  br: "$1",
 
   "&:disabled": {
     pointerEvents: "none",

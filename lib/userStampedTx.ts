@@ -26,7 +26,7 @@ export const userStampedTx = async (
 
     const data = res.transactions.edges;
 
-    console.log({ data });
+    // console.log({ data });
 
     const userHasStampedTx = data.length > 0;
 

@@ -14,6 +14,9 @@ import { Typography } from "@/ui/Typography";
 import { getStampCount, hasStamped, hasStampedTx, stamp } from "@/lib/stamps";
 import { BsHeart, BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
 import { useConnect } from "arweave-wallet-ui-test";
+import { ConnectPrompt } from "../layout/ConnectPrompt";
+import { Button } from "@/ui/Button";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export const TrackCard = ({
   track,
@@ -24,6 +27,11 @@ export const TrackCard = ({
   trackIndex: number;
   tracks: Tracklist;
 }) => {
+  const [showConnectPrompt, setShowConnectPrompt] = useState(false);
+  // local stamped state for instant visual feedback
+  const [localStamped, setLocalStamped] = useState(false);
+  // temp solution, connect method from sdk should prob return a promise
+  const [userConnect, setUserConnect] = useState(false);
   const {
     audioCtxRef,
     audioRef,
@@ -34,29 +42,23 @@ export const TrackCard = ({
     setCurrentTrackId,
     setCurrentTrackIndex,
   } = useAudioPlayer();
-  const { walletAddress } = useConnect();
+  const { walletAddress, connect } = useConnect();
 
-  const { data: account, isError } = useQuery({
+  const handleShowConnectPrompt = () => setShowConnectPrompt(true);
+  const handleCancelConnectPrompt = () => setShowConnectPrompt(false);
+
+  const { data: account } = useQuery({
     queryKey: [`profile-${track.creator}`],
     queryFn: () => getProfile(track.creator),
   });
 
-  const queryClient = useQueryClient();
-
-  const { data: stamps } = useQuery({
-    queryKey: [`stampCount-${track.txid}`],
-    queryFn: () => getStampCount(track.txid),
-    onError: (error) => {
-      console.error(error);
-    },
-  });
-
-  const { data: stamped } = useQuery({
+  const { data: stamped, refetch } = useQuery({
     queryKey: [`stamped-${track.txid}`],
     refetchOnWindowFocus: false,
+    enabled: !!walletAddress,
     queryFn: () => {
       if (!walletAddress) {
-        throw new Error("No wallet address found");
+        return false;
       }
 
       // return hasStamped([track.txid]);
@@ -64,23 +66,45 @@ export const TrackCard = ({
     },
     onSuccess: (data) => {
       console.log(data);
+      setLocalStamped(false);
     },
     onError: (error) => {
       console.error(error);
+      setLocalStamped(false);
     },
   });
+
+  useEffect(() => {
+    if (!walletAddress) {
+      refetch();
+      if (localStamped) {
+        setLocalStamped(false);
+      }
+    }
+  }, [walletAddress]);
+
+  useEffect(() => {
+    if (walletAddress && userConnect) {
+      setUserConnect(false);
+      handleCancelConnectPrompt();
+      mutation.mutate(track.txid);
+      setLocalStamped(true);
+    }
+  }, [walletAddress]);
+
+  const debounceRequest = useDebounce(() => {
+    refetch();
+  }, 450);
 
   const mutation = useMutation({
     mutationFn: stamp,
     //@ts-ignore
-    onSuccess: (data) => {
-      console.log(data);
-      queryClient.invalidateQueries({
-        queryKey: [`stampCount-${track.txid}`, `stamped-${track.txid}`],
-      });
+    onSuccess: () => {
+      debounceRequest();
     },
     onError: (error: any) => {
       console.error(error);
+      setLocalStamped(false);
     },
   });
 
@@ -114,14 +138,37 @@ export const TrackCard = ({
     }
   };
 
+  const handleStamp = () => {
+    if (!track?.txid || stamped || localStamped) {
+      return;
+    }
+
+    if (walletAddress) {
+      setLocalStamped(true);
+      mutation.mutate(track.txid);
+    } else {
+      handleShowConnectPrompt();
+    }
+  };
+
+  const handleConnectAndStamp = async () => {
+    if (!track?.txid || stamped) {
+      return;
+    }
+
+    /* as we can't await below connect method we need to check
+      if user tried to connect and use presence of this state var and walletAddress to initiate like
+      and close dialog
+    */
+
+    connect({ appName: "Arcadia", walletProvider: "arweave.app" });
+
+    setUserConnect(true);
+  };
+
   const isPlaying = playing && currentTrackId === track.txid;
 
-  useEffect(() => {
-    if (currentTrackId === track.txid) {
-      console.log(currentTrackId);
-      console.log(isPlaying);
-    }
-  }, [currentTrackId]);
+  const isStamped = stamped || localStamped;
 
   return (
     <Flex direction="column" gap="2">
@@ -249,33 +296,42 @@ export const TrackCard = ({
           }}
         >
           <IconButton
-            disabled={!stamp || stamped}
+            disabled={!stamp || stamped || localStamped}
             css={{
               "& svg": {
-                color: stamped ? "$red9" : "$whiteA11",
+                color: isStamped ? "$red9" : "$whiteA11",
               },
 
               "&:hover": {
                 "& svg": {
-                  color: stamped ? "$red9" : "$whiteA12",
+                  color: isStamped ? "$red9" : "$whiteA12",
                 },
               },
             }}
-            onClick={() => {
-              if (stamped) {
-                console.log("stamped");
-                return;
-              }
-
-              console.log("stamp attempted");
-
-              mutation.mutate(track.txid);
-            }}
-            // size="1"
+            onClick={handleStamp}
             variant="transparent"
           >
             <BsSuitHeartFill />
           </IconButton>
+
+          <ConnectPrompt
+            open={showConnectPrompt}
+            onClose={handleCancelConnectPrompt}
+            title="Connect your wallet to proceed"
+            description="In order to perform this action, you need to connect an Arweave
+              wallet."
+          >
+            <Button
+              onClick={handleConnectAndStamp}
+              css={{
+                mt: "$5",
+              }}
+              variant="solid"
+            >
+              Connect and Like
+              <BsSuitHeartFill />
+            </Button>
+          </ConnectPrompt>
         </Flex>
       </Box>
       <Box>
