@@ -38,6 +38,22 @@ const AccordionContentItem = styled(Flex, {
   "& p": {
     color: "$slate12",
   },
+
+  "& p:first-child": {
+    color: "$slate11",
+
+    "&[data-txid-detail]": {
+      color: "$slate12",
+    },
+  },
+});
+
+const Description = styled(Typography, {
+  display: "-webkit-box",
+  "-webkit-line-clamp": 1,
+  "-webkit-box-orient": "vertical",
+  overflow: "hidden",
+  maxWidth: "25ch",
 });
 
 export const Track = () => {
@@ -65,6 +81,7 @@ export const Track = () => {
     setTracklist,
     setCurrentTrackId,
     setCurrentTrackIndex,
+    audioCtxRef,
   } = useAudioPlayer();
 
   const id = urlParams.get("tx");
@@ -76,12 +93,16 @@ export const Track = () => {
 
   const { data: track, isError } = useQuery({
     queryKey: [`track-${id}`],
+    refetchOnWindowFocus: false,
     queryFn: () => {
       if (!id) {
         throw new Error("No track ID has been found");
       }
 
-      return getTrack(id);
+      return getTrack(id, audioCtxRef);
+    },
+    onSuccess: (data) => {
+      console.log({ data });
     },
   });
 
@@ -446,13 +467,35 @@ export const Track = () => {
         </Flex>
         {track && (
           <Accordion type="multiple">
-            <AccordionItem value="details">
+            <AccordionItem value="track_details">
+              <AccordionTrigger>Track Details</AccordionTrigger>
+              <AccordionContent>
+                <AccordionContentItem justify="between">
+                  <Typography>Title</Typography>
+                  <Typography>{track.title}</Typography>
+                </AccordionContentItem>
+                <AccordionContentItem justify="between">
+                  <Typography>Description</Typography>
+                  <Description>{track.description}</Description>
+                </AccordionContentItem>
+                <AccordionContentItem justify="between">
+                  <Typography>Duration</Typography>
+                  <Typography>{track.duration}</Typography>
+                </AccordionContentItem>
+                <AccordionContentItem justify="between">
+                  <Typography>Genre</Typography>
+                  <Typography>{track.genre}</Typography>
+                </AccordionContentItem>
+              </AccordionContent>
+            </AccordionItem>
+            <Box css={{ height: 1, backgroundColor: "$slate6", my: "$2" }} />
+            <AccordionItem value="provenance_details">
               <AccordionTrigger>Provenance Details</AccordionTrigger>
               <AccordionContent>
                 <AccordionContentItem justify="between">
                   <Typography>Transaction ID</Typography>
                   <Flex align="center" gap="1">
-                    <Typography>
+                    <Typography data-txid-detail>
                       {abbreviateAddress({
                         address: track.txid,
                         options: { startChars: 6, endChars: 6 },

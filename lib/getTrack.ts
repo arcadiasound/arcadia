@@ -1,7 +1,13 @@
+import { formatTime } from "@/utils";
 import arweaveGql, { SortOrder, Transaction } from "arweave-graphql";
+import { MutableRefObject } from "react";
 import { arweave } from "./arweave";
 
-export const getTrack = async (id: string, gateway?: string) => {
+export const getTrack = async (
+  id: string,
+  audioContext: MutableRefObject<AudioContext | null>,
+  gateway?: string
+) => {
   try {
     const res = await arweaveGql(
       `${gateway || "https://arweave.net"}/graphql`
@@ -34,19 +40,29 @@ export const getTrack = async (id: string, gateway?: string) => {
       // .filter((edge) => Number(edge.node.data.size) < 1e7)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .map((edge) =>
-        setTrackInfo(edge.node as Transaction, gateway || "https://arweave.net")
+        setTrackInfo(
+          edge.node as Transaction,
+          audioContext,
+          gateway || "https://arweave.net"
+        )
       );
 
     console.log({ data });
 
-    return data[0];
+    const track = await Promise.all(data);
+
+    return track[0];
   } catch (error: any) {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);
   }
 };
 
-const setTrackInfo = (node: Transaction, gateway: string) => {
+const setTrackInfo = async (
+  node: Transaction,
+  audioContext: MutableRefObject<AudioContext | null>,
+  gateway: string
+) => {
   const title = node.tags.find((x) => x.name === "Title")?.value;
   const description = node.tags.find((x) => x.name === "Description")?.value;
 
@@ -91,6 +107,31 @@ const setTrackInfo = (node: Transaction, gateway: string) => {
   const txid = node.id;
   const dateCreated = node.block?.timestamp;
 
+  const genre = node.tags.find((x) => x.name === "Genre")?.value || "other";
+
+  let duration;
+
+  if (audioContext.current) {
+    try {
+      await fetch(`https://arweave.net/${node.id}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error, status = ${response.status}`);
+          }
+          return response.arrayBuffer();
+        })
+        .then((buffer) => audioContext.current?.decodeAudioData(buffer))
+        .then((decodedData) => {
+          if (!decodedData?.duration) {
+            return;
+          }
+          duration = formatTime(decodedData?.duration);
+        });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   const license = {
     tx: licenseTx,
     access,
@@ -111,5 +152,7 @@ const setTrackInfo = (node: Transaction, gateway: string) => {
     txid,
     license,
     dateCreated,
+    duration,
+    genre,
   };
 };
