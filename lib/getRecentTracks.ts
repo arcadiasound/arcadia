@@ -9,7 +9,7 @@ import arweaveGql, { Transaction } from "arweave-graphql";
 export const getRecentTracks = async (gateway: string) => {
   try {
     const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
-      first: 60,
+      first: 30,
       tags: [
         {
           name: "Content-Type",
@@ -34,11 +34,14 @@ export const getRecentTracks = async (gateway: string) => {
       ],
     });
 
-    console.log("res", res);
+    // console.log("res", res);
 
     const data = res.transactions.edges
       .filter((edge) => Number(edge.node.data.size) < 1e8)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
+      .filter(
+        (edge) => edge.node.tags.find((x) => x.name === "Thumbnail")?.value
+      )
       .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
 
     const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
