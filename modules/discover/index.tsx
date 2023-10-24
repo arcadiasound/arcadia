@@ -8,7 +8,8 @@ import { TrackCard } from "../track/TrackCard";
 export const Discover = () => {
   const { data: recentTracks, isError } = useQuery({
     queryKey: [`recentTracks`],
-    queryFn: () => getRecentTracks("https://arweave.net"),
+    refetchOnWindowFocus: false,
+    queryFn: () => getRecentTracks(),
   });
 
   return (

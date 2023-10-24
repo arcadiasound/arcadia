@@ -27,10 +27,13 @@ import {
 import { styled } from "@/stitches.config";
 import { RxCheck, RxClipboardCopy, RxCopy } from "react-icons/rx";
 import { getStampCount, hasStampedTx, stamp } from "@/lib/stamps";
-import { BsHeart, BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
+import { BsChat, BsHeart, BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
 import { useConnect } from "arweave-wallet-ui-test";
 import { ConnectPrompt } from "../layout/ConnectPrompt";
 import { useDebounce } from "@/hooks/useDebounce";
+import { TrackCommentsDialog } from "./TrackCommentsDialog";
+import { getCommentCount } from "@/lib/comments";
+import { LikeButton } from "./components/LikeButton";
 
 const AccordionContentItem = styled(Flex, {
   mt: "$2",
@@ -65,6 +68,7 @@ export const Track = () => {
   const [localStampCount, setLocalStampCount] = useState(0);
   // temp solution, connect method from sdk should prob return a promise
   const [userConnect, setUserConnect] = useState(false);
+  const [showCommentsDialog, setShowCommentsDialog] = useState(false);
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
@@ -72,6 +76,9 @@ export const Track = () => {
 
   const handleShowConnectPrompt = () => setShowConnectPrompt(true);
   const handleCancelConnectPrompt = () => setShowConnectPrompt(false);
+
+  const handleShowCommentsDialog = () => setShowCommentsDialog(true);
+  const handleCancelCommentsDialog = () => setShowCommentsDialog(false);
 
   const {
     audioRef,
@@ -114,6 +121,18 @@ export const Track = () => {
       }
 
       return getProfile(track.creator);
+    },
+  });
+
+  const { data: commentCount } = useQuery({
+    queryKey: [`comment-count-${track?.txid}`],
+    refetchOnWindowFocus: false,
+    queryFn: () => {
+      if (!track?.txid) {
+        throw new Error("No txid found");
+      }
+
+      return getCommentCount(track.txid);
     },
   });
 
@@ -258,6 +277,8 @@ export const Track = () => {
   const isPlaying = playing && currentTrackId === track?.txid;
 
   const avatarUrl = account?.profile.avatarURL;
+
+  const isCreator = track && track.creator === walletAddress;
 
   return (
     <Flex
@@ -412,59 +433,55 @@ export const Track = () => {
             {track?.description || "No track description."}
           </Typography>
         </Flex>
-        <Flex gap="5" align="center">
-          <Button
-            as="a"
-            href={`https://bazar.arweave.dev/#/asset/${track?.txid}`}
-            css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
-            variant="solid"
-          >
-            View on Bazar
-          </Button>
-          <Flex align="center">
-            <IconButton
-              disabled={!stamp || stamped}
-              css={{
-                "& svg": {
-                  color: stamped ? "$red9" : "$slate11",
-                },
-
-                "&:hover": {
-                  "& svg": {
-                    color: stamped ? "$red9" : "$slate12",
-                  },
-                },
-              }}
-              onClick={handleStamp}
-              size="3"
-              variant="transparent"
+        {track && (
+          <Flex gap="5" align="center">
+            <Button
+              as="a"
+              href={`https://bazar.arweave.dev/#/asset/${track?.txid}`}
+              css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
+              variant="solid"
             >
-              {stamped ? <BsSuitHeartFill /> : <BsSuitHeart />}
-            </IconButton>
-            {stamps && (
-              <Typography>{localStampCount || stamps.total}</Typography>
-            )}
+              View on Bazar
+            </Button>
+            <Flex align="center" gap="5">
+              <LikeButton txid={id} size="3" />
 
-            <ConnectPrompt
-              open={showConnectPrompt}
-              onClose={handleCancelConnectPrompt}
-              title="Connect your wallet to proceed"
-              description="In order to perform this action, you need to connect an Arweave
-              wallet."
-            >
-              <Button
-                onClick={handleConnectAndStamp}
-                css={{
-                  mt: "$5",
-                }}
-                variant="solid"
+              <IconButton
+                onClick={handleShowCommentsDialog}
+                size="3"
+                variant="transparent"
               >
-                Connect and Like
-                <BsSuitHeartFill />
-              </Button>
-            </ConnectPrompt>
+                <BsChat />
+              </IconButton>
+
+              <TrackCommentsDialog
+                open={showCommentsDialog}
+                onClose={handleCancelCommentsDialog}
+                txid={track.txid}
+                creator={track.creator}
+              />
+
+              <ConnectPrompt
+                open={showConnectPrompt}
+                onClose={handleCancelConnectPrompt}
+                title="Connect your wallet to proceed"
+                description="In order to perform this action, you need to connect an Arweave
+                      wallet."
+              >
+                <Button
+                  onClick={handleConnectAndStamp}
+                  css={{
+                    mt: "$5",
+                  }}
+                  variant="solid"
+                >
+                  Connect and Like
+                  <BsSuitHeartFill />
+                </Button>
+              </ConnectPrompt>
+            </Flex>
           </Flex>
-        </Flex>
+        )}
         {track && (
           <Accordion type="multiple">
             <AccordionItem value="track_details">

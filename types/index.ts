@@ -1,3 +1,9 @@
+export interface Comment {
+  comment: string;
+  sourceTx: string;
+  address: string | undefined;
+}
+
 export type License = {
   tx: string | undefined;
   access: string | undefined;

@@ -6,9 +6,11 @@ import {
 import { setTrackInfo } from "@/utils/setTrackInfo";
 import arweaveGql, { Transaction } from "arweave-graphql";
 
-export const getRecentTracks = async (gateway: string) => {
+export const getRecentTracks = async () => {
   try {
-    const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
+    const res = await arweaveGql(
+      `${"https://arweave.net"}/graphql`
+    ).getTransactions({
       first: 30,
       tags: [
         {
@@ -42,11 +44,14 @@ export const getRecentTracks = async (gateway: string) => {
       .filter(
         (edge) => edge.node.tags.find((x) => x.name === "Thumbnail")?.value
       )
-      .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
+      .map((edge) =>
+        setTrackInfo(edge.node as Transaction, "https://arweave.net")
+      );
 
     const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
 
     return dedupedData;
+    // return data;
   } catch (error: any) {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);
