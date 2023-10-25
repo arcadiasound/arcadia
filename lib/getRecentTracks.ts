@@ -39,8 +39,8 @@ export const getRecentTracks = async () => {
     // console.log("res", res);
 
     const data = res.transactions.edges
-      .filter((edge) => Number(edge.node.data.size) < 1e8)
-      .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
+      // .filter((edge) => Number(edge.node.data.size) < 1e8)
+      // .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .filter(
         (edge) => edge.node.tags.find((x) => x.name === "Thumbnail")?.value
       )

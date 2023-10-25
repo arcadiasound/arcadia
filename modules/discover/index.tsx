@@ -4,16 +4,54 @@ import { getRecentAlbums } from "@/lib/getRecentAlbums";
 import { getRecentTracks } from "@/lib/getRecentTracks";
 import { useQuery } from "@tanstack/react-query";
 import { TrackCard } from "../track/TrackCard";
+import { styled } from "@/stitches.config";
+import { Skeleton } from "@/ui/Skeleton";
+import { useMotionAnimate } from "motion-hooks";
+import { stagger } from "motion";
+import { useEffect } from "react";
+
+const TrackSkeleton = styled(Skeleton, {
+  width: 200,
+  height: 200,
+});
 
 export const Discover = () => {
-  const { data: recentTracks, isError } = useQuery({
+  const { play } = useMotionAnimate(
+    ".trackItem",
+    { opacity: 1 },
+    {
+      delay: stagger(0.03),
+      duration: 0.3,
+      easing: "ease-in-out",
+    }
+  );
+
+  const {
+    data: recentTracks,
+    isError,
+    isLoading,
+  } = useQuery({
     queryKey: [`recentTracks`],
-    refetchOnWindowFocus: false,
+    // refetchOnWindowFocus: false,
     queryFn: () => getRecentTracks(),
   });
 
+  useEffect(() => {
+    if (recentTracks && recentTracks.length > 0) {
+      play();
+    }
+  }, [recentTracks]);
+
   return (
-    <Flex direction="column" gap="20">
+    <Flex
+      css={{
+        ".trackItem": {
+          opacity: 0,
+        },
+      }}
+      direction="column"
+      gap="20"
+    >
       <Flex direction="column">
         <Typography
           css={{ mb: "$3" }}
@@ -34,6 +72,15 @@ export const Discover = () => {
                 tracks={recentTracks}
               />
             ))}
+          </Flex>
+        )}
+        {isLoading && (
+          <Flex wrap="wrap" gap="10">
+            <TrackSkeleton />
+            <TrackSkeleton />
+            <TrackSkeleton />
+            <TrackSkeleton />
+            <TrackSkeleton />
           </Flex>
         )}
       </Flex>
