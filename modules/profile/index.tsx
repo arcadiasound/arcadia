@@ -12,22 +12,22 @@ import { getTrackByOwners } from "@/lib/getTrackByOwner";
 import { TrackCard } from "../track/TrackCard";
 import { styled } from "@/stitches.config";
 import { useConnect } from "arweave-wallet-ui-test";
+import { useState } from "react";
 
 const StyledTabsContent = styled(TabsContent, {
   pt: "$5",
 });
+
+type TrackTab = "tracks" | "likes";
 
 export const Profile = () => {
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
   const { walletAddress } = useConnect();
+  const [activeTab, setActiveTab] = useState<TrackTab>("tracks");
 
   const addr = urlParams.get("addr");
-
-  if (!addr) {
-    // no profile found view
-  }
 
   const { data: account, isError } = useQuery({
     queryKey: [`profile-${addr}`],
@@ -61,6 +61,14 @@ export const Profile = () => {
 
   const bannerUrl = account?.profile.bannerURL;
   const avatarUrl = account?.profile.avatarURL;
+
+  // if (!walletAddress && !addr) {
+  //   return (
+  //     <Flex css={{ minHeight: 500 }} justify="center" align="center">
+  //       <Typography>No profile information could be found</Typography>
+  //     </Flex>
+  //   );
+  // }
 
   return (
     <Flex direction="column" gap="5">
@@ -110,11 +118,14 @@ export const Profile = () => {
           <Typography>{account?.profile.bio || "No bio."}</Typography>
         </Flex>
       </Flex>
-      <Tabs defaultValue="tracks">
+      <Tabs
+        onValueChange={(e) => setActiveTab(e as TrackTab)}
+        defaultValue="tracks"
+      >
         <TabsList>
           <TabsTrigger value="tracks">tracks</TabsTrigger>
-          <TabsTrigger value="albums">albums</TabsTrigger>
-          <TabsTrigger value="likes">likes</TabsTrigger>
+          {/* <TabsTrigger value="albums">albums</TabsTrigger> */}
+          {/* <TabsTrigger value="likes">likes</TabsTrigger> */}
         </TabsList>
         <StyledTabsContent value="tracks">
           {tracks && tracks.length > 0 && (
@@ -130,6 +141,20 @@ export const Profile = () => {
             </Flex>
           )}
         </StyledTabsContent>
+        {/* <StyledTabsContent value="tracks">
+          {likedTracks && likedTracks.length > 0 && (
+            <Flex wrap="wrap" gap="10">
+              {likedTracks.map((track, idx) => (
+                <TrackCard
+                  key={track.txid}
+                  track={track}
+                  trackIndex={idx}
+                  tracks={likedTracks}
+                />
+              ))}
+            </Flex>
+          )}
+        </StyledTabsContent> */}
       </Tabs>
     </Flex>
   );

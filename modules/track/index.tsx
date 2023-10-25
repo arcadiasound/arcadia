@@ -258,18 +258,6 @@ export const Track = () => {
     },
   });
 
-  // const { data: commentCount } = useQuery({
-  //   queryKey: [`comment-count-${track?.txid}`],
-  //   refetchOnWindowFocus: false,
-  //   queryFn: () => {
-  //     if (!track?.txid) {
-  //       throw new Error("No txid found");
-  //     }
-
-  //     return getCommentCount(track.txid);
-  //   },
-  // });
-
   const { data: stamps } = useQuery({
     queryKey: [`stampCount-${id}`],
     refetchOnWindowFocus: false,
@@ -446,8 +434,8 @@ export const Track = () => {
             },
 
             "@bp5": {
-              width: 600,
-              height: 600,
+              width: 550,
+              height: 550,
             },
           }}
         >
@@ -668,10 +656,10 @@ export const Track = () => {
                   </Flex>
                 </Flex>
                 {/* <Flex direction="column" gap="1">
-<Typography size="5" contrast="hi">
-Supporters
-</Typography>
-</Flex> */}
+                  <Typography size="5" contrast="hi">
+                    Supporters
+                  </Typography>
+                </Flex> */}
                 <Accordion
                   css={{
                     display: "flex",

@@ -1,5 +1,5 @@
 import Arweave from "arweave";
-import { WarpFactory } from "warp-contracts";
+import { WarpFactory, LoggerFactory } from "warp-contracts";
 
 export const arweave = Arweave.init({
   host: "arweave.net",
@@ -8,3 +8,4 @@ export const arweave = Arweave.init({
 });
 
 export const warp = WarpFactory.forMainnet();
+LoggerFactory.INST.logLevel("fatal");
