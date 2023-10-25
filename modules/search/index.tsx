@@ -21,38 +21,41 @@ const SearchResultItem = ({ track }: { track: Track }) => {
   });
 
   return (
-    <Link to={{ pathname: "/track", search: `?tx=${track.txid}` }}>
-      <Flex
-        css={{ p: "$3", "&:hover": { backgroundColor: "$slate2" } }}
-        justify="between"
-        align="center"
-      >
-        <Flex key={track.txid} align="center" gap="5">
-          <Image
-            css={{
-              width: 48,
-              height: 48,
-            }}
-            src={
-              track.artworkId
-                ? `${appConfig.defaultGateway}/${track.artworkId}`
-                : `https://source.boringavatars.com/marble/20/${track.txid}?square=true`
-            }
-          />
-          <Flex direction="column">
+    <Flex
+      css={{
+        p: "$3",
+        "&:hover": { backgroundColor: "$slate2" },
+      }}
+      justify="between"
+      align="center"
+    >
+      <Flex key={track.txid} align="center" gap="5">
+        <Image
+          css={{
+            width: 48,
+            height: 48,
+          }}
+          src={
+            track.artworkId
+              ? `${appConfig.defaultGateway}/${track.artworkId}`
+              : `https://source.boringavatars.com/marble/20/${track.txid}?square=true`
+          }
+        />
+        <Flex direction="column">
+          <Link to={{ pathname: "/track", search: `?tx=${track.txid}` }}>
             <Typography contrast="hi">{track.title}</Typography>
-            <Typography>
-              {account?.profile.name ||
-                abbreviateAddress({
-                  address: track.creator,
-                  options: { endChars: 5, noOfEllipsis: 3 },
-                })}
-            </Typography>
-          </Flex>
+          </Link>
+          <Typography>
+            {account?.profile.name ||
+              abbreviateAddress({
+                address: track.creator,
+                options: { endChars: 5, noOfEllipsis: 3 },
+              })}
+          </Typography>
         </Flex>
-        <BsSoundwave />
       </Flex>
-    </Link>
+      <BsSoundwave />
+    </Flex>
   );
 };
 
@@ -99,8 +102,15 @@ export const Search = () => {
   });
 
   return (
-    <Flex direction="column" gap="10">
-      <Flex onSubmit={formik.handleSubmit} as="form" align="center" gap="2">
+    <Flex direction="column" gap="10" align="center">
+      <Flex
+        css={{ width: "100%" }}
+        onSubmit={formik.handleSubmit}
+        as="form"
+        align="center"
+        justify="center"
+        gap="2"
+      >
         <TextField
           type="text"
           name="value"
@@ -130,6 +140,7 @@ export const Search = () => {
         <Flex
           css={{
             maxWidth: 900,
+            width: "100%",
           }}
           direction="column"
           gap="3"
