@@ -47,8 +47,9 @@ const StyledHeader = styled(AccordionPrimitive.Header, {
 const StyledTrigger = styled(AccordionPrimitive.Trigger, {
   all: "unset",
   display: "flex",
+  alignItems: "center",
   gap: "$2",
-  py: "$3",
+  py: "$1",
   flex: 1,
   backgroundColor: "transparent",
   fontSize: "$3",
@@ -66,6 +67,7 @@ const StyledTrigger = styled(AccordionPrimitive.Trigger, {
 });
 
 const StyledIcon = styled("span", {
+  fontSize: "$5",
   display: "flex",
   placeItems: "center",
   color: "$slate11",
@@ -88,8 +90,7 @@ export const AccordionTrigger = forwardRef<
 ));
 
 const StyledContentWrapper = styled("div", {
-  p: "$3",
-  backgroundColor: "$slate2",
+  px: "$3",
 });
 
 const StyledContent = styled(AccordionPrimitive.Content, {
@@ -117,7 +118,7 @@ export const AccordionContent = forwardRef<
   ComponentProps<typeof StyledContent>
 >(({ children, ...props }, forwardedRef) => (
   <StyledContent {...props} ref={forwardedRef}>
-    <Box css={{ height: 1, backgroundColor: "$slate5" }} />
+    {/* <Box css={{ height: 1, backgroundColor: "$slate5" }} /> */}
     <StyledContentWrapper>{children}</StyledContentWrapper>
   </StyledContent>
 ));

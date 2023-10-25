@@ -24,6 +24,10 @@ export const IconButton = styled("button", {
   fontFamily: "inherit",
   br: "$2",
 
+  "&:focus-visible": {
+    boxShadow: "0 0 0 2px $colors$blue8",
+  },
+
   "&:disabled": {
     pointerEvents: "none",
     cursor: "not-allowed",
@@ -75,10 +79,6 @@ export const IconButton = styled("button", {
         "&:active": {
           backgroundColor: "$slate5",
         },
-
-        "&:focus-visible": {
-          boxShadow: "0 0 0 2px $colors$slate8",
-        },
       },
       ghost: {
         color: "$$color",
@@ -90,10 +90,6 @@ export const IconButton = styled("button", {
 
         "&:active": {
           backgroundColor: "$$bgActive",
-        },
-
-        "&:focus-visible": {
-          boxShadow: "0 0 0 2px $$focus",
         },
       },
       transparent: {

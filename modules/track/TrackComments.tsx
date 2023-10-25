@@ -34,18 +34,10 @@ interface Comment {
 }
 
 interface TrackCommentsDialogProps {
-  open: boolean;
-  onClose: () => void;
-  txid: string;
-  creator: string;
+  txid: string | undefined;
 }
 
-export const TrackCommentsDialog = ({
-  open,
-  onClose,
-  txid,
-  creator,
-}: TrackCommentsDialogProps) => {
+export const TrackComments = ({ txid }: TrackCommentsDialogProps) => {
   const [submitting, setSubmitting] = useState(false);
   const [commentSuccess, setCommentSuccess] = useState("");
   const [loadingMore, setLoadingMore] = useState(false);
@@ -54,15 +46,6 @@ export const TrackCommentsDialog = ({
   const [userConnect, setUserConnect] = useState(false);
   const { walletAddress, connect } = useConnect();
   const commentRef = useRef<HTMLDivElement | null>(null);
-  const { play } = useMotionAnimate(
-    ".comment",
-    { opacity: 1 },
-    {
-      delay: stagger(0.075),
-      duration: 0.75,
-      easing: "ease-in-out",
-    }
-  );
 
   const handleShowConnectPrompt = () => setShowConnectPrompt(true);
   const handleCancelConnectPrompt = () => setShowConnectPrompt(false);
@@ -78,7 +61,7 @@ export const TrackCommentsDialog = ({
     isFetchingNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [`comments`],
+    queryKey: [`comments-for-${txid}`],
     cacheTime: 1 * 60 * 1000,
     refetchOnWindowFocus: false,
     queryFn: ({ pageParam }) =>
@@ -121,6 +104,10 @@ export const TrackCommentsDialog = ({
 
       if (!walletAddress) {
         handleShowConnectPrompt();
+        return;
+      }
+
+      if (!txid) {
         return;
       }
 
@@ -199,53 +186,34 @@ export const TrackCommentsDialog = ({
   const commentList = commentsData?.pages.flatMap((page) => page.data);
 
   // Play the animation on mount of the component
-  useEffect(() => {
-    if (open && commentList && commentList.length > 0) {
-      play();
-    }
-  }, [commentsData]);
+  // useEffect(() => {
+  //   if (commentList && commentList.length > 0) {
+  //     play();
+  //   }
+  // }, [commentsData]);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogOverlay />
-      <DialogContent
-        css={{
-          maxWidth: 500,
-          display: "flex",
-          flexDirection: "column",
-          gap: "$3",
-        }}
-      >
-        <DialogTitle asChild>
-          <Typography contrast="hi" size="5">
-            Comments
-          </Typography>
-        </DialogTitle>
+    <Box>
+      <Flex as="form" onSubmit={formik.handleSubmit} justify="between" gap="2">
         <Flex
-          as="form"
-          onSubmit={formik.handleSubmit}
-          justify="between"
-          gap="2"
+          align="center"
+          css={{
+            pt: 2,
+            pl: "$1",
+            flex: 1,
+            boxShadow: "0 0 0 1px $colors$slate3",
+            br: "$1",
+
+            "&:hover": {
+              boxShadow: "0 0 0 1px $colors$slate4",
+            },
+
+            "&:focus-within": {
+              boxShadow: "0 0 0 2px $colors$indigo10",
+            },
+          }}
         >
-          <Flex
-            align="center"
-            css={{
-              pt: 2,
-              pl: "$1",
-              flex: 1,
-              boxShadow: "0 0 0 1px $colors$slate3",
-              br: "$1",
-
-              "&:hover": {
-                boxShadow: "0 0 0 1px $colors$slate4",
-              },
-
-              "&:focus-within": {
-                boxShadow: "0 0 0 2px $colors$indigo10",
-              },
-            }}
-          >
-            {/* {walletAddress && (
+          {/* {walletAddress && (
               <Box>
                 <Image
                   src={
@@ -257,138 +225,122 @@ export const TrackCommentsDialog = ({
                 />
               </Box>
             )} */}
-            <Textarea
-              css={{
-                flex: 1,
+          <Textarea
+            css={{
+              flex: 1,
 
+              boxShadow: "none",
+              resize: "none",
+
+              "&:hover": {
                 boxShadow: "none",
-                resize: "none",
+              },
 
-                "&:hover": {
-                  boxShadow: "none",
-                },
-
-                "&:focus": {
-                  boxShadow: "none",
-                },
-              }}
-              name="comment"
-              value={formik.values.comment}
-              onChange={formik.handleChange}
-              required
-              minLength={3}
-              maxLength={300}
-              variant="outline"
-              size="1"
-              placeholder="Share your thoughts..."
-            />
-          </Flex>
-          <Button
+              "&:focus": {
+                boxShadow: "none",
+              },
+            }}
+            name="comment"
+            value={formik.values.comment}
+            onChange={formik.handleChange}
+            required
+            minLength={3}
+            maxLength={300}
+            variant="outline"
             size="1"
-            type="submit"
-            disabled={submitting || !formik.values.comment}
-            // css={{ alignSelf: "end" }}
-            variant="solid"
-          >
-            {submitting ? "Posting..." : "Post"}
-          </Button>
+            placeholder="Share your thoughts..."
+          />
         </Flex>
-
-        <Flex direction="column">
-          {commentsData?.pages.map((infinitePage, i) => (
-            <React.Fragment key={i}>
-              {infinitePage.data
-                .map((comment, i) => (
-                  <TrackCommentItem
-                    key={comment.txid}
-                    txid={comment.txid}
-                    owner={comment.owner}
-                    published={comment.published}
-                    comment={comment.comment}
-                    // account={comment.account}
-                    ref={commentRef}
-                    isLastItem={
-                      infinitePage.data[infinitePage.data.length - 1].txid ===
-                      comment.txid
-                    }
-                  />
-                ))
-                .reverse()}
-            </React.Fragment>
-          ))}
-        </Flex>
-        {commentsLoading && (
-          <Flex
-            css={{
-              my: "$10",
-              width: "100%",
-              min: 80,
-              placeItems: "center",
-            }}
-          >
-            <LoadingSpinner />
-          </Flex>
-        )}
-        {/* prevent false pagination for excluded/filtered results that are not factored into hasNextPage */}
-        {moreComments && commentList && commentList?.length > 0 && (
-          <Button
-            disabled={isFetchingNextPage}
-            variant="solid"
-            css={{
-              alignSelf: "center",
-            }}
-            onClick={() => {
-              setLoadingMore(true);
-              fetchNextPage();
-            }}
-          >
-            {isFetchingNextPage
-              ? "Loading more comments..."
-              : "Load more comments"}
-          </Button>
-        )}
-        {commentsError ||
-          // if there is no comment items on the first page, show no data view
-          (commentsData?.pages[0].data.length === 0 && !commentsLoading && (
-            <Flex
-              align="center"
-              css={{
-                my: "$3",
-                "& svg": { width: "$5", height: "$5" },
-                color: "$slate11",
-              }}
-              direction="column"
-              gap="3"
-            >
-              <BsChatQuoteFill />
-              <Typography size="2" weight="6">
-                No comments yet...
-              </Typography>
-              <Typography size="1">
-                Be the first to share your thoughts!
-              </Typography>
-            </Flex>
-          ))}
-
-        <ConnectPrompt
-          open={showConnectPrompt}
-          onClose={handleCancelConnectPrompt}
-          title="Connect your wallet to proceed"
-          description="In order to perform this action, you need to connect an Arweave
-                      wallet."
+        <Button
+          size="1"
+          type="submit"
+          disabled={submitting || !formik.values.comment}
+          // css={{ alignSelf: "end" }}
+          variant="solid"
         >
-          <Button
-            onClick={handleConnectAndComment}
+          {submitting ? "Posting..." : "Post"}
+        </Button>
+      </Flex>
+
+      <Flex
+        direction="column"
+        css={{ mt: commentList && commentList.length > 0 ? "$5" : 0 }}
+      >
+        {commentsData?.pages.map((infinitePage, i) => (
+          <React.Fragment key={i}>
+            {infinitePage.data
+              .map((comment, i) => (
+                <TrackCommentItem
+                  key={comment.txid}
+                  txid={comment.txid}
+                  owner={comment.owner}
+                  published={comment.published}
+                  comment={comment.comment}
+                  // account={comment.account}
+                  ref={commentRef}
+                  isLastItem={
+                    infinitePage.data[infinitePage.data.length - 1].txid ===
+                    comment.txid
+                  }
+                />
+              ))
+              .reverse()}
+          </React.Fragment>
+        ))}
+      </Flex>
+      {commentsLoading && (
+        <Flex
+          css={{
+            my: "$10",
+            width: "100%",
+            min: 80,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <LoadingSpinner />
+        </Flex>
+      )}
+      {/* prevent false pagination for excluded/filtered results that are not factored into hasNextPage */}
+      {moreComments && commentList && commentList?.length > 0 && (
+        <Button
+          disabled={isFetchingNextPage}
+          variant="solid"
+          css={{
+            alignSelf: "center",
+          }}
+          onClick={() => {
+            setLoadingMore(true);
+            fetchNextPage();
+          }}
+        >
+          {isFetchingNextPage
+            ? "Loading more comments..."
+            : "Load more comments"}
+        </Button>
+      )}
+      {commentsError ||
+        // if there is no comment items on the first page, show no data view
+        (commentsData?.pages[0].data.length === 0 && !commentsLoading && (
+          <Flex
+            align="center"
             css={{
-              mt: "$5",
+              mt: "$10",
+              "& svg": { width: "$5", height: "$5" },
+              color: "$slate11",
             }}
-            variant="solid"
+            direction="column"
+            gap="3"
           >
-            Connect and Comment
             <BsChatQuoteFill />
-          </Button>
-        </ConnectPrompt>
-      </DialogContent>
-    </Dialog>
+            <Typography size="2" weight="6">
+              No comments yet...
+            </Typography>
+            <Typography size="1">
+              Be the first to share your thoughts!
+            </Typography>
+          </Flex>
+        ))}
+    </Box>
   );
 };
