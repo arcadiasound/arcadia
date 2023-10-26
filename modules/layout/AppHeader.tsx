@@ -5,10 +5,11 @@ import { ConnectWallet, useConnect } from "arweave-wallet-ui-test";
 import { Link, useLocation } from "react-router-dom";
 import { Image } from "@/ui/Image";
 import { SearchBar } from "../search/SearchBar";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfile } from "@/lib/getProfile";
 import { HeaderDropdown } from "./HeaderDropdown";
 import { useTheme } from "next-themes";
+import { useEffect } from "react";
 
 const NavLink = styled(Link, {
   display: "flex",
@@ -35,6 +36,14 @@ export const AppHeader = () => {
   const { walletAddress } = useConnect();
   const location = useLocation();
   const { resolvedTheme, setTheme } = useTheme();
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (walletAddress) {
+      queryClient.invalidateQueries([`profile-${walletAddress}`]);
+    }
+  }, [walletAddress]);
 
   const { data: account, isError } = useQuery({
     queryKey: [`profile-${walletAddress}`],

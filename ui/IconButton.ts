@@ -1,4 +1,6 @@
-import { styled } from "@/stitches.config";
+import { styled, ComponentProps } from "@/stitches.config";
+
+export type IconButtonVariants = ComponentProps<typeof IconButton>;
 
 export const IconButton = styled("button", {
   // Reset
@@ -22,8 +24,19 @@ export const IconButton = styled("button", {
   fontFamily: "inherit",
   br: "$2",
 
+  "&:focus-visible": {
+    boxShadow: "0 0 0 2px $colors$blue8",
+  },
+
+  "&:disabled": {
+    pointerEvents: "none",
+    cursor: "not-allowed",
+    opacity: "50%",
+  },
+
   '&[aria-disabled="true"]': {
     pointerEvents: "none",
+    cursor: "not-allowed",
     opacity: "50%",
   },
 
@@ -66,10 +79,6 @@ export const IconButton = styled("button", {
         "&:active": {
           backgroundColor: "$slate5",
         },
-
-        "&:focus-visible": {
-          boxShadow: "0 0 0 2px $colors$slate8",
-        },
       },
       ghost: {
         color: "$$color",
@@ -81,10 +90,6 @@ export const IconButton = styled("button", {
 
         "&:active": {
           backgroundColor: "$$bgActive",
-        },
-
-        "&:focus-visible": {
-          boxShadow: "0 0 0 2px $$focus",
         },
       },
       transparent: {
@@ -115,6 +120,30 @@ export const IconButton = styled("button", {
           backgroundColor: "$$bgActive",
           boxShadow: "inset 0 0 0 1px $$borderActive",
         },
+      },
+    },
+    {
+      variant: "transparent",
+      size: "1",
+      css: {
+        width: "$4",
+        height: "$4",
+      },
+    },
+    {
+      variant: "transparent",
+      size: "2",
+      css: {
+        width: "$6",
+        height: "$6",
+      },
+    },
+    {
+      variant: "transparent",
+      size: "3",
+      css: {
+        width: "$8",
+        height: "$8",
       },
     },
   ],

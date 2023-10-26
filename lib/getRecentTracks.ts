@@ -6,10 +6,12 @@ import {
 import { setTrackInfo } from "@/utils/setTrackInfo";
 import arweaveGql, { Transaction } from "arweave-graphql";
 
-export const getRecentTracks = async (gateway: string) => {
+export const getRecentTracks = async () => {
   try {
-    const res = await arweaveGql(`${gateway}/graphql`).getTransactions({
-      first: 60,
+    const res = await arweaveGql(
+      `${"https://arweave.net"}/graphql`
+    ).getTransactions({
+      first: 30,
       tags: [
         {
           name: "Content-Type",
@@ -34,16 +36,22 @@ export const getRecentTracks = async (gateway: string) => {
       ],
     });
 
-    console.log("res", res);
+    // console.log("res", res);
 
     const data = res.transactions.edges
-      .filter((edge) => Number(edge.node.data.size) < 1e8)
-      .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
-      .map((edge) => setTrackInfo(edge.node as Transaction, gateway));
+      // .filter((edge) => Number(edge.node.data.size) < 1e8)
+      // .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
+      .filter(
+        (edge) => edge.node.tags.find((x) => x.name === "Thumbnail")?.value
+      )
+      .map((edge) =>
+        setTrackInfo(edge.node as Transaction, "https://arweave.net")
+      );
 
     const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
 
     return dedupedData;
+    // return data;
   } catch (error: any) {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);

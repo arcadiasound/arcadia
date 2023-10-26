@@ -42,6 +42,11 @@ const globalStyles = globalCss({
     backgroundColor: "$slate1",
     color: "$slate11",
   },
+  "& a": {
+    "&:focus-visible": {
+      boxShadow: "0 0 0 2px $colors$blue8",
+    },
+  },
 });
 
 globalStyles();

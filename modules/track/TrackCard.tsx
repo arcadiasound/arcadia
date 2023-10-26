@@ -171,7 +171,7 @@ export const TrackCard = ({
   const isStamped = stamped || localStamped;
 
   return (
-    <Flex direction="column" gap="2">
+    <Flex className="trackItem" direction="column" gap="2">
       <Box
         css={{
           position: "relative",
