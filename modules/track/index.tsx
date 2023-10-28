@@ -26,14 +26,8 @@ import {
   AccordionTrigger,
 } from "@/ui/Accordion";
 import { styled } from "@/stitches.config";
-import { RxCheck, RxClipboardCopy, RxCopy } from "react-icons/rx";
-import { getStampCount, hasStampedTx, stamp } from "@/lib/stamps";
-import { BsChat, BsHeart, BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
-import { useConnect } from "arweave-wallet-ui-test";
-import { ConnectPrompt } from "../layout/ConnectPrompt";
-import { useDebounce } from "@/hooks/useDebounce";
+import { RxCheck, RxCopy } from "react-icons/rx";
 import { TrackComments } from "./TrackComments";
-import { getCommentCount } from "@/lib/comments";
 import { LikeButton } from "./components/LikeButton";
 import { ArAccount } from "arweave-account";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/Tabs";
@@ -42,6 +36,7 @@ import { stagger } from "motion";
 import { getRecentActivity } from "@/lib/getRecentActivity";
 import { Skeleton } from "@/ui/Skeleton";
 import { LoadingSpinner } from "@/ui/Loader";
+import { useConnect } from "@/hooks/useConnect";
 
 interface ActivityProps {
   activity: {
@@ -171,21 +166,10 @@ type TrackTab = "details" | "comments" | "activity";
 
 export const Track = () => {
   const [isCopied, setIsCopied] = useState(false);
-  const [showConnectPrompt, setShowConnectPrompt] = useState(false);
-  // local state for instant visual feedback
-  const [localStamped, setLocalStamped] = useState(false);
-  // local stamp count for instant visual feedback
-  const [localStampCount, setLocalStampCount] = useState(0);
-  // temp solution, connect method from sdk should prob return a promise
-  const [userConnect, setUserConnect] = useState(false);
-  const [showCommentsDialog, setShowCommentsDialog] = useState(false);
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
-  const { walletAddress, connect } = useConnect();
   const [activeTab, setActiveTab] = useState<TrackTab>("details");
-  const handleShowConnectPrompt = () => setShowConnectPrompt(true);
-  const handleCancelConnectPrompt = () => setShowConnectPrompt(false);
 
   const { play } = useMotionAnimate(
     ".comment",
@@ -258,79 +242,9 @@ export const Track = () => {
     },
   });
 
-  const { data: stamps } = useQuery({
-    queryKey: [`stampCount-${id}`],
-    refetchOnWindowFocus: false,
-    queryFn: () => {
-      if (!id) {
-        throw new Error("No track ID has been found");
-      }
-
-      return getStampCount(id);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
-
-  const { data: stamped, refetch } = useQuery({
-    queryKey: [`stamped-${id}`],
-    enabled: !!walletAddress,
-    queryFn: () => {
-      if (!id) {
-        throw new Error("No track ID has been found");
-      }
-
-      if (!walletAddress) {
-        throw new Error("No wallet address found");
-      }
-
-      return hasStampedTx(id, walletAddress);
-    },
-    onSuccess: (data) => {
-      console.log(data);
-      setLocalStamped(false);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
-
-  useEffect(() => {
-    if (walletAddress && userConnect && id) {
-      setUserConnect(false);
-      handleCancelConnectPrompt();
-      mutation.mutate(id);
-      setLocalStamped(true);
-    }
-  }, [walletAddress]);
-
-  const debounceRequest = useDebounce(() => {
-    refetch();
-  }, 450);
-
-  const mutation = useMutation({
-    mutationFn: stamp,
-    //@ts-ignore
-    onSuccess: () => {
-      debounceRequest();
-      if (stamps) {
-        setLocalStampCount(stamps.total + 1);
-      }
-    },
-    onError: (error: any) => {
-      console.error(error);
-      setLocalStamped(false);
-    },
-  });
-
   if (!track && isError) {
     // return error view
   }
-
-  // if (!track) {
-  //   return <Typography>No Track ID found.</Typography>;
-  // }
 
   const handleClick = () => {
     if (!track) {
@@ -368,39 +282,9 @@ export const Track = () => {
     });
   };
 
-  const handleStamp = () => {
-    if (!id || stamped || localStamped) {
-      return;
-    }
-
-    if (walletAddress) {
-      setLocalStamped(true);
-      mutation.mutate(id);
-    } else {
-      handleShowConnectPrompt();
-    }
-  };
-
-  const handleConnectAndStamp = async () => {
-    if (!track?.txid || stamped) {
-      return;
-    }
-
-    /* as we can't await below connect method we need to check
-      if user tried to connect and use presence of this state var and walletAddress to initiate like
-      and close dialog
-    */
-
-    connect({ appName: "Arcadia", walletProvider: "arweave.app" });
-
-    setUserConnect(true);
-  };
-
   const isPlaying = playing && currentTrackId === track?.txid;
 
   const avatarUrl = account?.profile.avatarURL;
-
-  const isCreator = track && track.creator === walletAddress;
 
   return (
     <Flex

@@ -13,10 +13,10 @@ import { Flex } from "@/ui/Flex";
 import { Typography } from "@/ui/Typography";
 import { getStampCount, hasStamped, hasStampedTx, stamp } from "@/lib/stamps";
 import { BsHeart, BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
-import { useConnect } from "arweave-wallet-ui-test";
 import { ConnectPrompt } from "../layout/ConnectPrompt";
 import { Button } from "@/ui/Button";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useConnect } from "@/hooks/useConnect";
 
 export const TrackCard = ({
   track,

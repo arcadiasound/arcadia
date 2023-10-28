@@ -11,8 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/Tabs";
 import { getTrackByOwners } from "@/lib/getTrackByOwner";
 import { TrackCard } from "../track/TrackCard";
 import { styled } from "@/stitches.config";
-import { useConnect } from "arweave-wallet-ui-test";
 import { useState } from "react";
+import { useConnect } from "@/hooks/useConnect";
 
 const StyledTabsContent = styled(TabsContent, {
   pt: "$5",

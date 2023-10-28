@@ -17,7 +17,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useConnect } from "arweave-wallet-ui-test";
 import { FormikErrors, useFormik } from "formik";
 import { useMotionAnimate } from "motion-hooks";
 import React, { useEffect, useRef, useState } from "react";
@@ -26,6 +25,7 @@ import { ConnectPrompt } from "../layout/ConnectPrompt";
 import { stagger } from "motion";
 import { TrackCommentItem } from "./TrackCommentItem";
 import { LoadingSpinner } from "@/ui/Loader";
+import { useConnect } from "@/hooks/useConnect";
 
 interface Comment {
   comment: string;
