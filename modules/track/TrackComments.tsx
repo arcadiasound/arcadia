@@ -52,6 +52,17 @@ export const TrackComments = ({ txid }: TrackCommentsDialogProps) => {
 
   const queryClient = useQueryClient();
 
+  const { data: account } = useQuery({
+    queryKey: [`profile-${walletAddress}`],
+    queryFn: () => {
+      if (!walletAddress) {
+        return;
+      }
+
+      return getProfile(walletAddress);
+    },
+  });
+
   const {
     data: commentsData,
     isLoading: commentsLoading,
@@ -195,6 +206,19 @@ export const TrackComments = ({ txid }: TrackCommentsDialogProps) => {
   return (
     <Box>
       <Flex as="form" onSubmit={formik.handleSubmit} justify="between" gap="2">
+        {walletAddress && (
+          <Image
+            css={{
+              br: "$1",
+              overflow: "hidden",
+            }}
+            src={
+              account?.profile.avatarURL !== appConfig.accountAvatarDefault
+                ? account?.profile.avatarURL
+                : `https://source.boringavatars.com/marble/32/${walletAddress}?square`
+            }
+          />
+        )}
         <Flex
           align="center"
           css={{
@@ -209,22 +233,10 @@ export const TrackComments = ({ txid }: TrackCommentsDialogProps) => {
             },
 
             "&:focus-within": {
-              boxShadow: "0 0 0 2px $colors$indigo10",
+              boxShadow: "0 0 0 2px $colors$focus",
             },
           }}
         >
-          {/* {walletAddress && (
-              <Box>
-                <Image
-                  src={
-                    account?.profile.avatarURL !==
-                    appConfig.accountAvatarDefault
-                      ? account?.profile.avatarURL
-                      : `https://source.boringavatars.com/marble/24/${walletAddress}`
-                  }
-                />
-              </Box>
-            )} */}
           <Textarea
             css={{
               flex: 1,

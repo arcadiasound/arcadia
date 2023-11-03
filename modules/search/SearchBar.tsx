@@ -78,7 +78,7 @@ const SearchField = styled(Combobox, {
   px: "$4",
   color: "$slate12",
   fontSize: "$3",
-  lineHeight: "$sizes$9",
+  lineHeight: "$sizes$8",
 
   "@bp4": {
     minWidth: 300,
@@ -90,7 +90,7 @@ const SearchField = styled(Combobox, {
 
   "&:focus": {
     boxShadow:
-      "inset 0px 0px 0px 1px $colors$blue8, 0px 0px 0px 1px $colors$blue8",
+      "inset 0px 0px 0px 1px $colors$focus, 0px 0px 0px 1px $colors$focus",
   },
 
   "&:disabled": {
@@ -293,7 +293,7 @@ export const SearchBar = () => {
         <IconButton
           css={{
             position: "absolute",
-            right: "$1",
+            right: "$2",
             cursor: "pointer",
           }}
           variant="transparent"

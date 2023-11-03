@@ -307,6 +307,14 @@ export const TrackCard = ({
                   color: isStamped ? "$red9" : "$whiteA12",
                 },
               },
+
+              "&:disabled": {
+                opacity: 1,
+              },
+
+              '&[aria-disabled="true"]': {
+                opacity: 1,
+              },
             }}
             onClick={handleStamp}
             variant="transparent"

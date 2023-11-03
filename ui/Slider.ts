@@ -16,7 +16,7 @@ export const SliderTrack = styled(Slider.Track, {
   position: "relative",
   flexGrow: 1,
   borderRadius: "9999px",
-  height: "$1",
+  height: 2,
 });
 
 export const SliderRange = styled(Slider.Range, {
@@ -28,10 +28,10 @@ export const SliderRange = styled(Slider.Range, {
 
 export const SliderThumb = styled(Slider.Thumb, {
   display: "block",
-  width: 15,
-  height: 15,
+  width: 10,
+  height: 10,
   backgroundColor: "$whiteA12",
   boxShadow: `0 2px 10px $colors$blackA3`,
   borderRadius: 10,
-  "&:focus": { outline: "none", boxShadow: `0 0 0 4px $colors$whiteA8` },
+  "&:focus": { outline: "none", boxShadow: `0 0 0 3px $colors$whiteA8` },
 });

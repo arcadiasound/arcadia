@@ -32,7 +32,7 @@ export const TextField = styled("input", {
 
     "&:focus": {
       boxShadow:
-        "inset 0px 0px 0px 1px $colors$blue8, 0px 0px 0px 1px $colors$blue8",
+        "inset 0px 0px 0px 1px $colors$focus, 0px 0px 0px 1px $colors$focus",
     },
 
     "&:disabled": {
@@ -97,7 +97,7 @@ export const TextField = styled("input", {
 
           "&:focus": {
             boxShadow: "none",
-            borderBottom: "2px solid $colors$blue8",
+            borderBottom: "2px solid $colors$focus",
           },
         },
       },

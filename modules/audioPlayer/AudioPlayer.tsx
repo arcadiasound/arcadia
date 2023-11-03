@@ -23,10 +23,14 @@ const PlayPauseButton = styled(IconButton, {
 });
 
 const SkipButton = styled(IconButton, {
-  br: 9999,
+  "& svg": {
+    color: "$whiteA11",
+  },
 
   "&:hover": {
-    color: "$slate12",
+    "& svg": {
+      color: "$whiteA12",
+    },
   },
 });
 
@@ -291,7 +295,7 @@ export const AudioPlayer = () => {
             <Typography css={{ color: "$whiteA12" }} weight="6">
               {currentTrack?.title ? currentTrack?.title : "(Untitled)"}
             </Typography>
-            <Typography size="2">
+            <Typography size="2" css={{ color: "$whiteA11" }}>
               {account?.profile.name ||
                 abbreviateAddress({
                   address: currentTrack.creator,
@@ -385,6 +389,7 @@ export const AudioPlayer = () => {
         >
           <Typography
             css={{
+              color: "$whiteA11",
               fontSize: 11,
             }}
           >
@@ -425,6 +430,7 @@ export const AudioPlayer = () => {
           > */}
           <Typography
             css={{
+              color: "$whiteA11",
               fontSize: 11,
             }}
           >
@@ -449,7 +455,7 @@ export const AudioPlayer = () => {
         {/* <IconButton>
               <BsThreeDots />
             </IconButton> */}
-        <Flex align="center" gap="3">
+        <Flex css={{ flex: 1, maxWidth: 150 }} align="center" gap="3">
           <MdVolumeDown />
           <VolumeContainer
             css={{

@@ -141,6 +141,14 @@ export const LikeButton = forwardRef<HTMLButtonElement, LikeButtonProps>(
                 color: stamped ? "$red9" : "$slate12",
               },
             },
+
+            "&:disabled": {
+              opacity: 1,
+            },
+
+            '&[aria-disabled="true"]': {
+              opacity: 1,
+            },
           }}
           onClick={handleStamp}
           variant="transparent"
