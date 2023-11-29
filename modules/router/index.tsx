@@ -22,15 +22,15 @@ export const AppRouter = () => (
         "@bp3": {
           px: 0,
           // backgroundColor: "$yellow3",
-          maxWidth: 920,
+          // maxWidth: 920,
         },
         "@bp4": {
           // backgroundColor: "$blue3",
-          maxWidth: 1200,
+          // maxWidth: 1200,
         },
         "@bp5": {
           // backgroundColor: "$red3",
-          maxWidth: 1400,
+          // maxWidth: 1400,
         },
 
         pb: appConfig.playerMaxHeight + 20,

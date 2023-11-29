@@ -79,11 +79,18 @@ export const AppHeader = () => {
     <Flex
       as="header"
       css={{
+        zIndex: 1,
+        position: "fixed",
+        top: 0,
         display: "grid",
         gridTemplateColumns: "1fr 1fr 1fr",
         py: "$3",
         px: "$10",
-        mb: location.pathname === "/profile" ? 0 : "$20",
+        backgroundColor: "$blackA10",
+        backdropFilter: "blur(20px)",
+        "-webkit-transform": "translate3d(0,0,0)",
+        width: "100%",
+        // mb: location.pathname === "/profile" ? 0 : "$20",
       }}
       justify="between"
       align="center"
@@ -122,7 +129,7 @@ export const AppHeader = () => {
 
             "&:hover": {
               backgroundColor: "transparent",
-              color: "$slate12",
+              color: "$whiteA12",
             },
             "&:active": {
               backgroundColor: "transparent",
@@ -149,7 +156,7 @@ export const AppHeader = () => {
               connectButtonStyles: {
                 "&:hover": {
                   backgroundColor: "transparent",
-                  color: "$slate12",
+                  color: "$whiteA12",
                 },
               },
             }}
