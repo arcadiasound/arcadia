@@ -19,6 +19,11 @@ export const TabsTrigger = styled(TabsPrimitive.Trigger, {
     color: "$slate10",
   },
 
+  "&:disabled": {
+    opacity: 0.5,
+    pointerEvents: "none",
+  },
+
   '&[data-state="active"]': {
     color: "$slate12",
     boxShadow: "0 1px 0 0 $colors$slate12",

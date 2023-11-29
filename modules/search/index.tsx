@@ -9,10 +9,11 @@ import { Typography } from "@/ui/Typography";
 import { Image } from "@/ui/Image";
 import { appConfig } from "@/appConfig";
 import { BsSoundwave } from "react-icons/bs";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { abbreviateAddress } from "@/utils";
 import { Track } from "@/types";
 import { getProfile } from "@/lib/getProfile";
+import { LoadingSpinner } from "@/ui/Loader";
 
 const SearchResultItem = ({ track }: { track: Track }) => {
   const { data: account } = useQuery({
@@ -88,8 +89,10 @@ export const Search = () => {
     refetch,
     isRefetching,
     isLoading,
+    isSuccess,
   } = useQuery({
-    queryKey: [`trackSearchResults`],
+    queryKey: [`results-for${queryValue}`],
+    cacheTime: 0,
     queryFn: () => {
       if (!formik.values.value) {
         return;
@@ -100,6 +103,8 @@ export const Search = () => {
     refetchOnWindowFocus: false,
     enabled: false,
   });
+
+  const loading = isLoading || isRefetching;
 
   return (
     <Flex direction="column" gap="10" align="center">
@@ -121,7 +126,7 @@ export const Search = () => {
             maxWidth: 800,
 
             "&[type]": {
-              lineHeight: "$8",
+              height: "$10",
               backgroundColor: "transparent",
               boxShadow: "0 0 0 1px $colors$slate6",
             },
@@ -136,7 +141,7 @@ export const Search = () => {
           Search
         </Button>
       </Flex>
-      {searchResults && searchResults.length > 0 ? (
+      {searchResults && searchResults.length > 0 && (
         <Flex
           css={{
             maxWidth: 900,
@@ -149,8 +154,13 @@ export const Search = () => {
             <SearchResultItem key={track.txid} track={track} />
           ))}
         </Flex>
-      ) : (
+      )}
+      {isSuccess && !isLoading && !isRefetching && !searchResults?.length && (
         <Typography>No results found. Please refine your search.</Typography>
+      )}
+      {loading && <LoadingSpinner />}
+      {isError && (
+        <Typography>Something went wrong! Please search again.</Typography>
       )}
     </Flex>
   );

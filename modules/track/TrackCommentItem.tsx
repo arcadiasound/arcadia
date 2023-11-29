@@ -41,7 +41,7 @@ export const TrackCommentItem = forwardRef<HTMLDivElement, CommentItemProps>(
       queryKey: [`profile-${owner}`],
       queryFn: () => {
         if (!owner) {
-          throw new Error("No profile has been found");
+          return;
         }
 
         return getProfile(owner);

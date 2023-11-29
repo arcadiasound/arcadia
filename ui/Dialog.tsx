@@ -56,19 +56,19 @@ const StyledDialogContent = styled(DialogPrimitive.Content, {
 });
 
 export type DialogContentProps = ComponentProps<typeof StyledDialogContent> &
-  DialogPrimitive.PortalProps & {
-    portal?: boolean;
-  };
+  DialogPrimitive.PortalProps;
 
 export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
-  ({ children, portal = true, forceMount, container, ...props }, ref) => {
-    const Portal = portal ? DialogPrimitive.Portal : React.Fragment;
+  ({ children, forceMount, container, ...props }, ref) => {
     return (
-      <Portal forceMount={forceMount} container={container}>
-        <StyledDialogContent ref={ref} {...props}>
-          {children}
-        </StyledDialogContent>
-      </Portal>
+      <>
+        <DialogOverlay />
+        <DialogPrimitive.Portal forceMount={forceMount} container={container}>
+          <StyledDialogContent ref={ref} {...props}>
+            {children}
+          </StyledDialogContent>
+        </DialogPrimitive.Portal>
+      </>
     );
   }
 );

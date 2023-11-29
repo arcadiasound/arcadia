@@ -28,6 +28,10 @@ export const {
       ...yellow,
       ...blackA,
       ...whiteA,
+
+      focus: "$colors$blue8",
+      slateSolidHover: "hsl(206, 6.0%, 15.0%)",
+      slateSolidActive: "hsl(206, 6.0%, 24.0%)",
     },
     fonts: {
       heading: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",

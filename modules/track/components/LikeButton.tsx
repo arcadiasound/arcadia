@@ -6,10 +6,10 @@ import { IconButton, IconButtonVariants } from "@/ui/IconButton";
 import { Typography } from "@/ui/Typography";
 import { getStampCount, hasStampedTx, stamp } from "@/lib/stamps";
 import { BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
-import { useConnect } from "arweave-wallet-ui-test";
 import { ConnectPrompt } from "../../layout/ConnectPrompt";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Button } from "@/ui/Button";
+import { useConnect } from "@/hooks/useConnect";
 
 interface LikeButtonProps extends IconButtonVariants {
   txid: string | null | undefined;
@@ -140,6 +140,14 @@ export const LikeButton = forwardRef<HTMLButtonElement, LikeButtonProps>(
               "& svg": {
                 color: stamped ? "$red9" : "$slate12",
               },
+            },
+
+            "&:disabled": {
+              opacity: 1,
+            },
+
+            '&[aria-disabled="true"]': {
+              opacity: 1,
             },
           }}
           onClick={handleStamp}

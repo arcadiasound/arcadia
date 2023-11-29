@@ -12,6 +12,8 @@ import { IconButton } from "@/ui/IconButton";
 import { Typography } from "@/ui/Typography";
 import {
   abbreviateAddress,
+  mapKeys,
+  mapValues,
   timeAgo,
   timestampToDate,
   userPreferredGateway,
@@ -26,14 +28,8 @@ import {
   AccordionTrigger,
 } from "@/ui/Accordion";
 import { styled } from "@/stitches.config";
-import { RxCheck, RxClipboardCopy, RxCopy } from "react-icons/rx";
-import { getStampCount, hasStampedTx, stamp } from "@/lib/stamps";
-import { BsChat, BsHeart, BsSuitHeart, BsSuitHeartFill } from "react-icons/bs";
-import { useConnect } from "arweave-wallet-ui-test";
-import { ConnectPrompt } from "../layout/ConnectPrompt";
-import { useDebounce } from "@/hooks/useDebounce";
+import { RxCheck, RxCopy } from "react-icons/rx";
 import { TrackComments } from "./TrackComments";
-import { getCommentCount } from "@/lib/comments";
 import { LikeButton } from "./components/LikeButton";
 import { ArAccount } from "arweave-account";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/Tabs";
@@ -42,6 +38,32 @@ import { stagger } from "motion";
 import { getRecentActivity } from "@/lib/getRecentActivity";
 import { Skeleton } from "@/ui/Skeleton";
 import { LoadingSpinner } from "@/ui/Loader";
+import { useConnect } from "@/hooks/useConnect";
+import { getAssetOwners } from "@/lib/getAssetOwners";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+import { getAssetListedStatus } from "@/lib/getAssetListedStatus";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const testData = {
+  labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+  datasets: [
+    {
+      label: "% ownership",
+      data: [12, 19, 3, 5, 2, 3],
+      backgroundColor: [
+        "rgba(255, 99, 132, 0.2)",
+        "rgba(54, 162, 235, 0.2)",
+        "rgba(255, 206, 86, 0.2)",
+        "rgba(75, 192, 192, 0.2)",
+        "rgba(153, 102, 255, 0.2)",
+        "rgba(255, 159, 64, 0.2)",
+      ],
+      borderWidth: 0,
+    },
+  ],
+};
 
 interface ActivityProps {
   activity: {
@@ -167,25 +189,16 @@ const Description = styled(Typography, {
   maxWidth: "25ch",
 });
 
-type TrackTab = "details" | "comments" | "activity";
+type TrackTab = "details" | "comments" | "activity" | "sponsors";
 
 export const Track = () => {
   const [isCopied, setIsCopied] = useState(false);
-  const [showConnectPrompt, setShowConnectPrompt] = useState(false);
-  // local state for instant visual feedback
-  const [localStamped, setLocalStamped] = useState(false);
-  // local stamp count for instant visual feedback
-  const [localStampCount, setLocalStampCount] = useState(0);
-  // temp solution, connect method from sdk should prob return a promise
-  const [userConnect, setUserConnect] = useState(false);
-  const [showCommentsDialog, setShowCommentsDialog] = useState(false);
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
-  const { walletAddress, connect } = useConnect();
   const [activeTab, setActiveTab] = useState<TrackTab>("details");
-  const handleShowConnectPrompt = () => setShowConnectPrompt(true);
-  const handleCancelConnectPrompt = () => setShowConnectPrompt(false);
+  const [owners, setOwners] = useState<string[]>();
+  const [ownershipAmount, setOwnershipAmount] = useState<number[]>();
 
   const { play } = useMotionAnimate(
     ".comment",
@@ -245,6 +258,31 @@ export const Track = () => {
     },
   });
 
+  // const { data: assetListed } = useQuery({
+  //   queryKey: [`listedStatus-${track?.txid}`],
+  //   refetchOnWindowFocus: false,
+  //   queryFn: () => {
+  //     if (!track?.txid) {
+  //       throw new Error("No txid found");
+  //     }
+
+  //     return getAssetListedStatus(track.txid);
+  //   },
+  // });
+
+  const { data: sponsors } = useQuery({
+    queryKey: [`sponsors-${track?.txid}`],
+    refetchOnWindowFocus: false,
+    // enabled: activeTab === "sponsors",
+    queryFn: () => {
+      if (!track?.txid) {
+        throw new Error("No txid found");
+      }
+
+      return getAssetOwners(track.txid);
+    },
+  });
+
   const { data: recentActivity, isLoading: activityLoading } = useQuery({
     queryKey: [`activity-${track?.txid}`],
     refetchOnWindowFocus: false,
@@ -258,79 +296,9 @@ export const Track = () => {
     },
   });
 
-  const { data: stamps } = useQuery({
-    queryKey: [`stampCount-${id}`],
-    refetchOnWindowFocus: false,
-    queryFn: () => {
-      if (!id) {
-        throw new Error("No track ID has been found");
-      }
-
-      return getStampCount(id);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
-
-  const { data: stamped, refetch } = useQuery({
-    queryKey: [`stamped-${id}`],
-    enabled: !!walletAddress,
-    queryFn: () => {
-      if (!id) {
-        throw new Error("No track ID has been found");
-      }
-
-      if (!walletAddress) {
-        throw new Error("No wallet address found");
-      }
-
-      return hasStampedTx(id, walletAddress);
-    },
-    onSuccess: (data) => {
-      console.log(data);
-      setLocalStamped(false);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
-
-  useEffect(() => {
-    if (walletAddress && userConnect && id) {
-      setUserConnect(false);
-      handleCancelConnectPrompt();
-      mutation.mutate(id);
-      setLocalStamped(true);
-    }
-  }, [walletAddress]);
-
-  const debounceRequest = useDebounce(() => {
-    refetch();
-  }, 450);
-
-  const mutation = useMutation({
-    mutationFn: stamp,
-    //@ts-ignore
-    onSuccess: () => {
-      debounceRequest();
-      if (stamps) {
-        setLocalStampCount(stamps.total + 1);
-      }
-    },
-    onError: (error: any) => {
-      console.error(error);
-      setLocalStamped(false);
-    },
-  });
-
   if (!track && isError) {
     // return error view
   }
-
-  // if (!track) {
-  //   return <Typography>No Track ID found.</Typography>;
-  // }
 
   const handleClick = () => {
     if (!track) {
@@ -368,39 +336,42 @@ export const Track = () => {
     });
   };
 
-  const handleStamp = () => {
-    if (!id || stamped || localStamped) {
-      return;
-    }
-
-    if (walletAddress) {
-      setLocalStamped(true);
-      mutation.mutate(id);
-    } else {
-      handleShowConnectPrompt();
-    }
-  };
-
-  const handleConnectAndStamp = async () => {
-    if (!track?.txid || stamped) {
-      return;
-    }
-
-    /* as we can't await below connect method we need to check
-      if user tried to connect and use presence of this state var and walletAddress to initiate like
-      and close dialog
-    */
-
-    connect({ appName: "Arcadia", walletProvider: "arweave.app" });
-
-    setUserConnect(true);
-  };
-
   const isPlaying = playing && currentTrackId === track?.txid;
 
   const avatarUrl = account?.profile.avatarURL;
 
-  const isCreator = track && track.creator === walletAddress;
+  useEffect(() => {
+    if (sponsors) {
+      const balances = Object.keys(sponsors.balances);
+      const ownership = Object.values(sponsors.balances) as number[];
+
+      const getProfiles = async () => {
+        // const profiles: { name: string; imageUrl: string }[] = [];
+        const profiles: string[] = [];
+
+        for (let i = 0; i < balances.length; i++) {
+          const address = balances[i];
+
+          console.log("here");
+
+          const account = await getProfile(address);
+          const profileName = account.profile.handleName || account.handle;
+          const profileImage =
+            account.profile.avatarURL !== appConfig.accountAvatarDefault
+              ? account.profile.avatarURL
+              : `https://source.boringavatars.com/marble/20/${account.addr}`;
+          // profiles.push({ name: profileImage, imageUrl: profileImage });
+          profiles.push(profileName);
+        }
+
+        setOwners(profiles);
+      };
+
+      getProfiles();
+
+      setOwnershipAmount(ownership);
+    }
+  }, [sponsors]);
 
   return (
     <Flex
@@ -570,14 +541,16 @@ export const Track = () => {
               <Flex align="center" gap="5">
                 <LikeButton txid={id} size="3" />
 
-                <Button
-                  as="a"
-                  href={`https://bazar.arweave.dev/#/asset/${track.txid}`}
-                  css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
-                  variant="solid"
-                >
-                  Buy
-                </Button>
+                {sponsors && (
+                  <Button
+                    as="a"
+                    href={`https://bazar.arweave.dev/#/asset/${track.txid}`}
+                    css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
+                    variant="solid"
+                  >
+                    View on Marketplace
+                  </Button>
+                )}
               </Flex>
             </Flex>
           </Flex>
@@ -605,6 +578,9 @@ export const Track = () => {
             <TabsTrigger value="details">details</TabsTrigger>
             <TabsTrigger value="comments">comments</TabsTrigger>
             <TabsTrigger value="activity">activity</TabsTrigger>
+            <TabsTrigger disabled={!sponsors} value="sponsors">
+              sponsors
+            </TabsTrigger>
           </TabsList>
           <StyledTabsContent
             css={{
@@ -644,15 +620,17 @@ export const Track = () => {
                     {track.description || "No track description."}
                   </Typography>
                 </Flex>
-                <Flex direction="column" gap="3">
-                  <DetailHeading>Creators</DetailHeading>
-                  {/* creators ready to be mapped over */}
-                  <Flex wrap="wrap" gap="5">
-                    <Creator
-                      account={account}
-                      address={track.creator}
-                      avatarUrl={avatarUrl}
-                    />
+                <Flex justify="between" gap="5">
+                  <Flex direction="column" gap="3">
+                    <DetailHeading>Creators</DetailHeading>
+                    {/* creators ready to be mapped over */}
+                    <Flex wrap="wrap" gap="5">
+                      <Creator
+                        account={account}
+                        address={track.creator}
+                        avatarUrl={avatarUrl}
+                      />
+                    </Flex>
                   </Flex>
                 </Flex>
                 {/* <Flex direction="column" gap="1">
@@ -788,6 +766,30 @@ export const Track = () => {
               >
                 <LoadingSpinner />
               </Flex>
+            )}
+          </StyledTabsContent>
+          <StyledTabsContent value="sponsors">
+            {sponsors && (
+              <Doughnut
+                data={{
+                  labels: owners || mapKeys(sponsors.balances),
+                  datasets: [
+                    {
+                      label: "% ownership",
+                      data: Object.values(sponsors.balances),
+                      backgroundColor: [
+                        "rgba(255, 99, 132, 0.9)",
+                        "rgba(54, 162, 235, 0.9)",
+                        "rgba(255, 206, 86, 0.9)",
+                        "rgba(75, 192, 192, 0.9)",
+                        "rgba(153, 102, 255, 0.9)",
+                        "rgba(255, 159, 64, 0.9)",
+                      ],
+                      borderWidth: 0,
+                    },
+                  ],
+                }}
+              />
             )}
           </StyledTabsContent>
         </Tabs>

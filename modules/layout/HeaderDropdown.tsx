@@ -1,13 +1,7 @@
 import { abbreviateAddress, userPreferredGateway } from "../../utils";
-import {
-  RxChevronDown,
-  RxChevronLeft,
-  RxDotFilled,
-  RxGlobe,
-} from "react-icons/rx";
+import { RxChevronDown, RxChevronLeft, RxDotFilled } from "react-icons/rx";
 import { BsPlug } from "react-icons/bs";
-import { useConnect } from "arweave-wallet-ui-test";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { appConfig } from "../../appConfig";
 import { ArAccount } from "arweave-account";
 import {
@@ -21,10 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/ui/Dropdown";
 import { Button } from "@/ui/Button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/ui/Avatar";
+import { Avatar, AvatarImage } from "@/ui/Avatar";
 import { Flex } from "@/ui/Flex";
 import { Link } from "react-router-dom";
 import { styled } from "@/stitches.config";
+import { useConnect } from "@/hooks/useConnect";
 
 const StyledLink = styled(Link);
 

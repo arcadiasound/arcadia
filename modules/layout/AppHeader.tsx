@@ -1,7 +1,6 @@
 import { Button } from "@/ui/Button";
 import { Flex } from "@/ui/Flex";
 import { styled } from "@/stitches.config";
-import { ConnectWallet, useConnect } from "arweave-wallet-ui-test";
 import { Link, useLocation } from "react-router-dom";
 import { Image } from "@/ui/Image";
 import { SearchBar } from "../search/SearchBar";
@@ -10,6 +9,10 @@ import { getProfile } from "@/lib/getProfile";
 import { HeaderDropdown } from "./HeaderDropdown";
 import { useTheme } from "next-themes";
 import { useEffect } from "react";
+import { ConnectWallet } from "./components/ConnectWallet";
+import { useConnect } from "@/hooks/useConnect";
+import { IconButton } from "@/ui/IconButton";
+import { BsSun } from "react-icons/bs";
 
 const NavLink = styled(Link, {
   display: "flex",
@@ -47,9 +50,10 @@ export const AppHeader = () => {
 
   const { data: account, isError } = useQuery({
     queryKey: [`profile-${walletAddress}`],
+    enabled: !!walletAddress,
     queryFn: () => {
       if (!walletAddress) {
-        throw new Error("No profile has been found");
+        return;
       }
 
       return getProfile(walletAddress);
@@ -91,7 +95,7 @@ export const AppHeader = () => {
           }}
         >
           <Image
-            src="arcadia_logo_text_white.svg"
+            src={src}
             css={{
               width: 94,
               height: 17,
@@ -112,7 +116,7 @@ export const AppHeader = () => {
         </NavLink>
       </Flex>
       <Flex align="center" justify="end" gap="2">
-        {/* <IconButton
+        <IconButton
           css={{
             backgroundColor: "transparent",
 
@@ -127,7 +131,7 @@ export const AppHeader = () => {
           onClick={toggleTheme}
         >
           <BsSun />
-        </IconButton> */}
+        </IconButton>
         {walletAddress ? (
           <HeaderDropdown walletAddress={walletAddress} account={account} />
         ) : (

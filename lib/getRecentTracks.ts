@@ -1,3 +1,4 @@
+import { appConfig } from "@/appConfig";
 import { Track } from "@/types";
 import {
   removeDuplicatesByCreator,
@@ -9,7 +10,7 @@ import arweaveGql, { Transaction } from "arweave-graphql";
 export const getRecentTracks = async () => {
   try {
     const res = await arweaveGql(
-      `${"https://arweave.net"}/graphql`
+      `${appConfig.defaultGateway}/graphql`
     ).getTransactions({
       first: 30,
       tags: [
@@ -39,18 +40,18 @@ export const getRecentTracks = async () => {
     // console.log("res", res);
 
     const data = res.transactions.edges
-      // .filter((edge) => Number(edge.node.data.size) < 1e8)
-      // .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
+      .filter((edge) => Number(edge.node.data.size) < 1e8)
+      .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .filter(
         (edge) => edge.node.tags.find((x) => x.name === "Thumbnail")?.value
       )
       .map((edge) =>
-        setTrackInfo(edge.node as Transaction, "https://arweave.net")
+        setTrackInfo(edge.node as Transaction, appConfig.defaultGateway)
       );
 
     const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
-
     return dedupedData;
+
     // return data;
   } catch (error: any) {
     console.error(error);

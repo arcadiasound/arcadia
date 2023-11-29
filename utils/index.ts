@@ -85,3 +85,19 @@ export const timeAgo = (unixTimestamp: number | string | undefined) => {
     return Math.floor(differenceInSeconds / month) + "mo";
   else return Math.floor(differenceInSeconds / year) + "y";
 };
+
+export function mapKeys(obj: Object) {
+  const keys = Object.keys(obj).map((key) => {
+    // console.log(key);
+    return abbreviateAddress({ address: key });
+  });
+
+  // console.log(keys);
+  return keys;
+}
+
+export function mapValues(obj: Object) {
+  return Object.values(obj).map((value) => {
+    return value;
+  });
+}
