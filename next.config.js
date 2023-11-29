@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   trailingSlash: true,
-  // swcMinify: false,
+  swcMinify: false,
   // images: {
   //   domains: ["arweave.net"],
   // },

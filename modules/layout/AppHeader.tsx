@@ -50,9 +50,10 @@ export const AppHeader = () => {
 
   const { data: account, isError } = useQuery({
     queryKey: [`profile-${walletAddress}`],
+    enabled: !!walletAddress,
     queryFn: () => {
       if (!walletAddress) {
-        throw new Error("No profile has been found");
+        return;
       }
 
       return getProfile(walletAddress);

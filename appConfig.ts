@@ -9,4 +9,10 @@ export const appConfig = {
   accountAvatarDefault:
     "https://arweave.net:443/OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA",
   playerMaxHeight: 76,
+  featuredIds: [
+    "mS6oQkP-1VVW6aaubCmtHtjqlx5JSezBMkDfWLwYwCo",
+    "5aYi607XVMDChxjC2GjzH0pzEsxQj90X7qVbKPhLa3E",
+    "MO6tWkY28hD81Qr5WE8AkuFXRkmr9LOAzKNv9VbIBWI",
+    "2SMzrf_-Haa87NzqgW3BdmMcr_V4NvooL9S3Ffl69kY",
+  ],
 };

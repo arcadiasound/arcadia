@@ -9,6 +9,8 @@ import { Skeleton } from "@/ui/Skeleton";
 import { useMotionAnimate } from "motion-hooks";
 import { stagger } from "motion";
 import { useEffect } from "react";
+import { getFeaturedTracks } from "@/lib/getFeaturedTracks";
+import Carousel from "nuka-carousel";
 
 const TrackSkeleton = styled(Skeleton, {
   width: 200,
@@ -32,11 +34,11 @@ export const Discover = () => {
     isLoading,
   } = useQuery({
     queryKey: [`recentTracks`],
-    // refetchOnWindowFocus: false,
     queryFn: () => getRecentTracks(),
   });
 
   useEffect(() => {
+    console.log(recentTracks);
     if (recentTracks && recentTracks.length > 0) {
       play();
     }
@@ -56,7 +58,7 @@ export const Discover = () => {
         <Typography
           css={{ mb: "$3" }}
           as="h2"
-          size="6"
+          size="4"
           weight="4"
           contrast="hi"
         >

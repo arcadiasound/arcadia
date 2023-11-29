@@ -162,6 +162,7 @@ export const ConnectWalletDialog = (props: ConnectWalletDialogProps) => {
         <Flex
           css={{
             width: "100%",
+            color: "$slate12",
           }}
           justify="center"
         >
