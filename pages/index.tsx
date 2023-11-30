@@ -13,10 +13,5 @@ const Router = dynamic<React.ComponentProps<typeof StaticRouter>>(
 );
 
 export default function Home() {
-  return (
-    <>
-      <Router />
-      <AudioPlayer />
-    </>
-  );
+  return <Router />;
 }

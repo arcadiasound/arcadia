@@ -20,16 +20,19 @@ const NavLink = styled(Link, {
   fontSize: "$3",
   alignItems: "center",
   p: "$2",
-  color: "$slate11",
+  px: "$3",
+  color: "$neutralInvertedA11",
+  br: "$pill",
 
   "&:hover": {
-    color: "$slate12",
+    backgroundColor: "$neutralInvertedA3",
+    color: "$neutralInvertedA12",
   },
 
   variants: {
     selected: {
       true: {
-        color: "$slate12",
+        color: "$neutralInvertedA12",
       },
     },
   },
@@ -86,12 +89,13 @@ export const AppHeader = () => {
         gridTemplateColumns: "1fr 1fr 1fr",
         py: "$3",
         px: "$10",
-        backgroundColor: "$blackA10",
+        backgroundColor: "$neutralA11",
         backdropFilter: "blur(20px)",
         backfaceVisibility: "hidden",
         "-webkit-backface-visibility": "hidden",
         "-webkit-transform": "translate3d(0,0,0)",
         width: "100%",
+        borderBottom: "1px solid $colors$neutralInvertedA3",
         // mb: location.pathname === "/profile" ? 0 : "$20",
       }}
       justify="between"
@@ -128,10 +132,11 @@ export const AppHeader = () => {
         <IconButton
           css={{
             backgroundColor: "transparent",
+            color: "$neutralInvertedA11",
 
             "&:hover": {
               backgroundColor: "transparent",
-              color: "$whiteA12",
+              color: "$neutralInvertedA12",
             },
             "&:active": {
               backgroundColor: "transparent",
@@ -152,22 +157,17 @@ export const AppHeader = () => {
               "ACCESS_ARWEAVE_CONFIG",
               "ACCESS_PUBLIC_KEY",
             ]}
-            options={{
-              connectButtonVariant: "ghost",
-              connectButtonLabel: "connect wallet",
-              connectButtonStyles: {
-                "&:hover": {
-                  backgroundColor: "transparent",
-                  color: "$whiteA12",
-                },
-              },
-            }}
             appName="Arcadia"
           >
             <Button
               css={{
                 fontWeight: 400,
                 fontSize: "$3",
+                color: "$neutralInvertedA11",
+                "&:hover": {
+                  backgroundColor: "transparent",
+                  color: "$neutralInvertedA12",
+                },
               }}
               variant="transparent"
             >

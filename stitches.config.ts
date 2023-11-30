@@ -6,7 +6,14 @@ import { green, greenDark } from "./styles/colors/green";
 import { red, redDark } from "./styles/colors/red";
 import { violet, violetDark } from "./styles/colors/violet";
 import { yellow, yellowDark } from "./styles/colors/yellow";
-import { blackA, whiteA } from "./styles/colors/alpha";
+import {
+  blackA,
+  neutralA,
+  neutralADark,
+  neutralInvertedA,
+  neutralInvertedADark,
+  whiteA,
+} from "./styles/colors/alpha";
 
 export const {
   styled,
@@ -28,6 +35,8 @@ export const {
       ...yellow,
       ...blackA,
       ...whiteA,
+      ...neutralA,
+      ...neutralInvertedA,
 
       focus: "$colors$blue8",
       slateSolidHover: "hsl(206, 6.0%, 15.0%)",
@@ -81,6 +90,7 @@ export const {
       3: "8px",
       4: "12px",
       round: "50%",
+      pill: "9999px",
     },
   },
   media: {
@@ -165,6 +175,8 @@ export const darkTheme = createTheme("dark-theme", {
     ...yellowDark,
     ...blackA,
     ...whiteA,
+    ...neutralADark,
+    ...neutralInvertedADark,
     focus: "$colors$blue10",
     slateSolidHover: "hsl(206, 6.0%, 85.0%)",
     slateSolidActive: "hsl(206, 6.0%, 75.0%)",

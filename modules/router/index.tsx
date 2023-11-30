@@ -8,6 +8,7 @@ import { Box } from "@/ui/Box";
 import { Track } from "../track";
 import { appConfig } from "@/appConfig";
 import { Search } from "../search";
+import { AudioPlayer } from "../audioPlayer/AudioPlayer";
 
 export const AppRouter = () => (
   <HashRouter>
@@ -43,6 +44,7 @@ export const AppRouter = () => (
         <Route path={"/upload"} element={<Upload />} />
         <Route path={"/search"} element={<Search />} />
       </Routes>
+      <AudioPlayer />
     </Box>
   </HashRouter>
 );

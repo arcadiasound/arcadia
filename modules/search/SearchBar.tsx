@@ -46,8 +46,8 @@ const StyledComboboxItem = styled(ComboboxItem, {
 });
 
 const StyledComboboxPopover = styled(ComboboxPopover, {
-  backgroundColor: "$whiteA1",
-  boxShadow: "0 0 2px 0 $colors$whiteA6",
+  backgroundColor: "$whiteA11",
+  boxShadow: "0 0 2px 0 $colors$neutralInvertedA6",
   borderBottomLeftRadius: "$1",
   borderBottomRightRadius: "$1",
   overflow: "hidden",
@@ -76,7 +76,7 @@ const SearchField = styled(Combobox, {
   minWidth: 280,
   br: "$2",
   px: "$4",
-  color: "$whiteA12",
+  color: "$neutralInvertedA12",
   fontSize: "$3",
   lineHeight: "$sizes$8",
 
@@ -85,7 +85,7 @@ const SearchField = styled(Combobox, {
   },
 
   "&::placeholder": {
-    color: "$whiteA9",
+    color: "$neutralInvertedA9",
   },
 
   "&:focus": {
@@ -190,7 +190,7 @@ export const SearchBar = () => {
         css={{
           position: "relative",
           br: "$1",
-          boxShadow: "0px 0px 0px 1px $colors$whiteA6",
+          boxShadow: "0px 0px 0px 1px $colors$neutralInvertedA6",
           "&:focus-within": {
             boxShadow:
               "inset 0px 0px 0px 1px $colors$blue8, 0px 0px 0px 1px $colors$blue8",
