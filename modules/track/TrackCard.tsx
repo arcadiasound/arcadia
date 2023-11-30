@@ -22,10 +22,12 @@ export const TrackCard = ({
   track,
   trackIndex,
   tracks,
+  size,
 }: {
   track: Track;
   trackIndex: number;
   tracks: Tracklist;
+  size?: number;
 }) => {
   const [showConnectPrompt, setShowConnectPrompt] = useState(false);
   // local stamped state for instant visual feedback
@@ -175,6 +177,12 @@ export const TrackCard = ({
       <Box
         css={{
           position: "relative",
+
+          "&:focus-within": {
+            outline: "2px solid $focus",
+            outlineOffset: "$1",
+          },
+
           "& [data-overlay]": {
             display: "none",
           },
@@ -202,8 +210,8 @@ export const TrackCard = ({
         >
           <Box
             css={{
-              width: 200,
-              height: 200,
+              width: size || 200,
+              height: size || 200,
               position: "relative",
             }}
           >
@@ -234,8 +242,10 @@ export const TrackCard = ({
             />
             <Image
               css={{
-                width: 200,
-                height: 200,
+                width: size || 200,
+                height: size || 200,
+                outline: "4px solid $whiteA3",
+                outlineOffset: -4,
               }}
               src={
                 track.artworkId
@@ -342,14 +352,22 @@ export const TrackCard = ({
           </ConnectPrompt>
         </Flex>
       </Box>
-      <Box>
+      <Box
+        css={{
+          pl: 6,
+          "&:focus-within": {
+            outline: "2px solid $focus",
+            outlineOffset: "$1",
+          },
+        }}
+      >
         <Link
           to={{
             pathname: "/track",
             search: `?tx=${track.txid}`,
           }}
         >
-          <Typography size="1" contrast="hi">
+          <Typography size="2" contrast="hi">
             {track?.title}
           </Typography>
         </Link>

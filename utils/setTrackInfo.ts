@@ -1,13 +1,16 @@
-import { Transaction } from "arweave-graphql";
+import { Transaction, TransactionEdge } from "arweave-graphql";
 
-export const setTrackInfo = (node: Transaction, gateway: string) => {
-  const title = node.tags.find((x) => x.name === "Title")?.value;
+export const setTrackInfo = (edge: TransactionEdge, gateway: string) => {
+  const title = edge.node.tags.find((x) => x.name === "Title")?.value;
+  const description = edge.node.tags.find(
+    (x) => x.name === "Description"
+  )?.value;
 
   let hasLicense = false;
 
-  const licenseTx = node.tags.find((x) => x.name === "License")?.value;
-  const access = node.tags.find((x) => x.name === "Access")?.value;
-  const accessFee = node.tags.find((x) => x.name === "Access-Fee")?.value;
+  const licenseTx = edge.node.tags.find((x) => x.name === "License")?.value;
+  const access = edge.node.tags.find((x) => x.name === "Access")?.value;
+  const accessFee = edge.node.tags.find((x) => x.name === "Access-Fee")?.value;
 
   if (
     licenseTx === "yRj4a5KMctX_uOmKWCFJIjmY8DeJcusVk6-HzLiM_t8" &&
@@ -20,7 +23,9 @@ export const setTrackInfo = (node: Transaction, gateway: string) => {
 
   try {
     // find owner from balances
-    const initStateTag = node.tags.find((x) => x.name === "Init-State")?.value;
+    const initStateTag = edge.node.tags.find(
+      (x) => x.name === "Init-State"
+    )?.value;
 
     const initState = initStateTag ? JSON.parse(initStateTag) : undefined;
 
@@ -28,23 +33,24 @@ export const setTrackInfo = (node: Transaction, gateway: string) => {
 
     creator = assetOwner;
   } catch (error) {
-    creator = node.owner.address;
+    creator = edge.node.owner.address;
   }
 
   const artworkId =
-    node.tags.find((x) => x.name === "Cover-Artwork")?.value ||
-    node.tags.find((x) => x.name === "Thumbnail")?.value;
+    edge.node.tags.find((x) => x.name === "Cover-Artwork")?.value ||
+    edge.node.tags.find((x) => x.name === "Thumbnail")?.value;
 
-  const src = gateway + "/" + node.id;
-  const txid = node.id;
+  const src = gateway + "/" + edge.node.id;
+  const txid = edge.node.id;
+  const cursor = edge.cursor;
 
   return {
     title,
+    description,
     creator,
     artworkId,
     src,
-    hasLicense,
     txid,
-    accessFee,
+    cursor,
   };
 };

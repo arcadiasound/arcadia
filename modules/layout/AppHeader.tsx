@@ -88,6 +88,8 @@ export const AppHeader = () => {
         px: "$10",
         backgroundColor: "$blackA10",
         backdropFilter: "blur(20px)",
+        backfaceVisibility: "hidden",
+        "-webkit-backface-visibility": "hidden",
         "-webkit-transform": "translate3d(0,0,0)",
         width: "100%",
         // mb: location.pathname === "/profile" ? 0 : "$20",

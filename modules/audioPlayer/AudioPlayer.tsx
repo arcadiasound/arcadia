@@ -67,7 +67,7 @@ const AudioContainer = styled(Box, {
   position: "fixed",
   bottom: 0,
   backgroundColor: "$blackA12",
-  backdropFilter: "blur(4px)",
+  backdropFilter: "blur(30px)",
   maxHeight: appConfig.playerMaxHeight,
 });
 

@@ -4,6 +4,7 @@ export const appConfig = {
   dreU: "https://dre-u.warp.cc/contract",
   U: "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw",
   UCM: "tfalT8Z-88riNtoXdF5ldaBtmsfcSmbMqWLh2DHJIbg",
+  atomicAssetSrc: "Of9pi--Gj7hCTawhgxOwbuWnFI1h24TTgO5pw8ENJNQ",
   accountBannerDefault:
     "https://arweave.net:443/a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k",
   accountAvatarDefault:
@@ -11,9 +12,8 @@ export const appConfig = {
   playerMaxHeight: 76,
   headerMaxHeight: 64,
   featuredIds: [
-    "mS6oQkP-1VVW6aaubCmtHtjqlx5JSezBMkDfWLwYwCo",
-    "5aYi607XVMDChxjC2GjzH0pzEsxQj90X7qVbKPhLa3E",
-    "MO6tWkY28hD81Qr5WE8AkuFXRkmr9LOAzKNv9VbIBWI",
-    "2SMzrf_-Haa87NzqgW3BdmMcr_V4NvooL9S3Ffl69kY",
+    "uo_sAi90zv2XOtbz3Kan80IelT_A65uDYeMLHayq5E4",
+    "sJ04uWVUxcyzGHTw3O1jSc8AY4MlO2f8Ruy3EgudyhY",
+    "68yXgCsxmrkvAa1q6fDtKUfMnkadKKFm443jKjxObIU",
   ],
 };

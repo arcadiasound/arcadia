@@ -117,11 +117,16 @@ export const IconButton = styled("button", {
         },
       },
       translucent: {
-        backgroundColor: "transparent",
+        backgroundColor: "$whiteA3",
         color: "$whiteA11",
 
         "&:hover": {
+          backgroundColor: "$whiteA4",
           color: "$whiteA12",
+        },
+
+        "&:active": {
+          backgroundColor: "$whiteA5",
         },
       },
     },

@@ -11,38 +11,15 @@ import { stagger } from "motion";
 import { useEffect } from "react";
 import { getFeaturedTracks } from "@/lib/getFeaturedTracks";
 import Carousel, { CarouselProps } from "nuka-carousel";
-import { Image } from "@/ui/Image";
-import { appConfig } from "@/appConfig";
 import { Box } from "@/ui/Box";
 import { IconButton } from "@/ui/IconButton";
-import { MdPlayArrow } from "react-icons/md";
-import { BsSuitHeart } from "react-icons/bs";
-import { IoPlay } from "react-icons/io5";
-import {
-  RxArrowLeft,
-  RxArrowRight,
-  RxDotFilled,
-  RxDotsHorizontal,
-} from "react-icons/rx";
+import { RxArrowLeft, RxArrowRight, RxDotFilled } from "react-icons/rx";
+import { FeaturedTrackItem } from "./components/FeaturedTrackItem";
 
 const CarouselSkipButton = styled(IconButton, {
   mx: "$5",
-  backgroundColor: "$whiteA3",
-
-  "&:hover": {
-    backgroundColor: "$whiteA4",
-  },
-
-  "&:active": {
-    backgroundColor: "$whiteA5",
-  },
+  backdropFilter: "blur(20px)",
 });
-
-const spotlightItems = [
-  "GP1nxVkrl4a8q7Tl3H9lFBbAQzNDYs98Aw_hJD_Xjwg",
-  "eGZrD-cErnrINpHgK-swMiGOMd8HWqQ6sW_N9x1Ipao",
-  "oA8nBLIAVbJ3-lie2JmszN0ZDlxP1wzQAfJGcHS-_Uk",
-];
 
 const carouselParams: CarouselProps = {
   wrapAround: true,
@@ -50,8 +27,8 @@ const carouselParams: CarouselProps = {
 };
 
 const TrackSkeleton = styled(Skeleton, {
-  width: 200,
-  height: 200,
+  width: 250,
+  height: 250,
 });
 
 export const Discover = () => {
@@ -66,11 +43,22 @@ export const Discover = () => {
   );
 
   const {
+    data: featuredTracks,
+    isError: featuredTracksError,
+    isLoading: featuredTracksLoading,
+  } = useQuery({
+    queryKey: [`featuredTracks`],
+    refetchOnWindowFocus: false,
+    queryFn: () => getFeaturedTracks(),
+  });
+
+  const {
     data: recentTracks,
     isError,
     isLoading,
   } = useQuery({
     queryKey: [`recentTracks`],
+    refetchOnWindowFocus: false,
     queryFn: () => getRecentTracks(),
   });
 
@@ -93,146 +81,87 @@ export const Discover = () => {
       gap="20"
     >
       <Flex direction="column" gap="20">
-        <Carousel
-          renderCenterLeftControls={(control) => (
-            <CarouselSkipButton
-              onClick={() => control.previousSlide()}
-              size="3"
-              rounded
-              variant="translucent"
-            >
-              <RxArrowLeft />
-            </CarouselSkipButton>
-          )}
-          renderCenterRightControls={(control) => (
-            <CarouselSkipButton
-              onClick={() => control.nextSlide()}
-              size="3"
-              rounded
-              variant="translucent"
-            >
-              <RxArrowRight />
-            </CarouselSkipButton>
-          )}
-          renderBottomCenterControls={(control) => (
-            <Flex css={{ listStyleType: "none", mb: "$3" }} as="ul">
-              {spotlightItems.map((tx, index) => (
-                <Box as="li" key={tx}>
-                  <IconButton
-                    css={{
-                      color:
-                        control.currentSlide === index
-                          ? "$whiteA12"
-                          : "$whiteA9",
-
-                      "&:hover": {
+        {featuredTracksLoading && (
+          <Skeleton
+            css={{
+              width: "100%",
+              height: "100%",
+              maxHeight: "48dvh",
+              aspectRatio: 4 / 3,
+            }}
+          />
+        )}
+        {featuredTracks && featuredTracks.length && (
+          <Carousel
+            renderCenterLeftControls={(control) => (
+              <CarouselSkipButton
+                onClick={() => control.previousSlide()}
+                size="3"
+                rounded
+                variant="translucent"
+              >
+                <RxArrowLeft />
+              </CarouselSkipButton>
+            )}
+            renderCenterRightControls={(control) => (
+              <CarouselSkipButton
+                onClick={() => control.nextSlide()}
+                size="3"
+                rounded
+                variant="translucent"
+              >
+                <RxArrowRight />
+              </CarouselSkipButton>
+            )}
+            renderBottomCenterControls={(control) => (
+              <Flex
+                css={{
+                  listStyleType: "none",
+                  // mb: "$3",
+                  "& svg": { width: 28, height: 28 },
+                }}
+                as="ul"
+              >
+                {featuredTracks.map((track, index) => (
+                  <Box as="li" key={track.txid}>
+                    <IconButton
+                      css={{
                         color:
                           control.currentSlide === index
                             ? "$whiteA12"
-                            : "$whiteA11",
-                      },
-                    }}
-                    onClick={() => control.goToSlide(index)}
-                    size="2"
-                    variant="transparent"
-                  >
-                    <RxDotFilled />
-                  </IconButton>
-                </Box>
-              ))}
-            </Flex>
-          )}
-          {...carouselParams}
-        >
-          {spotlightItems.map((tx) => (
-            <Flex
-              key={tx}
-              css={{
-                width: "100%",
-                maxHeight: "55dvh",
-                overflow: "hidden",
-                position: "relative",
-              }}
-            >
-              <Image
-                css={{
-                  width: "100%",
-                  height: "100%",
-                  aspectRatio: 4 / 3,
-                  objectFit: "cover",
-                  objectPosition: "bottom",
-                }}
-                src={`${appConfig.defaultGateway}/${tx}`}
-              />
-              <Box
-                css={{
-                  position: "absolute",
-                  inset: 0,
-                  backgroundColor: "$blackA9",
-                  backdropFilter: "blur(8px)",
-                }}
-              />
-              <Flex
-                css={{
-                  zIndex: 0,
-                  position: "absolute",
-                  inset: 0,
-                }}
-                align="center"
-                gap="10"
-                justify="center"
-              >
-                <Image
-                  css={{
-                    width: 300,
-                    height: 300,
-                  }}
-                  src={`${appConfig.defaultGateway}/${tx}`}
-                />
-                <Flex css={{ zIndex: 1 }} direction="column" gap="7">
-                  <Box>
-                    <Typography
-                      size="6"
-                      weight="5"
-                      css={{ color: "$whiteA12" }}
+                            : "$whiteA7",
+
+                        "&:hover": {
+                          color:
+                            control.currentSlide === index
+                              ? "$whiteA12"
+                              : "$whiteA9",
+                        },
+                      }}
+                      onClick={() => control.goToSlide(index)}
+                      size="2"
+                      variant="transparent"
                     >
-                      Dunes
-                    </Typography>
-                    <Typography
-                      size="4"
-                      weight="5"
-                      css={{ color: "$whiteA11" }}
-                    >
-                      Winston Arnold
-                    </Typography>
+                      <RxDotFilled />
+                    </IconButton>
                   </Box>
-                  <Typography
-                    css={{ maxWidth: "60ch", color: "$whiteA11" }}
-                    size="2"
-                  >
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Commodi maiores quod nulla accusamus qui voluptates atque
-                    quasi vero, libero rem!
-                  </Typography>
-                  <Flex gap="5">
-                    <IconButton size="3" variant="solid" rounded>
-                      <IoPlay />
-                    </IconButton>
-                    <IconButton size="3" variant="translucent" rounded>
-                      <BsSuitHeart />
-                    </IconButton>
-                    <IconButton size="3" variant="translucent" rounded>
-                      <RxDotsHorizontal />
-                    </IconButton>
-                  </Flex>
-                </Flex>
+                ))}
               </Flex>
-            </Flex>
-          ))}
-        </Carousel>
-        <Flex direction="column">
+            )}
+            {...carouselParams}
+          >
+            {featuredTracks.map((track) => (
+              <FeaturedTrackItem key={track.txid} track={track} />
+            ))}
+          </Carousel>
+        )}
+        <Flex
+          css={{ maxWidth: 1400, alignSelf: "center" }}
+          direction="column"
+          justify="center"
+        >
           <Typography
-            css={{ mb: "$3" }}
+            css={{ mb: "$3", width: "100%" }}
             as="h2"
             size="4"
             weight="4"
@@ -241,19 +170,24 @@ export const Discover = () => {
             latest tracks
           </Typography>
           {recentTracks && recentTracks.length > 0 && (
-            <Flex wrap="wrap" gap="10">
+            <Flex css={{ width: "100%", rowGap: "$10" }} wrap="wrap" gap="5">
               {recentTracks.map((track, idx) => (
                 <TrackCard
                   key={track.txid}
                   track={track}
                   trackIndex={idx}
                   tracks={recentTracks}
+                  size={250}
                 />
               ))}
             </Flex>
           )}
           {isLoading && (
-            <Flex wrap="wrap" gap="10">
+            <Flex
+              css={{ width: "100%", maxWidth: 1400, rowGap: "$10" }}
+              wrap="wrap"
+              gap="5"
+            >
               <TrackSkeleton />
               <TrackSkeleton />
               <TrackSkeleton />
