@@ -72,13 +72,13 @@ const SearchField = styled(Combobox, {
   },
 
   // custom
-  backgroundColor: "transparent",
+  backgroundColor: "$neutralInvertedA3",
   minWidth: 280,
   br: "$2",
   px: "$4",
   color: "$neutralInvertedA12",
   fontSize: "$3",
-  lineHeight: "$sizes$8",
+  lineHeight: "$sizes$10",
 
   "@bp4": {
     minWidth: 300,

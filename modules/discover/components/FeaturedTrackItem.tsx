@@ -2,7 +2,7 @@ import { getProfile } from "@/lib/getProfile";
 import { Track } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { BsSuitHeart } from "react-icons/bs";
-import { IoPlay } from "react-icons/io5";
+import { IoPauseSharp, IoPlay, IoPlaySharp } from "react-icons/io5";
 import { Flex } from "@/ui/Flex";
 import { Typography } from "@/ui/Typography";
 import { Image } from "@/ui/Image";
@@ -13,12 +13,31 @@ import { RxDotsHorizontal } from "react-icons/rx";
 import { abbreviateAddress } from "@/utils";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
+import { PlayButton } from "@/modules/track/components/PlayButton";
 
 interface FeaturedTrackItemProps {
   track: Track;
+  trackIndex: number;
+  tracklist: Track[];
 }
 
-export const FeaturedTrackItem = ({ track }: FeaturedTrackItemProps) => {
+export const FeaturedTrackItem = ({
+  track,
+  trackIndex,
+  tracklist,
+}: FeaturedTrackItemProps) => {
+  const {
+    playing,
+    togglePlaying,
+    currentTrackId,
+    setTracklist,
+    setCurrentTrackId,
+    setCurrentTrackIndex,
+    audioRef,
+    audioCtxRef,
+  } = useAudioPlayer();
+
   const { data: creator } = useQuery({
     queryKey: [`profile-${track.creator}`],
     enabled: !!track.creator,
@@ -31,16 +50,44 @@ export const FeaturedTrackItem = ({ track }: FeaturedTrackItemProps) => {
     },
   });
 
-  useEffect(() => {
-    console.log({ track });
-  }, []);
+  const handleClick = () => {
+    handlePlayPause();
+
+    if (currentTrackId === track.txid) {
+      togglePlaying?.();
+    } else {
+      if (trackIndex >= 0) {
+        setTracklist?.(tracklist);
+        setCurrentTrackId?.(track.txid);
+        setCurrentTrackIndex?.(trackIndex);
+      }
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (!audioRef.current || !audioCtxRef.current) return;
+
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+
+    if (playing) {
+      audioRef.current.pause();
+    }
+
+    if (!playing && audioRef.current.readyState >= 2) {
+      audioRef.current.play();
+    }
+  };
+
+  const isPlaying = playing && currentTrackId === track.txid;
 
   return (
     <Flex
       key={track.txid}
       css={{
         width: "100%",
-        maxHeight: "48dvh",
+        maxHeight: "52dvh",
         overflow: "hidden",
         position: "relative",
       }}
@@ -59,8 +106,13 @@ export const FeaturedTrackItem = ({ track }: FeaturedTrackItemProps) => {
         css={{
           position: "absolute",
           inset: 0,
-          backgroundColor: "$blackA9",
-          backdropFilter: "blur(20px)",
+          backgroundColor: "$blackA10",
+          backdropFilter: "blur(8px)",
+          "-webkit-backdrop-filter": "blur(8px)",
+          backfaceVisibility: "hidden",
+          "-webkit-backface-visibility": "hidden",
+          transform: "translate3d(0,0,0)",
+          "-webkit-transform": "translate3d(0,0,0)",
         }}
       />
       <Flex
@@ -118,15 +170,30 @@ export const FeaturedTrackItem = ({ track }: FeaturedTrackItemProps) => {
             </Typography>
           </Link>
           <Flex gap="5">
-            <IconButton size="3" variant="solid" rounded>
-              <IoPlay />
-            </IconButton>
+            <PlayButton
+              css={{
+                backgroundColor: "$whiteA11",
+                color: "$blackA12",
+
+                "&:hover": {
+                  backgroundColor: "$whiteA12",
+                },
+              }}
+              size="3"
+              playing={isPlaying}
+              data-playing={isPlaying}
+              aria-checked={isPlaying}
+              role="switch"
+              onClick={handleClick}
+            >
+              {isPlaying ? <IoPauseSharp /> : <IoPlaySharp />}
+            </PlayButton>
             <IconButton size="3" variant="translucent" rounded>
               <BsSuitHeart />
             </IconButton>
-            <IconButton size="3" variant="translucent" rounded>
+            {/* <IconButton size="3" variant="translucent" rounded>
               <RxDotsHorizontal />
-            </IconButton>
+            </IconButton> */}
           </Flex>
         </Flex>
       </Flex>

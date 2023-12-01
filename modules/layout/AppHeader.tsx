@@ -90,7 +90,7 @@ export const AppHeader = () => {
         py: "$3",
         px: "$10",
         backgroundColor: "$neutralA11",
-        backdropFilter: "blur(20px)",
+        backdropFilter: "blur(12px)",
         backfaceVisibility: "hidden",
         "-webkit-backface-visibility": "hidden",
         "-webkit-transform": "translate3d(0,0,0)",
@@ -98,7 +98,6 @@ export const AppHeader = () => {
         borderBottom: "1px solid $colors$neutralInvertedA3",
         // mb: location.pathname === "/profile" ? 0 : "$20",
       }}
-      justify="between"
       align="center"
     >
       <Flex gap="10" align="center">
@@ -115,19 +114,16 @@ export const AppHeader = () => {
             }}
           />
         </Link>
-        <SearchBar />
       </Flex>
-      <Flex as="nav" gap="5" justify="center">
+      <SearchBar />
+      {/* <Flex as="nav" gap="5" justify="center">
         <NavLink selected={location.pathname === "/"} to={"/"}>
           discover
         </NavLink>
-        {/* <NavLink selected={location.pathname === "/upload"} to={"/upload"}>
-          upload
-        </NavLink> */}
         <NavLink selected={location.pathname === "/profile"} to={"/profile"}>
           profile
         </NavLink>
-      </Flex>
+      </Flex> */}
       <Flex align="center" justify="end" gap="2">
         <IconButton
           css={{

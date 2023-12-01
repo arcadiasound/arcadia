@@ -162,6 +162,10 @@ export const {
     br: (value: Stitches.PropertyValue<"borderRadius">) => ({
       borderRadius: value,
     }),
+    boxSize: (value: Stitches.PropertyValue<"width">) => ({
+      width: value,
+      height: value,
+    }),
   },
 });
 

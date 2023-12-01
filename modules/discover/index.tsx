@@ -18,12 +18,15 @@ import { FeaturedTrackItem } from "./components/FeaturedTrackItem";
 
 const CarouselSkipButton = styled(IconButton, {
   mx: "$5",
-  backdropFilter: "blur(20px)",
+  // backdropFilter: "blur(20px)",
 });
 
 const carouselParams: CarouselProps = {
   wrapAround: true,
   dragThreshold: 0.2,
+  autoplay: true,
+  autoplayInterval: 8000,
+  speed: 1250,
 };
 
 const TrackSkeleton = styled(Skeleton, {
@@ -86,7 +89,7 @@ export const Discover = () => {
             css={{
               width: "100%",
               height: "100%",
-              maxHeight: "48dvh",
+              maxHeight: "52dvh",
               aspectRatio: 4 / 3,
             }}
           />
@@ -150,8 +153,13 @@ export const Discover = () => {
             )}
             {...carouselParams}
           >
-            {featuredTracks.map((track) => (
-              <FeaturedTrackItem key={track.txid} track={track} />
+            {featuredTracks.map((track, index) => (
+              <FeaturedTrackItem
+                key={track.txid}
+                track={track}
+                trackIndex={index}
+                tracklist={featuredTracks}
+              />
             ))}
           </Carousel>
         )}

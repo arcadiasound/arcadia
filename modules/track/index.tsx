@@ -375,6 +375,10 @@ export const Track = () => {
 
   return (
     <Flex
+      css={{
+        pt: 80 + appConfig.headerMaxHeight,
+        height: "100%",
+      }}
       direction={{
         "@initial": "column",
         "@bp4": "row",
@@ -382,7 +386,7 @@ export const Track = () => {
       gap="10"
       align={{
         "@initial": "center",
-        "@bp4": "start",
+        "@bp4": "center",
       }}
       justify="center"
     >
@@ -489,9 +493,9 @@ export const Track = () => {
         </Box>
 
         {track && (
-          <Flex justify="between" align="center">
+          <Flex justify="between" align="center" css={{ px: "$2" }}>
             <Flex align="center">
-              <Flex direction="column">
+              <Flex direction="column" gap="1">
                 <Typography contrast="hi" size="5">
                   {track.title}
                 </Typography>
@@ -501,38 +505,13 @@ export const Track = () => {
                     search: `?addr=${track.creator}`,
                   }}
                 >
-                  <Flex gap="2" align="center">
-                    {account ? (
-                      <Image
-                        css={{
-                          width: 20,
-                          height: 20,
-                          br: 9999,
-                        }}
-                        src={
-                          avatarUrl === appConfig.accountAvatarDefault
-                            ? `https://source.boringavatars.com/marble/100/${account?.txid}?square=true`
-                            : avatarUrl
-                        }
-                      />
-                    ) : (
-                      <Box
-                        css={{
-                          width: 20,
-                          height: 20,
-                          backgroundColor: "$slate3",
-                          br: 9999,
-                        }}
-                      />
-                    )}
-                    <Typography>
-                      {account?.profile.name ||
-                        abbreviateAddress({
-                          address: track.creator,
-                          options: { startChars: 6, endChars: 6 },
-                        })}
-                    </Typography>
-                  </Flex>
+                  <Typography>
+                    {account?.profile.name ||
+                      abbreviateAddress({
+                        address: track.creator,
+                        options: { startChars: 6, endChars: 6 },
+                      })}
+                  </Typography>
                 </Link>
               </Flex>
             </Flex>
@@ -568,7 +547,7 @@ export const Track = () => {
       <Flex
         direction="column"
         gap="10"
-        css={{ flex: 1, "@bp4": { maxWidth: 500 } }}
+        css={{ flex: 1, "@bp4": { maxWidth: 500, alignSelf: "start" } }}
       >
         <Tabs
           onValueChange={(e) => setActiveTab(e as TrackTab)}

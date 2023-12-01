@@ -18,10 +18,8 @@ import { appConfig } from "@/appConfig";
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/lib/getProfile";
 import { Link } from "react-router-dom";
-
-const PlayPauseButton = styled(IconButton, {
-  br: 9999,
-});
+import { BsMusicNote } from "react-icons/bs";
+import { PlayButton } from "../track/components/PlayButton";
 
 const SkipButton = styled(IconButton, {
   "& svg": {
@@ -67,8 +65,8 @@ const AudioContainer = styled(Box, {
   overflow: "hidden",
   position: "fixed",
   bottom: 0,
-  backgroundColor: "$neutralA11",
-  backdropFilter: "blur(30px)",
+  backgroundColor: "$neutralA12",
+  backdropFilter: "blur(10px)",
   maxHeight: appConfig.playerMaxHeight,
   borderTop: "1px solid $colors$neutralInvertedA3",
 });
@@ -280,17 +278,25 @@ export const AudioPlayer = () => {
             width: 48,
             height: 48,
             overflow: "hidden",
+            display: "grid",
+            placeItems: "center",
+            backgroundColor: "$neutralInvertedA3",
+            color: "$neutralInvertedA12",
+            br: 2,
           }}
         >
-          <CoverArtwork
-            src={
-              currentTrack?.artworkId
-                ? `https://arweave.net/${currentTrack?.artworkId}`
-                : `https://source.boringavatars.com/marble/200/${currentTrack?.txid}?square=true`
-            }
-          />
+          {currentTrack ? (
+            <CoverArtwork
+              src={
+                currentTrack?.artworkId
+                  ? `https://arweave.net/${currentTrack?.artworkId}`
+                  : `https://source.boringavatars.com/marble/200/${currentTrack?.txid}?square=true`
+              }
+            />
+          ) : (
+            <BsMusicNote />
+          )}
         </Box>
-
         {currentTrack && (
           <Flex direction="column">
             <Link
@@ -299,7 +305,11 @@ export const AudioPlayer = () => {
                 search: `?tx=${currentTrack.txid}`,
               }}
             >
-              <Typography css={{ color: "$neutralInvertedA12" }} weight="6">
+              <Typography
+                size="2"
+                css={{ color: "$neutralInvertedA12" }}
+                weight="6"
+              >
                 {currentTrack.title ? currentTrack.title : "-"}
               </Typography>
             </Link>
@@ -309,7 +319,7 @@ export const AudioPlayer = () => {
                 search: `?addr=${currentTrack.creator}`,
               }}
             >
-              <Typography size="2" css={{ color: "$neutralInvertedA11" }}>
+              <Typography size="1" css={{ color: "$neutralInvertedA11" }}>
                 {account?.profile.name ||
                   abbreviateAddress({
                     address: currentTrack.creator,
@@ -351,25 +361,8 @@ export const AudioPlayer = () => {
           >
             <IoPlaySkipBackSharp />
           </SkipButton>
-          <PlayPauseButton
-            css={{
-              color: "$slate1",
-              backgroundColor: "$slate12",
-              opacity: 0.9,
-
-              "& svg": {
-                transform: playing ? "translateX(0)" : "translateX(1px)",
-              },
-
-              "&:hover": {
-                backgroundColor: "$slateSolidHover",
-                opacity: 0.9,
-              },
-
-              "&:active": {
-                transform: "scale(0.95)",
-              },
-            }}
+          <PlayButton
+            playing={playing}
             size="2"
             data-playing={playing}
             aria-checked={playing}
@@ -380,7 +373,7 @@ export const AudioPlayer = () => {
             }}
           >
             {playing ? <IoPauseSharp /> : <IoPlaySharp />}
-          </PlayPauseButton>
+          </PlayButton>
           <SkipButton
             onClick={() => {
               handleNextTrack?.();

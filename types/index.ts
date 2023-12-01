@@ -38,7 +38,7 @@ export type Track = {
   txid: string;
   dateCreated?: number;
   license?: License;
-  cursor: string;
+  cursor?: string;
 };
 
 export type Tracklist = Track[];

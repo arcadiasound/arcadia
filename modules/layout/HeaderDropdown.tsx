@@ -53,9 +53,11 @@ export const HeaderDropdown = ({
         <Button
           css={{
             fontWeight: 400,
+            color: "$neutralInvertedA11",
+
             "&:hover": {
-              backgroundColor: "transparent",
-              color: "$slate12",
+              backgroundColor: "$neutralInvertedA2",
+              color: "$neutralInvertedA12",
             },
             "&:active": { backgroundColor: "transparent" },
           }}

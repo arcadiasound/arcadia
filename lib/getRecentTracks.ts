@@ -42,20 +42,13 @@ const queryRecentTracks = async (
         name: "App-Name",
         values: ["SmartWeaveContract"],
       },
-      {
-        name: "App-Version",
-        values: ["0.3.0"],
-      },
     ],
   };
 
   if (cursor) {
-    variables.first = tracks.length * 2;
+    // variables.first = tracks.length * 2;
     variables.after = cursor;
   }
-
-  console.log(cursor);
-  console.log(variables);
 
   const res = await gql({
     variables: {
