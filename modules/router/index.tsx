@@ -8,6 +8,7 @@ import { Box } from "@/ui/Box";
 import { Track } from "../track";
 import { appConfig } from "@/appConfig";
 import { Search } from "../search";
+import { AudioPlayer } from "../audioPlayer/AudioPlayer";
 
 export const AppRouter = () => (
   <HashRouter>
@@ -22,15 +23,15 @@ export const AppRouter = () => (
         "@bp3": {
           px: 0,
           // backgroundColor: "$yellow3",
-          maxWidth: 920,
+          // maxWidth: 920,
         },
         "@bp4": {
           // backgroundColor: "$blue3",
-          maxWidth: 1200,
+          // maxWidth: 1200,
         },
         "@bp5": {
           // backgroundColor: "$red3",
-          maxWidth: 1400,
+          // maxWidth: 1400,
         },
 
         pb: appConfig.playerMaxHeight + 20,
@@ -43,6 +44,7 @@ export const AppRouter = () => (
         <Route path={"/upload"} element={<Upload />} />
         <Route path={"/search"} element={<Search />} />
       </Routes>
+      <AudioPlayer />
     </Box>
   </HashRouter>
 );

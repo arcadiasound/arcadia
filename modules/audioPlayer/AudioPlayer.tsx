@@ -17,19 +17,18 @@ import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { appConfig } from "@/appConfig";
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/lib/getProfile";
-
-const PlayPauseButton = styled(IconButton, {
-  br: 9999,
-});
+import { Link } from "react-router-dom";
+import { BsMusicNote } from "react-icons/bs";
+import { PlayButton } from "../track/components/PlayButton";
 
 const SkipButton = styled(IconButton, {
   "& svg": {
-    color: "$whiteA11",
+    color: "$neutralInvertedA11",
   },
 
   "&:hover": {
     "& svg": {
-      color: "$whiteA12",
+      color: "$neutralInvertedA12",
     },
   },
 });
@@ -66,9 +65,10 @@ const AudioContainer = styled(Box, {
   overflow: "hidden",
   position: "fixed",
   bottom: 0,
-  backgroundColor: "$blackA12",
-  backdropFilter: "blur(4px)",
+  backgroundColor: "$neutralA12",
+  backdropFilter: "blur(10px)",
   maxHeight: appConfig.playerMaxHeight,
+  borderTop: "1px solid $colors$neutralInvertedA3",
 });
 
 const VolumeSlider = styled(Slider);
@@ -277,31 +277,56 @@ export const AudioPlayer = () => {
             position: "relative",
             width: 48,
             height: 48,
-            borderRadius: "$2",
             overflow: "hidden",
+            display: "grid",
+            placeItems: "center",
+            backgroundColor: "$neutralInvertedA3",
+            color: "$neutralInvertedA12",
+            br: 2,
           }}
         >
-          <CoverArtwork
-            src={
-              currentTrack?.artworkId
-                ? `https://arweave.net/${currentTrack?.artworkId}`
-                : `https://source.boringavatars.com/marble/200/${currentTrack?.txid}?square=true`
-            }
-          />
+          {currentTrack ? (
+            <CoverArtwork
+              src={
+                currentTrack?.artworkId
+                  ? `https://arweave.net/${currentTrack?.artworkId}`
+                  : `https://source.boringavatars.com/marble/200/${currentTrack?.txid}?square=true`
+              }
+            />
+          ) : (
+            <BsMusicNote />
+          )}
         </Box>
-
         {currentTrack && (
           <Flex direction="column">
-            <Typography css={{ color: "$whiteA12" }} weight="6">
-              {currentTrack?.title ? currentTrack?.title : "(Untitled)"}
-            </Typography>
-            <Typography size="2" css={{ color: "$whiteA11" }}>
-              {account?.profile.name ||
-                abbreviateAddress({
-                  address: currentTrack.creator,
-                  options: { endChars: 5, noOfEllipsis: 3 },
-                })}
-            </Typography>
+            <Link
+              to={{
+                pathname: "/track",
+                search: `?tx=${currentTrack.txid}`,
+              }}
+            >
+              <Typography
+                size="2"
+                css={{ color: "$neutralInvertedA12" }}
+                weight="6"
+              >
+                {currentTrack.title ? currentTrack.title : "-"}
+              </Typography>
+            </Link>
+            <Link
+              to={{
+                pathname: "/profile",
+                search: `?addr=${currentTrack.creator}`,
+              }}
+            >
+              <Typography size="1" css={{ color: "$neutralInvertedA11" }}>
+                {account?.profile.name ||
+                  abbreviateAddress({
+                    address: currentTrack.creator,
+                    options: { endChars: 5, noOfEllipsis: 3 },
+                  })}
+              </Typography>
+            </Link>
           </Flex>
         )}
       </Flex>
@@ -319,40 +344,25 @@ export const AudioPlayer = () => {
             my: "$3",
           }}
           align="center"
-          gap="1"
+          gap="3"
         >
           <SkipButton
             onClick={() => {
               handlePrevTrack?.();
             }}
             css={{
+              backgroundColor: "transparent",
               svg: {
                 size: "$6",
               },
             }}
-            variant="ghost"
+            variant="translucent"
+            disabled={tracklist.length < 2}
           >
             <IoPlaySkipBackSharp />
           </SkipButton>
-          <PlayPauseButton
-            css={{
-              color: "$blackA12",
-              backgroundColor: "$whiteA12",
-              opacity: 0.9,
-
-              "& svg": {
-                transform: playing ? "translateX(0)" : "translateX(1px)",
-              },
-
-              "&:hover": {
-                backgroundColor: "$whiteA11",
-                opacity: 0.9,
-              },
-
-              "&:active": {
-                transform: "scale(0.95)",
-              },
-            }}
+          <PlayButton
+            playing={playing}
             size="2"
             data-playing={playing}
             aria-checked={playing}
@@ -363,17 +373,19 @@ export const AudioPlayer = () => {
             }}
           >
             {playing ? <IoPauseSharp /> : <IoPlaySharp />}
-          </PlayPauseButton>
+          </PlayButton>
           <SkipButton
             onClick={() => {
               handleNextTrack?.();
             }}
             css={{
+              backgroundColor: "transparent",
+
               svg: {
                 size: "$6",
               },
             }}
-            variant="ghost"
+            variant="translucent"
             disabled={tracklist.length < 2}
           >
             <IoPlaySkipForwardSharp />
@@ -389,7 +401,7 @@ export const AudioPlayer = () => {
         >
           <Typography
             css={{
-              color: "$whiteA11",
+              color: "$neutralInvertedA11",
               fontSize: 11,
             }}
           >
@@ -420,23 +432,14 @@ export const AudioPlayer = () => {
               <SliderThumb data-slider-thumb />
             </ProgressSlider>
           </ProgressContainer>
-          {/* <Flex
-            css={{
-              top: "$5",
-              width: "100%",
-              position: "absolute",
-            }}
-            justify="between"
-          > */}
           <Typography
             css={{
-              color: "$whiteA11",
+              color: "$neutralInvertedA11",
               fontSize: 11,
             }}
           >
             {duration && !isNaN(duration) ? formatTime(duration) : `0:00`}
           </Typography>
-          {/* </Flex> */}
         </Flex>
       </Flex>
 
@@ -445,7 +448,7 @@ export const AudioPlayer = () => {
           flex: 1,
           "& svg": {
             size: "$5",
-            color: "$whiteA12",
+            color: "$neutralInvertedA12",
           },
         }}
         align="center"

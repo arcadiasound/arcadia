@@ -1,6 +1,16 @@
 import { PermissionType } from "arconnect";
 import { AppInfo } from "arweave-wallet-connector";
 import { ReactiveConnector } from "arweave-wallet-connector/lib/browser/Reactive";
+import arweaveGql, {
+  Transaction,
+  Query,
+  GetTransactionsQueryVariables,
+} from "arweave-graphql";
+
+export interface GQLQuery {
+  variables: GetTransactionsQueryVariables;
+  gateway?: string;
+}
 
 export interface Comment {
   comment: string;
@@ -21,12 +31,14 @@ export type License = {
 
 export type Track = {
   title: string | undefined;
+  description?: string;
   creator: string;
   artworkId: string | undefined;
   src: string;
   txid: string;
   dateCreated?: number;
   license?: License;
+  cursor?: string;
 };
 
 export type Tracklist = Track[];

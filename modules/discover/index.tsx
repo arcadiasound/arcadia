@@ -10,11 +10,28 @@ import { useMotionAnimate } from "motion-hooks";
 import { stagger } from "motion";
 import { useEffect } from "react";
 import { getFeaturedTracks } from "@/lib/getFeaturedTracks";
-import Carousel from "nuka-carousel";
+import Carousel, { CarouselProps } from "nuka-carousel";
+import { Box } from "@/ui/Box";
+import { IconButton } from "@/ui/IconButton";
+import { RxArrowLeft, RxArrowRight, RxDotFilled } from "react-icons/rx";
+import { FeaturedTrackItem } from "./components/FeaturedTrackItem";
+
+const CarouselSkipButton = styled(IconButton, {
+  mx: "$5",
+  // backdropFilter: "blur(20px)",
+});
+
+const carouselParams: CarouselProps = {
+  wrapAround: true,
+  dragThreshold: 0.2,
+  autoplay: true,
+  autoplayInterval: 8000,
+  speed: 1250,
+};
 
 const TrackSkeleton = styled(Skeleton, {
-  width: 200,
-  height: 200,
+  width: 250,
+  height: 250,
 });
 
 export const Discover = () => {
@@ -29,11 +46,22 @@ export const Discover = () => {
   );
 
   const {
+    data: featuredTracks,
+    isError: featuredTracksError,
+    isLoading: featuredTracksLoading,
+  } = useQuery({
+    queryKey: [`featuredTracks`],
+    refetchOnWindowFocus: false,
+    queryFn: () => getFeaturedTracks(),
+  });
+
+  const {
     data: recentTracks,
     isError,
     isLoading,
   } = useQuery({
     queryKey: [`recentTracks`],
+    refetchOnWindowFocus: false,
     queryFn: () => getRecentTracks(),
   });
 
@@ -47,6 +75,7 @@ export const Discover = () => {
   return (
     <Flex
       css={{
+        pt: 64,
         ".trackItem": {
           opacity: 0,
         },
@@ -54,37 +83,127 @@ export const Discover = () => {
       direction="column"
       gap="20"
     >
-      <Flex direction="column">
-        <Typography
-          css={{ mb: "$3" }}
-          as="h2"
-          size="4"
-          weight="4"
-          contrast="hi"
-        >
-          latest tracks
-        </Typography>
-        {recentTracks && recentTracks.length > 0 && (
-          <Flex wrap="wrap" gap="10">
-            {recentTracks.map((track, idx) => (
-              <TrackCard
+      <Flex direction="column" gap="20">
+        {featuredTracksLoading && (
+          <Skeleton
+            css={{
+              width: "100%",
+              height: "100%",
+              maxHeight: "52dvh",
+              aspectRatio: 4 / 3,
+            }}
+          />
+        )}
+        {featuredTracks && featuredTracks.length && (
+          <Carousel
+            renderCenterLeftControls={(control) => (
+              <CarouselSkipButton
+                onClick={() => control.previousSlide()}
+                size="3"
+                rounded
+                variant="translucent"
+              >
+                <RxArrowLeft />
+              </CarouselSkipButton>
+            )}
+            renderCenterRightControls={(control) => (
+              <CarouselSkipButton
+                onClick={() => control.nextSlide()}
+                size="3"
+                rounded
+                variant="translucent"
+              >
+                <RxArrowRight />
+              </CarouselSkipButton>
+            )}
+            renderBottomCenterControls={(control) => (
+              <Flex
+                css={{
+                  listStyleType: "none",
+                  // mb: "$3",
+                  "& svg": { width: 28, height: 28 },
+                }}
+                as="ul"
+              >
+                {featuredTracks.map((track, index) => (
+                  <Box as="li" key={track.txid}>
+                    <IconButton
+                      css={{
+                        color:
+                          control.currentSlide === index
+                            ? "$whiteA12"
+                            : "$whiteA7",
+
+                        "&:hover": {
+                          color:
+                            control.currentSlide === index
+                              ? "$whiteA12"
+                              : "$whiteA9",
+                        },
+                      }}
+                      onClick={() => control.goToSlide(index)}
+                      size="2"
+                      variant="transparent"
+                    >
+                      <RxDotFilled />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Flex>
+            )}
+            {...carouselParams}
+          >
+            {featuredTracks.map((track, index) => (
+              <FeaturedTrackItem
                 key={track.txid}
                 track={track}
-                trackIndex={idx}
-                tracks={recentTracks}
+                trackIndex={index}
+                tracklist={featuredTracks}
               />
             ))}
-          </Flex>
+          </Carousel>
         )}
-        {isLoading && (
-          <Flex wrap="wrap" gap="10">
-            <TrackSkeleton />
-            <TrackSkeleton />
-            <TrackSkeleton />
-            <TrackSkeleton />
-            <TrackSkeleton />
-          </Flex>
-        )}
+        <Flex
+          css={{ maxWidth: 1400, alignSelf: "center" }}
+          direction="column"
+          justify="center"
+        >
+          <Typography
+            css={{ mb: "$3", width: "100%" }}
+            as="h2"
+            size="4"
+            weight="4"
+            contrast="hi"
+          >
+            latest tracks
+          </Typography>
+          {recentTracks && recentTracks.length > 0 && (
+            <Flex css={{ width: "100%", rowGap: "$10" }} wrap="wrap" gap="5">
+              {recentTracks.map((track, idx) => (
+                <TrackCard
+                  key={track.txid}
+                  track={track}
+                  trackIndex={idx}
+                  tracks={recentTracks}
+                  size={250}
+                />
+              ))}
+            </Flex>
+          )}
+          {isLoading && (
+            <Flex
+              css={{ width: "100%", maxWidth: 1400, rowGap: "$10" }}
+              wrap="wrap"
+              gap="5"
+            >
+              <TrackSkeleton />
+              <TrackSkeleton />
+              <TrackSkeleton />
+              <TrackSkeleton />
+              <TrackSkeleton />
+            </Flex>
+          )}
+        </Flex>
       </Flex>
     </Flex>
   );

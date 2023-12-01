@@ -80,16 +80,32 @@ export const IconButton = styled("button", {
           backgroundColor: "$slate5",
         },
       },
-      ghost: {
-        color: "$$color",
-        backgroundColor: "transparent",
+      solid: {
+        backgroundColor: "$slate12",
+        color: "$slate1",
 
         "&:hover": {
-          backgroundColor: "$$bgHover",
+          backgroundColor: "$slateSolidHover",
         },
 
         "&:active": {
-          backgroundColor: "$$bgActive",
+          backgroundColor: "$slateSolidHover",
+        },
+
+        "&:focus-visible": {
+          boxShadow: "0 0 0 2px $colors$focus",
+        },
+      },
+      ghost: {
+        color: "$slate11",
+        backgroundColor: "transparent",
+
+        "&:hover": {
+          backgroundColor: "$slate4",
+        },
+
+        "&:active": {
+          backgroundColor: "$slate5",
         },
       },
       transparent: {
@@ -100,9 +116,28 @@ export const IconButton = styled("button", {
           color: "$slate12",
         },
       },
+      translucent: {
+        backgroundColor: "$whiteA3",
+        color: "$whiteA11",
+
+        "&:hover": {
+          backgroundColor: "$whiteA4",
+          color: "$whiteA12",
+        },
+
+        "&:active": {
+          backgroundColor: "$whiteA5",
+        },
+      },
     },
+
     border: {
       true: {},
+    },
+    rounded: {
+      true: {
+        br: "$round",
+      },
     },
   },
   compoundVariants: [
