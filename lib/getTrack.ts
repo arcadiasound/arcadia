@@ -111,6 +111,9 @@ const setTrackInfo = async (
 
   let duration;
 
+  /* we should move this into a useQuery hook to load dynamically
+     only fetch when we have track, as not to delay track loading
+  */
   if (audioContext.current) {
     try {
       await fetch(`https://arweave.net/${node.id}`)
