@@ -61,11 +61,13 @@ const queryRecentTracks = async (
   tracks = tracks.concat(data);
 
   if (tracks.length >= 5) {
-    return tracks.slice(0, 5);
+    return removeDuplicatesByCreator(removeDuplicatesByTxid(tracks)).slice(
+      0,
+      5
+    );
   } else {
     const lastItem = data[data.length - 1];
 
-    // double what we need to account for post-query filtering
     return await queryRecentTracks(tracks, lastItem?.cursor);
   }
 };
@@ -73,7 +75,7 @@ const queryRecentTracks = async (
 const filterQueryResults = (res: GetTransactionsQuery) => {
   const data = res.transactions.edges
     .filter((edge) => !appConfig.featuredIds.includes(edge.node.id))
-    .filter((edge) => Number(edge.node.data.size) < 1e8)
+    // .filter((edge) => Number(edge.node.data.size) < 1e8)
     .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
     .filter(
       (edge) =>
@@ -90,6 +92,8 @@ const filterQueryResults = (res: GetTransactionsQuery) => {
     );
 
   const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
+
+  console.log({ dedupedData });
 
   return dedupedData;
 };

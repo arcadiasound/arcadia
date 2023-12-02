@@ -14,10 +14,10 @@ export const slate = {
 };
 
 export const slateDark = {
-  slate1: "hsl(200, 6.0%, 5.0%)",
-  slate2: "hsl(195, 7.1%, 11.0%)",
-  slate3: "hsl(197, 6.8%, 13.6%)",
-  slate4: "hsl(198, 6.6%, 15.8%)",
+  slate1: "hsl(200, 6.0%, 6.0%)",
+  slate2: "hsl(195, 7.1%, 10.0%)",
+  slate3: "hsl(197, 6.8%, 13.1%)",
+  slate4: "hsl(198, 6.6%, 15.3%)",
   slate5: "hsl(199, 6.4%, 17.9%)",
   slate6: "hsl(201, 6.2%, 20.5%)",
   slate7: "hsl(203, 6.0%, 24.3%)",

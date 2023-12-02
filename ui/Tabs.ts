@@ -10,10 +10,7 @@ export const TabsList = styled(TabsPrimitive.List, {
 
 export const TabsTrigger = styled(TabsPrimitive.Trigger, {
   all: "unset",
-  fontSize: "$2",
   color: "$slate9",
-  px: "$5",
-  pb: "$2",
 
   "&:hover": {
     color: "$slate10",
@@ -27,7 +24,26 @@ export const TabsTrigger = styled(TabsPrimitive.Trigger, {
   '&[data-state="active"]': {
     color: "$slate12",
     boxShadow: "0 1px 0 0 $colors$slate12",
-    fontWeight: 600,
+    fontWeight: 500,
+  },
+
+  variants: {
+    size: {
+      1: {
+        fontSize: "$2",
+        px: "$5",
+        py: "$2",
+      },
+      2: {
+        fontSize: "$3",
+        px: "$5",
+        py: "$2",
+      },
+    },
+  },
+
+  defaultVariants: {
+    size: "1",
   },
 });
 

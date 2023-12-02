@@ -43,8 +43,8 @@ export const {
       slateSolidActive: "hsl(206, 6.0%, 24.0%)",
     },
     fonts: {
-      heading: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      body: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      heading: "Silka, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      body: "Silka, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     },
     space: {
       1: "4px",
