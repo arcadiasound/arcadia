@@ -64,6 +64,7 @@ const AudioContainer = styled(Box, {
   px: "$5",
   overflow: "hidden",
   position: "fixed",
+  zIndex: "$docked",
   bottom: 0,
   backgroundColor: "$neutralA12",
   backdropFilter: "blur(10px)",

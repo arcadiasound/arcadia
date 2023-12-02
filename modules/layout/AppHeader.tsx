@@ -82,7 +82,7 @@ export const AppHeader = () => {
     <Flex
       as="header"
       css={{
-        zIndex: 999,
+        zIndex: "$docked",
         position: "fixed",
         top: 0,
         display: "grid",
