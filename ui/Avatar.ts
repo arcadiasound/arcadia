@@ -70,6 +70,14 @@ export const Avatar = styled(AvatarPrimitive.Root, {
           lineHeight: "$7",
         },
       },
+      8: {
+        width: 120,
+        height: 120,
+        '& span[data-avatar="fallback"]': {
+          fontSize: "$7",
+          lineHeight: "$7",
+        },
+      },
     },
     shape: {
       round: {

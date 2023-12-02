@@ -16,6 +16,7 @@ import { useConnect } from "@/hooks/useConnect";
 import { Skeleton } from "@/ui/Skeleton";
 import { getLikedTracks } from "@/lib/getLikedTracks";
 import { getAssetCollection } from "@/lib/getAssetCollection";
+import { Avatar, AvatarFallback, AvatarImage } from "@/ui/Avatar";
 
 const TrackSkeleton = styled(Skeleton, {
   width: 200,
@@ -68,27 +69,24 @@ export const Profile = () => {
 
   const addr = urlParams.get("addr");
 
-  const { data: account, isError } = useQuery({
-    queryKey: [`profile-${addr}`],
-    queryFn: () => {
-      if (!addr) {
-        if (walletAddress) {
-          return getProfile(walletAddress);
-        } else {
-          throw new Error("No profile has been found");
-        }
-      }
+  const address = addr || walletAddress;
 
-      return getProfile(addr);
+  const { data: account, isError } = useQuery({
+    queryKey: [`profile-${address}`],
+    queryFn: () => {
+      if (address) {
+        return getProfile(address);
+      } else {
+        return;
+      }
     },
   });
 
   const { data: tracks, isLoading: tracksLoading } = useQuery({
-    queryKey: [`tracks-by=${addr}`],
+    queryKey: [`tracks-by=${address}`],
     refetchOnWindowFocus: false,
     enabled: activeTab === "tracks",
     queryFn: () => {
-      const address = addr || walletAddress;
       if (address) {
         return getTrackByOwners(address);
       } else {
@@ -98,11 +96,10 @@ export const Profile = () => {
   });
 
   const { data: likedTracks, isLoading: likedTracksLoading } = useQuery({
-    queryKey: [`liked-tracks-${addr}`],
+    queryKey: [`liked-tracks-${address}`],
     refetchOnWindowFocus: false,
     enabled: activeTab === "likes",
     queryFn: () => {
-      const address = addr || walletAddress;
       if (address) {
         return getLikedTracks(address);
       } else {
@@ -113,11 +110,10 @@ export const Profile = () => {
 
   const { data: assetCollection, isLoading: assetCollectionLoading } = useQuery(
     {
-      queryKey: [`assetCollectio0-${addr}`],
+      queryKey: [`assetCollectio0-${address}`],
       refetchOnWindowFocus: false,
       enabled: activeTab === "collection",
       queryFn: () => {
-        const address = addr || walletAddress;
         if (address) {
           return getAssetCollection(address);
         } else {
@@ -143,18 +139,31 @@ export const Profile = () => {
           width: "100%",
           height: 300,
           aspectRatio: 16 / 9,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundImage: `url(${
-            bannerUrl === appConfig.accountBannerDefault
-              ? `https://source.boringavatars.com/marble/1000/${account?.txid}?square=true`
-              : bannerUrl
-          })`,
-          "@bp5": {
-            height: 280,
-          },
         }}
-      />
+      >
+        {address ? (
+          <Box
+            css={{
+              width: "100%",
+              height: "100%",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundImage: `url(${
+                bannerUrl === appConfig.accountBannerDefault
+                  ? `https://source.boringavatars.com/marble/1000/${account?.txid}?square=true`
+                  : bannerUrl
+              })`,
+            }}
+          />
+        ) : (
+          <Skeleton
+            css={{
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        )}
+      </Box>
       <Box
         css={{
           display: "grid",
@@ -171,20 +180,34 @@ export const Profile = () => {
           direction="column"
           gap="5"
         >
-          <Image
-            css={{
-              width: 120,
-              height: 120,
-              br: 9999,
-              outline: "4px solid $colors$whiteA5",
-              outlineOffset: -4,
-            }}
-            src={
-              avatarUrl === appConfig.accountAvatarDefault
-                ? `https://source.boringavatars.com/marble/100/${account?.txid}?square=true`
-                : avatarUrl
-            }
-          />
+          <Avatar size="8">
+            <AvatarImage
+              css={{
+                width: 120,
+                height: 120,
+                br: 9999,
+                outline: "4px solid $colors$whiteA5",
+                outlineOffset: -4,
+              }}
+              src={
+                avatarUrl === appConfig.accountAvatarDefault
+                  ? `https://source.boringavatars.com/marble/100/${account?.txid}?square=true`
+                  : avatarUrl
+              }
+            />
+            <AvatarFallback
+              css={{
+                width: 120,
+                height: 120,
+                br: 9999,
+                outline: "4px solid $colors$whiteA5",
+                outlineOffset: -4,
+                backgroundColor: "$slate2",
+              }}
+            >
+              nJ
+            </AvatarFallback>
+          </Avatar>
           <Flex direction="column" gap="3">
             <Flex direction="column" gap="1">
               <Typography size="6" weight="5" contrast="hi">
