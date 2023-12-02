@@ -11,9 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/Tabs";
 import { getTrackByOwners } from "@/lib/getTrackByOwner";
 import { TrackCard } from "../track/TrackCard";
 import { styled } from "@/stitches.config";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useConnect } from "@/hooks/useConnect";
 import { Skeleton } from "@/ui/Skeleton";
+import { getLikedTracks } from "@/lib/getLikedTracks";
 
 const TrackSkeleton = styled(Skeleton, {
   width: 250,
@@ -24,12 +25,12 @@ const StyledTabsTrigger = styled(TabsTrigger, {
   br: "$1",
 
   "&:hover": {
-    backgroundColor: "$slate2",
+    backgroundColor: "$slate3",
     color: "$slate12",
   },
 
   '&[data-state="active"]': {
-    backgroundColor: "$slate3",
+    backgroundColor: "$slate4",
     color: "$slate12",
     boxShadow: "none",
     fontWeight: 400,
@@ -83,36 +84,47 @@ export const Profile = () => {
 
   const { data: tracks, isLoading: tracksLoading } = useQuery({
     queryKey: [`tracks-by=${addr}`],
+    refetchOnWindowFocus: false,
+    enabled: activeTab === "tracks",
     queryFn: () => {
-      if (!addr) {
-        if (walletAddress) {
-          return getTrackByOwners(walletAddress);
-        } else {
-          return;
-        }
+      const address = addr || walletAddress;
+      if (address) {
+        return getTrackByOwners(address);
+      } else {
+        return;
       }
+    },
+  });
 
-      return getTrackByOwners(addr);
+  const { data: likedTracks, isLoading: likedTracksLoading } = useQuery({
+    queryKey: [`liked-tracks-${addr}`],
+    refetchOnWindowFocus: false,
+    enabled: activeTab === "likes",
+    queryFn: () => {
+      const address = addr || walletAddress;
+      if (address) {
+        return getLikedTracks(address);
+      } else {
+        return;
+      }
     },
   });
 
   const bannerUrl = account?.profile.bannerURL;
   const avatarUrl = account?.profile.avatarURL;
 
-  // if (!walletAddress && !addr) {
-  //   return (
-  //     <Flex css={{ minHeight: 500 }} justify="center" align="center">
-  //       <Typography>No profile information could be found</Typography>
-  //     </Flex>
-  //   );
-  // }
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.scrollY) {
+      window.scroll(0, 0);
+    }
+  }, []);
 
   return (
     <Flex direction="column">
       <Box
         css={{
           width: "100%",
-          height: 280,
+          height: 300,
           aspectRatio: 16 / 9,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -129,8 +141,7 @@ export const Profile = () => {
       <Box
         css={{
           display: "grid",
-          gridTemplateColumns: "280px 1fr",
-          // maxWidth: 1400,
+          gridTemplateColumns: "300px 1fr",
           gap: 120,
         }}
       >
@@ -142,7 +153,6 @@ export const Profile = () => {
           }}
           direction="column"
           gap="5"
-          // align="center"
         >
           <Image
             css={{
@@ -175,7 +185,7 @@ export const Profile = () => {
           </Flex>
         </Flex>
         <Tabs
-          css={{ mt: 80 }}
+          css={{ mt: 40 }}
           onValueChange={(e) => setActiveTab(e as TrackTab)}
           defaultValue="tracks"
         >
@@ -183,7 +193,7 @@ export const Profile = () => {
             css={{
               br: "$2",
               width: "max-content",
-              gap: "$2",
+              gap: "$1",
               backgroundColor: "$slate1",
               boxShadow: "0 0 0 1px $colors$slate5",
               p: "$1",
@@ -206,7 +216,6 @@ export const Profile = () => {
               <Flex wrap="wrap" gap="10">
                 {tracks.map((track, idx) => (
                   <TrackCard
-                    size={250}
                     key={track.txid}
                     track={track}
                     trackIndex={idx}
@@ -216,20 +225,29 @@ export const Profile = () => {
               </Flex>
             )}
           </StyledTabsContent>
-          {/* <StyledTabsContent value="tracks">
-          {likedTracks && likedTracks.length > 0 && (
-            <Flex wrap="wrap" gap="10">
-              {likedTracks.map((track, idx) => (
-                <TrackCard
-                  key={track.txid}
-                  track={track}
-                  trackIndex={idx}
-                  tracks={likedTracks}
-                />
-              ))}
-            </Flex>
-          )}
-        </StyledTabsContent> */}
+          <StyledTabsContent value="likes">
+            {likedTracksLoading && (
+              <Flex wrap="wrap" gap="10">
+                <TrackSkeleton />
+                <TrackSkeleton />
+                <TrackSkeleton />
+                <TrackSkeleton />
+                <TrackSkeleton />
+              </Flex>
+            )}
+            {likedTracks && likedTracks.length > 0 && (
+              <Flex wrap="wrap" gap="10">
+                {likedTracks.map((track, idx) => (
+                  <TrackCard
+                    key={track.txid}
+                    track={track}
+                    trackIndex={idx}
+                    tracks={likedTracks}
+                  />
+                ))}
+              </Flex>
+            )}
+          </StyledTabsContent>
         </Tabs>
       </Box>
     </Flex>
