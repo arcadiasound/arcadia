@@ -95,14 +95,11 @@ export const AudioPlayer = () => {
   const [duration, setDuration] = useState<number>();
   const [currentTime, setCurrentTime] = useState<number>(0);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-
   const {
     audioRef,
     gainRef,
     audioCtxRef,
-    setAudioContext,
-    setAudioRef,
-    setGainRef,
+    setCurrentTrackId,
     tracklist,
     playing,
     togglePlaying,
@@ -114,11 +111,14 @@ export const AudioPlayer = () => {
     handlePrevTrack,
   } = useAudioPlayer();
 
+  const audioStateRef = useRef(tracklist);
+
   const currentTrack =
     tracklist.length > 0 ? tracklist[currentTrackIndex] : null;
 
   const { data: account, isError } = useQuery({
     queryKey: [`profile-${currentTrack?.creator}`],
+    enabled: !!currentTrack,
     queryFn: () => {
       if (!currentTrack) {
         return;
@@ -126,7 +126,6 @@ export const AudioPlayer = () => {
 
       return getProfile(currentTrack.creator);
     },
-    enabled: !!currentTrack,
   });
 
   useEffect(() => {
@@ -205,13 +204,6 @@ export const AudioPlayer = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(currentTrackIndex);
-    if (currentTrackIndex >= 0) {
-      console.log(currentTrackIndex);
-    }
-  }, [currentTrackIndex]);
-
   // set duration
   useEffect(() => {
     if (!audioRef.current) return;
@@ -224,33 +216,14 @@ export const AudioPlayer = () => {
     // setReady(audioRef.current.readyState > 2);
   }, [audioRef.current?.onloadeddata, audioRef.current?.readyState]);
 
-  // listeners
-  useEffect(() => {
-    if (audioRef.current) {
-      // if audio has ended
-      audioRef.current.addEventListener("ended", handleEnded);
-      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
-      audioRef.current.addEventListener("loadeddata", handleLoadedData);
-    }
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener("ended", handleEnded);
-        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
-        audioRef.current.removeEventListener("loadeddata", handleLoadedData);
-      }
-    };
-  }, []);
-
-  const handleEnded = () => handleTrackEnd?.();
-
   const handleTimeUpdate = () => {
     // check for current runs in useffect
     setCurrentTime(audioRef.current?.currentTime as number);
   };
 
   const handleLoadedData = () => {
-    console.log("track loaded");
+    // console.log("track loaded");
+
     if (audioRef.current?.readyState && audioRef.current?.readyState >= 2) {
       audioRef.current?.play();
     }
@@ -258,7 +231,12 @@ export const AudioPlayer = () => {
 
   return (
     <AudioContainer id="audio-container">
-      <audio ref={audioRef}>
+      <audio
+        ref={audioRef}
+        onEnded={handleTrackEnd}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedData={handleLoadedData}
+      >
         <source src={currentTrack?.src} type="audio/ogg" />
         <source src={currentTrack?.src} type="audio/wav" />
         <source src={currentTrack?.src} type="audio/mpeg" />
@@ -363,6 +341,7 @@ export const AudioPlayer = () => {
             <IoPlaySkipBackSharp />
           </SkipButton>
           <PlayButton
+            disabled={!tracklist.length}
             playing={playing}
             size="2"
             data-playing={playing}

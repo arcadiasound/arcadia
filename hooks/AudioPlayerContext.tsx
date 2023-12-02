@@ -180,6 +180,7 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     setAudioRef();
   }, []);
 
+  // state handlers
   const setCurrentTrackIndex = (index: number) => {
     dispatch({ type: "SET_CURRENT_TRACK_INDEX", payload: index });
     audioRef.current?.load();
@@ -196,16 +197,26 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
 
   const handlePrevTrack = (index?: number) => {
     if (index) {
-      return dispatch({
-        type: "SET_CURRENT_TRACK_INDEX",
-        payload: state.currentTrackIndex + 1,
-      });
-    }
-    console.log("skipping back");
-    if (state.currentTrackIndex == 0) {
-      setCurrentTrackIndex(state.tracklist.length - 1);
+      setCurrentTrackIndex(index);
+      setNextTrackId(index);
     } else {
-      setCurrentTrackIndex(state.currentTrackIndex - 1);
+      if (state.currentTrackIndex == 0) {
+        setCurrentTrackIndex(state.tracklist.length - 1);
+        setNextTrackId(state.tracklist.length - 1);
+      } else {
+        setCurrentTrackIndex(state.currentTrackIndex - 1);
+        setNextTrackId(state.currentTrackIndex - 1);
+      }
+    }
+  };
+
+  const setNextTrackId = (matcher: number) => {
+    const nextTrack = state.tracklist.find((track, index) => index === matcher);
+    console.log(state.tracklist);
+    console.log({ nextTrack });
+    const nextTx = nextTrack?.txid;
+    if (nextTx) {
+      setCurrentTrackId(nextTx);
     }
   };
 
@@ -231,15 +242,16 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
 
   const handleNextTrack = (index?: number) => {
     if (index) {
-      return dispatch({
-        type: "SET_CURRENT_TRACK_INDEX",
-        payload: index,
-      });
-    }
-    if (state.currentTrackIndex == state.tracklist.length - 1) {
-      setCurrentTrackIndex(0);
+      setCurrentTrackIndex(index);
+      setNextTrackId(index);
     } else {
-      setCurrentTrackIndex(state.currentTrackIndex + 1);
+      if (state.currentTrackIndex == state.tracklist.length - 1) {
+        setCurrentTrackIndex(0);
+        setNextTrackId(0);
+      } else {
+        setCurrentTrackIndex(state.currentTrackIndex + 1);
+        setNextTrackId(state.currentTrackIndex + 1);
+      }
     }
   };
 
