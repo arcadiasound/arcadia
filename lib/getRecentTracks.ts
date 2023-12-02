@@ -36,7 +36,7 @@ const queryRecentTracks = async (
     tags: [
       {
         name: "Content-Type",
-        values: ["audio/mpeg", "audio/wav"],
+        values: ["audio/mpeg", "audio/wav", "audio/aac"],
       },
       {
         name: "App-Name",
