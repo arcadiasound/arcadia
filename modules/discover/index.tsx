@@ -72,6 +72,12 @@ export const Discover = () => {
     }
   }, [recentTracks]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.scrollY) {
+      window.scroll(0, 0);
+    }
+  }, []);
+
   return (
     <Flex
       css={{
