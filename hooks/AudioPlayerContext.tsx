@@ -1,4 +1,5 @@
 import { Tracklist } from "@/types";
+import { shuffleArray } from "@/utils";
 import React, {
   Dispatch,
   MutableRefObject,
@@ -20,6 +21,7 @@ type AudioPlayerState = {
   shuffle: boolean;
   loop: boolean;
   tracklist: Tracklist;
+  originalTracklist: Tracklist;
   currentTrackIndex: number;
   currentTrackId: string;
 };
@@ -29,6 +31,7 @@ type AudioPlayerActionType =
   | "SET_AUDIO_ELEMENT"
   | "SET_GAIN_REF"
   | "SET_TRACKLIST"
+  | "SET_ORIGINAL_TRACKLIST"
   | "SET_CURRENT_TRACK_INDEX"
   | "SET_CURRENT_TRACK_ID"
   | "PLAYING"
@@ -50,6 +53,7 @@ const initialState: AudioPlayerState = {
   shuffle: false,
   loop: false,
   tracklist: [],
+  originalTracklist: [],
   currentTrackIndex: 0,
   currentTrackId: "",
 };
@@ -63,7 +67,7 @@ export const AudioPlayerContext = createContext<{
   setAudioRef?: () => void;
   setGainRef?: () => void;
   tracklist: Tracklist;
-  setTracklist?: (tracklist: Tracklist) => void;
+  setTracklist?: (tracklist: Tracklist, index: number) => void;
   ready?: boolean;
   playing: boolean;
   shuffle: boolean;
@@ -123,6 +127,8 @@ const audioPlayerReducer = (
         ...state,
         tracklist: action.payload,
       };
+    case "SET_ORIGINAL_TRACKLIST":
+      return { ...state, originalTracklist: action.payload };
     case "SET_CURRENT_TRACK_INDEX":
       return {
         ...state,
@@ -190,9 +196,18 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     dispatch({ type: "SET_CURRENT_TRACK_ID", payload: id });
   };
 
-  const setTracklist = (tracklist: Tracklist) => {
-    dispatch({ type: "SET_TRACKLIST", payload: tracklist });
-    dispatch({ type: "SET_CURRENT_TRACK_INDEX", payload: 0 });
+  const setTracklist = (tracklist: Tracklist, trackIndex: number) => {
+    // Update original tracklist
+    dispatch({ type: "SET_ORIGINAL_TRACKLIST", payload: tracklist });
+
+    let updatedTracklist = tracklist;
+
+    // If shuffle is active, shuffle the new tracklist but keep the selected track in place
+    if (state.shuffle) {
+      updatedTracklist = shuffleTracklist(tracklist, trackIndex);
+    }
+
+    dispatch({ type: "SET_TRACKLIST", payload: updatedTracklist });
   };
 
   const handlePrevTrack = (index?: number) => {
@@ -224,12 +239,38 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     dispatch({ type: "PLAYING", payload: state.playing ? false : true });
   };
 
-  const toggleShuffle = (shuffle?: boolean) => {
-    if (shuffle) {
-      dispatch({ type: "SHUFFLE", payload: shuffle });
+  const toggleShuffle = () => {
+    dispatch({ type: "SHUFFLE", payload: !state.shuffle });
+    if (!state.shuffle) {
+      // If shuffle is being turned on
+      dispatch({ type: "SET_ORIGINAL_TRACKLIST", payload: state.tracklist });
+      const shuffledTracklist = shuffleTracklist(
+        state.tracklist,
+        state.currentTrackIndex
+      );
+      dispatch({ type: "SET_TRACKLIST", payload: shuffledTracklist });
     } else {
-      dispatch({ type: "SHUFFLE", payload: !state.shuffle });
+      // If shuffle is being turned off
+      dispatch({ type: "SET_TRACKLIST", payload: state.originalTracklist });
     }
+  };
+
+  useEffect(() => {
+    console.log(state.tracklist);
+  }, [state.tracklist]);
+
+  const shuffleTracklist = (
+    tracklist: Tracklist,
+    currentTrackIndex: number
+  ): Tracklist => {
+    // Clone the tracklist array to avoid mutations
+    const tracksToShuffle = [...tracklist];
+    const currentTrack = tracksToShuffle.splice(currentTrackIndex, 1)[0];
+    const shuffledTracks = shuffleArray(tracksToShuffle);
+
+    // Reinsert the current track at the original index
+    shuffledTracks.splice(currentTrackIndex, 0, currentTrack);
+    return shuffledTracks;
   };
 
   const toggleLoop = (loop?: boolean) => {

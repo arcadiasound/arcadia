@@ -20,6 +20,7 @@ import { getProfile } from "@/lib/getProfile";
 import { Link } from "react-router-dom";
 import { BsMusicNote } from "react-icons/bs";
 import { PlayButton } from "../track/components/PlayButton";
+import { RxShuffle } from "react-icons/rx";
 
 const SkipButton = styled(IconButton, {
   "& svg": {
@@ -109,6 +110,7 @@ export const AudioPlayer = () => {
     currentTrackIndex,
     handleNextTrack,
     handlePrevTrack,
+    shuffle,
   } = useAudioPlayer();
 
   const audioStateRef = useRef(tracklist);
@@ -323,8 +325,28 @@ export const AudioPlayer = () => {
             my: "$3",
           }}
           align="center"
-          gap="3"
+          gap="2"
         >
+          <IconButton
+            onClick={() => {
+              toggleShuffle?.(!shuffle);
+            }}
+            css={{
+              backgroundColor: "transparent",
+              color: shuffle ? "$blue9" : "$neutralInvertedA12",
+              svg: {
+                size: "$6",
+              },
+
+              "&:hover": {
+                color: shuffle ? "$blue10" : "$neutralInvertedA12",
+              },
+            }}
+            variant="translucent"
+            disabled={tracklist.length < 2}
+          >
+            <RxShuffle />
+          </IconButton>
           <SkipButton
             onClick={() => {
               handlePrevTrack?.();
@@ -435,9 +457,6 @@ export const AudioPlayer = () => {
         justify="end"
         gap="3"
       >
-        {/* <IconButton>
-              <BsThreeDots />
-            </IconButton> */}
         <Flex css={{ flex: 1, maxWidth: 150 }} align="center" gap="3">
           <MdVolumeDown />
           <VolumeContainer
