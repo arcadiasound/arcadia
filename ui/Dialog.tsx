@@ -8,6 +8,7 @@ const overlayShow = keyframes({
 });
 
 const StyledOverlay = styled(DialogPrimitive.Overlay, {
+  zIndex: "$overlay",
   backgroundColor: "rgba(8, 8, 8, 0.75)",
   backdropFilter: "blur(1px)",
   position: "fixed",
@@ -28,6 +29,7 @@ const StyledDialogContent = styled(DialogPrimitive.Content, {
   backgroundColor: "$slate1",
   boxShadow: "0px 0px 33px rgba(0, 0, 0, 0.08)",
   position: "fixed",
+  zIndex: "$modal",
   top: 0,
   bottom: 0,
   right: 0,
@@ -61,14 +63,12 @@ export type DialogContentProps = ComponentProps<typeof StyledDialogContent> &
 export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
   ({ children, forceMount, container, ...props }, ref) => {
     return (
-      <>
+      <DialogPrimitive.Portal forceMount={forceMount} container={container}>
         <DialogOverlay />
-        <DialogPrimitive.Portal forceMount={forceMount} container={container}>
-          <StyledDialogContent ref={ref} {...props}>
-            {children}
-          </StyledDialogContent>
-        </DialogPrimitive.Portal>
-      </>
+        <StyledDialogContent ref={ref} {...props}>
+          {children}
+        </StyledDialogContent>
+      </DialogPrimitive.Portal>
     );
   }
 );
