@@ -7,6 +7,25 @@ import arweaveGql, {
   GetTransactionsQueryVariables,
 } from "arweave-graphql";
 
+interface AssetPaging {
+  limit: number;
+  items: number;
+  page: number;
+}
+
+interface AssetBalance {
+  contract_tx_id: string;
+  token_ticker: string;
+  token_name: string;
+  balance: string;
+  sort_key: string;
+}
+
+export interface AssetCollectionResponse {
+  paging: AssetPaging;
+  balances: AssetBalance[];
+}
+
 export interface GQLQuery {
   variables: GetTransactionsQueryVariables;
   gateway?: string;

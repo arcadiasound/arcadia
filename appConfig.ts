@@ -1,7 +1,7 @@
 export const appConfig = {
   defaultGateway: "https://arweave.net",
   goldskyUrl: "https://arweave-search.goldsky.com",
-  dreU: "https://dre-u.warp.cc/contract",
+  dreU: "https://dre-u.warp.cc",
   U: "KTzTXT_ANmF84fWEKHzWURD1LWd9QaFR9yfYUwH2Lxw",
   UCM: "tfalT8Z-88riNtoXdF5ldaBtmsfcSmbMqWLh2DHJIbg",
   atomicAssetSrc: "Of9pi--Gj7hCTawhgxOwbuWnFI1h24TTgO5pw8ENJNQ",

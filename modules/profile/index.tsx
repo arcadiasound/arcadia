@@ -15,10 +15,11 @@ import { useEffect, useState } from "react";
 import { useConnect } from "@/hooks/useConnect";
 import { Skeleton } from "@/ui/Skeleton";
 import { getLikedTracks } from "@/lib/getLikedTracks";
+import { getAssetCollection } from "@/lib/getAssetCollection";
 
 const TrackSkeleton = styled(Skeleton, {
-  width: 250,
-  height: 250,
+  width: 200,
+  height: 200,
 });
 
 const StyledTabsTrigger = styled(TabsTrigger, {
@@ -56,7 +57,7 @@ const StyledTabsContent = styled(TabsContent, {
   pt: "$10",
 });
 
-type TrackTab = "tracks" | "likes";
+type TrackTab = "tracks" | "likes" | "collection";
 
 export const Profile = () => {
   const location = useLocation();
@@ -109,6 +110,22 @@ export const Profile = () => {
       }
     },
   });
+
+  const { data: assetCollection, isLoading: assetCollectionLoading } = useQuery(
+    {
+      queryKey: [`assetCollectio0-${addr}`],
+      refetchOnWindowFocus: false,
+      enabled: activeTab === "collection",
+      queryFn: () => {
+        const address = addr || walletAddress;
+        if (address) {
+          return getAssetCollection(address);
+        } else {
+          return;
+        }
+      },
+    }
+  );
 
   const bannerUrl = account?.profile.bannerURL;
   const avatarUrl = account?.profile.avatarURL;
@@ -201,11 +218,11 @@ export const Profile = () => {
           >
             <StyledTabsTrigger value="tracks">releases</StyledTabsTrigger>
             <StyledTabsTrigger value="likes">likes</StyledTabsTrigger>
+            <StyledTabsTrigger value="collection">collection</StyledTabsTrigger>
           </TabsList>
           <StyledTabsContent value="tracks">
             {tracksLoading && (
               <Flex wrap="wrap" gap="10">
-                <TrackSkeleton />
                 <TrackSkeleton />
                 <TrackSkeleton />
                 <TrackSkeleton />
@@ -232,7 +249,6 @@ export const Profile = () => {
                 <TrackSkeleton />
                 <TrackSkeleton />
                 <TrackSkeleton />
-                <TrackSkeleton />
               </Flex>
             )}
             {likedTracks && likedTracks.length > 0 && (
@@ -243,6 +259,28 @@ export const Profile = () => {
                     track={track}
                     trackIndex={idx}
                     tracks={likedTracks}
+                  />
+                ))}
+              </Flex>
+            )}
+          </StyledTabsContent>
+          <StyledTabsContent value="collection">
+            {assetCollectionLoading && (
+              <Flex wrap="wrap" gap="10">
+                <TrackSkeleton />
+                <TrackSkeleton />
+                <TrackSkeleton />
+                <TrackSkeleton />
+              </Flex>
+            )}
+            {assetCollection && assetCollection.length > 0 && (
+              <Flex wrap="wrap" gap="10">
+                {assetCollection.map((track, idx) => (
+                  <TrackCard
+                    key={track.txid}
+                    track={track}
+                    trackIndex={idx}
+                    tracks={assetCollection}
                   />
                 ))}
               </Flex>
