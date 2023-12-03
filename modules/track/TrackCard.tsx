@@ -117,7 +117,7 @@ export const TrackCard = ({
       togglePlaying?.();
     } else {
       if (trackIndex >= 0) {
-        setTracklist?.(tracks);
+        setTracklist?.(tracks, trackIndex);
         setCurrentTrackId?.(track.txid);
         setCurrentTrackIndex?.(trackIndex);
       }

@@ -61,6 +61,7 @@ export const Discover = () => {
     isLoading,
   } = useQuery({
     queryKey: [`recentTracks`],
+    enabled: !!featuredTracks?.length,
     refetchOnWindowFocus: false,
     queryFn: () => getRecentTracks(),
   });

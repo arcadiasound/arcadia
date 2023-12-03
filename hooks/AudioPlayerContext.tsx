@@ -1,4 +1,5 @@
 import { Tracklist } from "@/types";
+import { shuffleArray } from "@/utils";
 import React, {
   Dispatch,
   MutableRefObject,
@@ -20,6 +21,7 @@ type AudioPlayerState = {
   shuffle: boolean;
   loop: boolean;
   tracklist: Tracklist;
+  originalTracklist: Tracklist;
   currentTrackIndex: number;
   currentTrackId: string;
 };
@@ -29,6 +31,7 @@ type AudioPlayerActionType =
   | "SET_AUDIO_ELEMENT"
   | "SET_GAIN_REF"
   | "SET_TRACKLIST"
+  | "SET_ORIGINAL_TRACKLIST"
   | "SET_CURRENT_TRACK_INDEX"
   | "SET_CURRENT_TRACK_ID"
   | "PLAYING"
@@ -50,6 +53,7 @@ const initialState: AudioPlayerState = {
   shuffle: false,
   loop: false,
   tracklist: [],
+  originalTracklist: [],
   currentTrackIndex: 0,
   currentTrackId: "",
 };
@@ -63,7 +67,7 @@ export const AudioPlayerContext = createContext<{
   setAudioRef?: () => void;
   setGainRef?: () => void;
   tracklist: Tracklist;
-  setTracklist?: (tracklist: Tracklist) => void;
+  setTracklist?: (tracklist: Tracklist, index: number) => void;
   ready?: boolean;
   playing: boolean;
   shuffle: boolean;
@@ -72,9 +76,9 @@ export const AudioPlayerContext = createContext<{
   currentTrackId: string;
   setCurrentTrackIndex?: (index: number) => void;
   setCurrentTrackId?: (id: string) => void;
-  togglePlaying?: () => void;
-  toggleShuffle?: (shuffle: boolean) => void;
-  toggleLoop?: (loop: boolean) => void;
+  togglePlaying?: (playAction?: "play" | "pause") => void;
+  toggleShuffle?: () => void;
+  toggleLoop?: () => void;
   seeking?: boolean | undefined;
   seekedValue?: number | undefined;
   setSeeking?: Dispatch<SetStateAction<boolean | undefined>>;
@@ -123,6 +127,8 @@ const audioPlayerReducer = (
         ...state,
         tracklist: action.payload,
       };
+    case "SET_ORIGINAL_TRACKLIST":
+      return { ...state, originalTracklist: action.payload };
     case "SET_CURRENT_TRACK_INDEX":
       return {
         ...state,
@@ -180,6 +186,7 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     setAudioRef();
   }, []);
 
+  // state handlers
   const setCurrentTrackIndex = (index: number) => {
     dispatch({ type: "SET_CURRENT_TRACK_INDEX", payload: index });
     audioRef.current?.load();
@@ -189,79 +196,127 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     dispatch({ type: "SET_CURRENT_TRACK_ID", payload: id });
   };
 
-  const setTracklist = (tracklist: Tracklist) => {
-    dispatch({ type: "SET_TRACKLIST", payload: tracklist });
-    dispatch({ type: "SET_CURRENT_TRACK_INDEX", payload: 0 });
+  const setTracklist = (tracklist: Tracklist, trackIndex: number) => {
+    // Update original tracklist
+    dispatch({ type: "SET_ORIGINAL_TRACKLIST", payload: tracklist });
+
+    let updatedTracklist = tracklist;
+
+    // If shuffle is active, shuffle the new tracklist but keep the selected track in place
+    if (state.shuffle) {
+      updatedTracklist = shuffleTracklist(tracklist, trackIndex);
+    }
+
+    dispatch({ type: "SET_TRACKLIST", payload: updatedTracklist });
   };
 
   const handlePrevTrack = (index?: number) => {
     if (index) {
-      return dispatch({
-        type: "SET_CURRENT_TRACK_INDEX",
-        payload: state.currentTrackIndex + 1,
-      });
-    }
-    console.log("skipping back");
-    if (state.currentTrackIndex == 0) {
-      setCurrentTrackIndex(state.tracklist.length - 1);
+      setCurrentTrackIndex(index);
+      setNextTrackId(index);
     } else {
-      setCurrentTrackIndex(state.currentTrackIndex - 1);
-    }
-  };
-
-  const togglePlaying = () => {
-    dispatch({ type: "PLAYING", payload: state.playing ? false : true });
-  };
-
-  const toggleShuffle = (shuffle?: boolean) => {
-    if (shuffle) {
-      dispatch({ type: "SHUFFLE", payload: shuffle });
-    } else {
-      dispatch({ type: "SHUFFLE", payload: !state.shuffle });
-    }
-  };
-
-  const toggleLoop = (loop?: boolean) => {
-    if (loop) {
-      dispatch({ type: "LOOP", payload: loop });
-    } else {
-      dispatch({ type: "LOOP", payload: !state.loop });
-    }
-  };
-
-  const handleNextTrack = (index?: number) => {
-    if (index) {
-      return dispatch({
-        type: "SET_CURRENT_TRACK_INDEX",
-        payload: index,
-      });
-    }
-    if (state.currentTrackIndex == state.tracklist.length - 1) {
-      setCurrentTrackIndex(0);
-    } else {
-      setCurrentTrackIndex(state.currentTrackIndex + 1);
-    }
-  };
-
-  const handleTrackEnd = () => {
-    if (state.shuffle) {
-      return dispatch({
-        type: "SET_CURRENT_TRACK_INDEX",
-        payload: Math.floor(Math.random() * state.tracklist.length),
-      });
-    } else {
-      if (state.loop) {
-        handleNextTrack(state.currentTrackIndex);
-      } else if (state.currentTrackIndex === state.tracklist.length - 1) {
-        return dispatch({
-          type: "PLAYING",
-          payload: false,
-        });
+      if (state.currentTrackIndex == 0) {
+        setCurrentTrackIndex(state.tracklist.length - 1);
+        setNextTrackId(state.tracklist.length - 1);
       } else {
-        handleNextTrack();
+        setCurrentTrackIndex(state.currentTrackIndex - 1);
+        setNextTrackId(state.currentTrackIndex - 1);
       }
     }
   };
+
+  const setNextTrackId = (indexMatcher: number) => {
+    const nextTrack = state.tracklist.find(
+      (track, index) => index === indexMatcher
+    );
+    const nextTx = nextTrack?.txid;
+    if (nextTx) {
+      setCurrentTrackId(nextTx);
+    }
+  };
+
+  const togglePlaying = (playAction?: "play" | "pause") => {
+    if (playAction) {
+      if (playAction === "play") {
+        dispatch({ type: "PLAYING", payload: true });
+      } else {
+        dispatch({ type: "PLAYING", payload: false });
+      }
+    } else {
+      if (!audioRef.current || !audioCtxRef.current) return;
+
+      const isPlaying = !state.playing;
+
+      if (isPlaying) {
+        if (audioCtxRef.current.state === "suspended") {
+          audioCtxRef.current.resume().then(() => {
+            //@ts-ignore
+            audioRef.current.play();
+          });
+        } else {
+          audioRef.current.play();
+        }
+      } else {
+        audioRef.current.pause(); // Pause the audio
+      }
+
+      dispatch({ type: "PLAYING", payload: isPlaying });
+    }
+  };
+
+  const toggleShuffle = () => {
+    dispatch({ type: "SHUFFLE", payload: !state.shuffle });
+    if (!state.shuffle) {
+      // shuffle is being turned on
+      dispatch({ type: "SET_ORIGINAL_TRACKLIST", payload: state.tracklist });
+      const shuffledTracklist = shuffleTracklist(
+        state.tracklist,
+        state.currentTrackIndex
+      );
+      dispatch({ type: "SET_TRACKLIST", payload: shuffledTracklist });
+    } else {
+      // shuffle is being turned off
+      dispatch({ type: "SET_TRACKLIST", payload: state.originalTracklist });
+    }
+  };
+
+  const shuffleTracklist = (
+    tracklist: Tracklist,
+    currentTrackIndex: number
+  ): Tracklist => {
+    // Clone the tracklist array to avoid mutations
+    const tracksToShuffle = [...tracklist];
+    const currentTrack = tracksToShuffle.splice(currentTrackIndex, 1)[0];
+    const shuffledTracks = shuffleArray(tracksToShuffle);
+
+    // Reinsert the current track at the original index
+    shuffledTracks.splice(currentTrackIndex, 0, currentTrack);
+    return shuffledTracks;
+  };
+
+  const toggleLoop = () => dispatch({ type: "LOOP", payload: !state.loop });
+
+  const handleNextTrack = (index?: number) => {
+    if (index) {
+      setCurrentTrackIndex(index);
+      setNextTrackId(index);
+    } else {
+      if (state.loop) {
+        setCurrentTrackIndex(state.currentTrackIndex);
+        setNextTrackId(state.currentTrackIndex);
+      } else {
+        if (state.currentTrackIndex == state.tracklist.length - 1) {
+          setCurrentTrackIndex(0);
+          setNextTrackId(0);
+        } else {
+          setCurrentTrackIndex(state.currentTrackIndex + 1);
+          setNextTrackId(state.currentTrackIndex + 1);
+        }
+      }
+    }
+  };
+
+  const handleTrackEnd = () => handleNextTrack();
 
   return (
     <AudioPlayerContext.Provider

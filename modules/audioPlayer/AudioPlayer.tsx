@@ -20,8 +20,9 @@ import { getProfile } from "@/lib/getProfile";
 import { Link } from "react-router-dom";
 import { BsMusicNote } from "react-icons/bs";
 import { PlayButton } from "../track/components/PlayButton";
+import { RxLoop, RxShuffle } from "react-icons/rx";
 
-const SkipButton = styled(IconButton, {
+const ControlButton = styled(IconButton, {
   "& svg": {
     color: "$neutralInvertedA11",
   },
@@ -95,14 +96,11 @@ export const AudioPlayer = () => {
   const [duration, setDuration] = useState<number>();
   const [currentTime, setCurrentTime] = useState<number>(0);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-
   const {
     audioRef,
     gainRef,
     audioCtxRef,
-    setAudioContext,
-    setAudioRef,
-    setGainRef,
+    setCurrentTrackId,
     tracklist,
     playing,
     togglePlaying,
@@ -112,6 +110,8 @@ export const AudioPlayer = () => {
     currentTrackIndex,
     handleNextTrack,
     handlePrevTrack,
+    shuffle,
+    loop,
   } = useAudioPlayer();
 
   const currentTrack =
@@ -119,6 +119,7 @@ export const AudioPlayer = () => {
 
   const { data: account, isError } = useQuery({
     queryKey: [`profile-${currentTrack?.creator}`],
+    enabled: !!currentTrack,
     queryFn: () => {
       if (!currentTrack) {
         return;
@@ -126,7 +127,6 @@ export const AudioPlayer = () => {
 
       return getProfile(currentTrack.creator);
     },
-    enabled: !!currentTrack,
   });
 
   useEffect(() => {
@@ -191,27 +191,6 @@ export const AudioPlayer = () => {
     }
   };
 
-  const handlePlayPause = () => {
-    if (!audioRef.current || !audioCtxRef.current) return;
-
-    if (audioCtxRef.current.state === "suspended") {
-      audioCtxRef.current.resume();
-    }
-
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
-    }
-  };
-
-  useEffect(() => {
-    console.log(currentTrackIndex);
-    if (currentTrackIndex >= 0) {
-      console.log(currentTrackIndex);
-    }
-  }, [currentTrackIndex]);
-
   // set duration
   useEffect(() => {
     if (!audioRef.current) return;
@@ -220,29 +199,17 @@ export const AudioPlayer = () => {
     setDuration(seconds);
     const current = Math.floor(audioRef.current?.currentTime || 0);
     setCurrentTime(current);
-
-    // setReady(audioRef.current.readyState > 2);
   }, [audioRef.current?.onloadeddata, audioRef.current?.readyState]);
 
-  // listeners
-  useEffect(() => {
-    if (audioRef.current) {
-      // if audio has ended
-      audioRef.current.addEventListener("ended", handleEnded);
-      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
-      audioRef.current.addEventListener("loadeddata", handleLoadedData);
-    }
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      handlePrevTrack?.();
+    });
 
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener("ended", handleEnded);
-        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
-        audioRef.current.removeEventListener("loadeddata", handleLoadedData);
-      }
-    };
-  }, []);
-
-  const handleEnded = () => handleTrackEnd?.();
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      handleNextTrack?.();
+    });
+  }
 
   const handleTimeUpdate = () => {
     // check for current runs in useffect
@@ -250,15 +217,29 @@ export const AudioPlayer = () => {
   };
 
   const handleLoadedData = () => {
-    console.log("track loaded");
     if (audioRef.current?.readyState && audioRef.current?.readyState >= 2) {
       audioRef.current?.play();
     }
   };
 
+  const handlePlay = () => {
+    togglePlaying?.("play");
+  };
+
+  const handlePause = () => {
+    togglePlaying?.("pause");
+  };
+
   return (
     <AudioContainer id="audio-container">
-      <audio ref={audioRef}>
+      <audio
+        ref={audioRef}
+        onEnded={handleTrackEnd}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedData={handleLoadedData}
+        onPlay={handlePlay}
+        onPause={handlePause}
+      >
         <source src={currentTrack?.src} type="audio/ogg" />
         <source src={currentTrack?.src} type="audio/wav" />
         <source src={currentTrack?.src} type="audio/mpeg" />
@@ -345,9 +326,32 @@ export const AudioPlayer = () => {
             my: "$3",
           }}
           align="center"
-          gap="3"
+          gap="2"
         >
-          <SkipButton
+          <IconButton
+            size="1"
+            onClick={() => {
+              toggleShuffle?.();
+            }}
+            css={{
+              backgroundColor: "transparent",
+              color: shuffle ? "$blue9" : "$neutralInvertedA11",
+              svg: {
+                size: "$6",
+              },
+
+              "&:hover": {
+                backgroundColor: "transparent",
+                color: shuffle ? "$blue10" : "$neutralInvertedA12",
+              },
+            }}
+            variant="translucent"
+            disabled={tracklist.length < 2}
+          >
+            <RxShuffle />
+          </IconButton>
+          <ControlButton
+            size="1"
             onClick={() => {
               handlePrevTrack?.();
             }}
@@ -358,24 +362,26 @@ export const AudioPlayer = () => {
               },
             }}
             variant="translucent"
-            disabled={tracklist.length < 2}
+            disabled={!tracklist.length}
           >
             <IoPlaySkipBackSharp />
-          </SkipButton>
+          </ControlButton>
           <PlayButton
+            css={{
+              br: "$1",
+            }}
+            disabled={!tracklist.length}
             playing={playing}
-            size="2"
+            size="1"
             data-playing={playing}
             aria-checked={playing}
             role="switch"
-            onClick={() => {
-              togglePlaying?.();
-              handlePlayPause();
-            }}
+            onClick={() => togglePlaying?.()}
           >
             {playing ? <IoPauseSharp /> : <IoPlaySharp />}
           </PlayButton>
-          <SkipButton
+          <ControlButton
+            size="1"
             onClick={() => {
               handleNextTrack?.();
             }}
@@ -387,10 +393,32 @@ export const AudioPlayer = () => {
               },
             }}
             variant="translucent"
-            disabled={tracklist.length < 2}
+            disabled={!tracklist.length}
           >
             <IoPlaySkipForwardSharp />
-          </SkipButton>
+          </ControlButton>
+          <IconButton
+            size="1"
+            onClick={() => {
+              toggleLoop?.();
+            }}
+            css={{
+              backgroundColor: "transparent",
+              color: loop ? "$blue9" : "$neutralInvertedA11",
+              svg: {
+                size: "$6",
+              },
+
+              "&:hover": {
+                backgroundColor: "transparent",
+                color: loop ? "$blue10" : "$neutralInvertedA12",
+              },
+            }}
+            variant="translucent"
+            disabled={tracklist.length < 2}
+          >
+            <RxLoop />
+          </IconButton>
         </ControlsContainer>
 
         <Flex
@@ -456,9 +484,6 @@ export const AudioPlayer = () => {
         justify="end"
         gap="3"
       >
-        {/* <IconButton>
-              <BsThreeDots />
-            </IconButton> */}
         <Flex css={{ flex: 1, maxWidth: 150 }} align="center" gap="3">
           <MdVolumeDown />
           <VolumeContainer

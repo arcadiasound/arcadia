@@ -28,30 +28,31 @@ export const getTrackByOwners = async (address: string, gateway?: string) => {
     });
 
     const data = res.transactions.edges
-      // .filter((edge) => Number(edge.node.data.size) < 1e8)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
-      // .filter((edge) => {
-      //   const initStateTag = edge.node.tags.find(
-      //     (x) => x.name === "Init-State"
-      //   )?.value;
+      .filter((edge) => {
+        const initStateTag = edge.node.tags.find(
+          (x) => x.name === "Init-State"
+        )?.value;
 
-      //   console.log(initStateTag);
+        const initState = initStateTag ? JSON.parse(initStateTag) : undefined;
 
-      //   const initState = initStateTag ? JSON.parse(initStateTag) : undefined;
+        const creator = edge.node.tags.find((x) => x.name === "Creator")?.value;
 
-      //   const isOwner = Object.keys(initState.balances).includes(address);
+        const txOwner = edge.node.owner.address;
 
-      //   if (isOwner) {
-      //     return true;
-      //   } else {
-      //     return false;
-      //   }
-      // })
+        const isOwner =
+          Object.keys(initState.balances).includes(txOwner) ||
+          creator === txOwner;
+
+        if (isOwner) {
+          return true;
+        } else {
+          return false;
+        }
+      })
       .map((edge) =>
         setTrackInfo(edge as TransactionEdge, gateway || "https://arweave.net")
       );
-
-    console.log(data);
 
     const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
 

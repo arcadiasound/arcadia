@@ -85,7 +85,7 @@ export const Profile = () => {
   const { data: tracks, isLoading: tracksLoading } = useQuery({
     queryKey: [`tracks-by=${address}`],
     refetchOnWindowFocus: false,
-    enabled: activeTab === "tracks",
+    enabled: activeTab === "tracks" && !!address,
     queryFn: () => {
       if (address) {
         return getTrackByOwners(address);
@@ -98,7 +98,7 @@ export const Profile = () => {
   const { data: likedTracks, isLoading: likedTracksLoading } = useQuery({
     queryKey: [`liked-tracks-${address}`],
     refetchOnWindowFocus: false,
-    enabled: activeTab === "likes",
+    enabled: activeTab === "likes" && !!address,
     queryFn: () => {
       if (address) {
         return getLikedTracks(address);
@@ -112,7 +112,7 @@ export const Profile = () => {
     {
       queryKey: [`assetCollectio0-${address}`],
       refetchOnWindowFocus: false,
-      enabled: activeTab === "collection",
+      enabled: activeTab === "collection" && !!address,
       queryFn: () => {
         if (address) {
           return getAssetCollection(address);
