@@ -20,9 +20,9 @@ import { getProfile } from "@/lib/getProfile";
 import { Link } from "react-router-dom";
 import { BsMusicNote } from "react-icons/bs";
 import { PlayButton } from "../track/components/PlayButton";
-import { RxShuffle } from "react-icons/rx";
+import { RxLoop, RxShuffle } from "react-icons/rx";
 
-const SkipButton = styled(IconButton, {
+const ControlButton = styled(IconButton, {
   "& svg": {
     color: "$neutralInvertedA11",
   },
@@ -111,6 +111,7 @@ export const AudioPlayer = () => {
     handleNextTrack,
     handlePrevTrack,
     shuffle,
+    loop,
   } = useAudioPlayer();
 
   const audioStateRef = useRef(tracklist);
@@ -328,17 +329,19 @@ export const AudioPlayer = () => {
           gap="2"
         >
           <IconButton
+            size="1"
             onClick={() => {
-              toggleShuffle?.(!shuffle);
+              toggleShuffle?.();
             }}
             css={{
               backgroundColor: "transparent",
-              color: shuffle ? "$blue9" : "$neutralInvertedA12",
+              color: shuffle ? "$blue9" : "$neutralInvertedA11",
               svg: {
                 size: "$6",
               },
 
               "&:hover": {
+                backgroundColor: "transparent",
                 color: shuffle ? "$blue10" : "$neutralInvertedA12",
               },
             }}
@@ -347,7 +350,8 @@ export const AudioPlayer = () => {
           >
             <RxShuffle />
           </IconButton>
-          <SkipButton
+          <ControlButton
+            size="1"
             onClick={() => {
               handlePrevTrack?.();
             }}
@@ -361,8 +365,11 @@ export const AudioPlayer = () => {
             disabled={tracklist.length < 2}
           >
             <IoPlaySkipBackSharp />
-          </SkipButton>
+          </ControlButton>
           <PlayButton
+            css={{
+              br: "$1",
+            }}
             disabled={!tracklist.length}
             playing={playing}
             size="2"
@@ -376,7 +383,8 @@ export const AudioPlayer = () => {
           >
             {playing ? <IoPauseSharp /> : <IoPlaySharp />}
           </PlayButton>
-          <SkipButton
+          <ControlButton
+            size="1"
             onClick={() => {
               handleNextTrack?.();
             }}
@@ -391,7 +399,29 @@ export const AudioPlayer = () => {
             disabled={tracklist.length < 2}
           >
             <IoPlaySkipForwardSharp />
-          </SkipButton>
+          </ControlButton>
+          <IconButton
+            size="1"
+            onClick={() => {
+              toggleLoop?.();
+            }}
+            css={{
+              backgroundColor: "transparent",
+              color: loop ? "$blue9" : "$neutralInvertedA11",
+              svg: {
+                size: "$6",
+              },
+
+              "&:hover": {
+                backgroundColor: "transparent",
+                color: loop ? "$blue10" : "$neutralInvertedA12",
+              },
+            }}
+            variant="translucent"
+            disabled={tracklist.length < 2}
+          >
+            <RxLoop />
+          </IconButton>
         </ControlsContainer>
 
         <Flex

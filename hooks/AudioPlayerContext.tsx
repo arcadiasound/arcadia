@@ -77,8 +77,8 @@ export const AudioPlayerContext = createContext<{
   setCurrentTrackIndex?: (index: number) => void;
   setCurrentTrackId?: (id: string) => void;
   togglePlaying?: () => void;
-  toggleShuffle?: (shuffle: boolean) => void;
-  toggleLoop?: (loop: boolean) => void;
+  toggleShuffle?: () => void;
+  toggleLoop?: () => void;
   seeking?: boolean | undefined;
   seekedValue?: number | undefined;
   setSeeking?: Dispatch<SetStateAction<boolean | undefined>>;
@@ -225,10 +225,10 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     }
   };
 
-  const setNextTrackId = (matcher: number) => {
-    const nextTrack = state.tracklist.find((track, index) => index === matcher);
-    console.log(state.tracklist);
-    console.log({ nextTrack });
+  const setNextTrackId = (indexMatcher: number) => {
+    const nextTrack = state.tracklist.find(
+      (track, index) => index === indexMatcher
+    );
     const nextTx = nextTrack?.txid;
     if (nextTx) {
       setCurrentTrackId(nextTx);
@@ -255,10 +255,6 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     }
   };
 
-  useEffect(() => {
-    console.log(state.tracklist);
-  }, [state.tracklist]);
-
   const shuffleTracklist = (
     tracklist: Tracklist,
     currentTrackIndex: number
@@ -273,48 +269,29 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     return shuffledTracks;
   };
 
-  const toggleLoop = (loop?: boolean) => {
-    if (loop) {
-      dispatch({ type: "LOOP", payload: loop });
-    } else {
-      dispatch({ type: "LOOP", payload: !state.loop });
-    }
-  };
+  const toggleLoop = () => dispatch({ type: "LOOP", payload: !state.loop });
 
   const handleNextTrack = (index?: number) => {
     if (index) {
       setCurrentTrackIndex(index);
       setNextTrackId(index);
     } else {
-      if (state.currentTrackIndex == state.tracklist.length - 1) {
-        setCurrentTrackIndex(0);
-        setNextTrackId(0);
+      if (state.loop) {
+        setCurrentTrackIndex(state.currentTrackIndex);
+        setNextTrackId(state.currentTrackIndex);
       } else {
-        setCurrentTrackIndex(state.currentTrackIndex + 1);
-        setNextTrackId(state.currentTrackIndex + 1);
+        if (state.currentTrackIndex == state.tracklist.length - 1) {
+          setCurrentTrackIndex(0);
+          setNextTrackId(0);
+        } else {
+          setCurrentTrackIndex(state.currentTrackIndex + 1);
+          setNextTrackId(state.currentTrackIndex + 1);
+        }
       }
     }
   };
 
-  const handleTrackEnd = () => {
-    if (state.shuffle) {
-      return dispatch({
-        type: "SET_CURRENT_TRACK_INDEX",
-        payload: Math.floor(Math.random() * state.tracklist.length),
-      });
-    } else {
-      if (state.loop) {
-        handleNextTrack(state.currentTrackIndex);
-      } else if (state.currentTrackIndex === state.tracklist.length - 1) {
-        return dispatch({
-          type: "PLAYING",
-          payload: false,
-        });
-      } else {
-        handleNextTrack();
-      }
-    }
-  };
+  const handleTrackEnd = () => handleNextTrack();
 
   return (
     <AudioPlayerContext.Provider
