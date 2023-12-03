@@ -114,8 +114,6 @@ export const AudioPlayer = () => {
     loop,
   } = useAudioPlayer();
 
-  const audioStateRef = useRef(tracklist);
-
   const currentTrack =
     tracklist.length > 0 ? tracklist[currentTrackIndex] : null;
 
@@ -193,20 +191,6 @@ export const AudioPlayer = () => {
     }
   };
 
-  const handlePlayPause = () => {
-    if (!audioRef.current || !audioCtxRef.current) return;
-
-    if (audioCtxRef.current.state === "suspended") {
-      audioCtxRef.current.resume();
-    }
-
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
-    }
-  };
-
   // set duration
   useEffect(() => {
     if (!audioRef.current) return;
@@ -215,9 +199,17 @@ export const AudioPlayer = () => {
     setDuration(seconds);
     const current = Math.floor(audioRef.current?.currentTime || 0);
     setCurrentTime(current);
-
-    // setReady(audioRef.current.readyState > 2);
   }, [audioRef.current?.onloadeddata, audioRef.current?.readyState]);
+
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      handlePrevTrack?.();
+    });
+
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      handleNextTrack?.();
+    });
+  }
 
   const handleTimeUpdate = () => {
     // check for current runs in useffect
@@ -225,11 +217,17 @@ export const AudioPlayer = () => {
   };
 
   const handleLoadedData = () => {
-    // console.log("track loaded");
-
     if (audioRef.current?.readyState && audioRef.current?.readyState >= 2) {
       audioRef.current?.play();
     }
+  };
+
+  const handlePlay = () => {
+    togglePlaying?.("play");
+  };
+
+  const handlePause = () => {
+    togglePlaying?.("pause");
   };
 
   return (
@@ -239,6 +237,8 @@ export const AudioPlayer = () => {
         onEnded={handleTrackEnd}
         onTimeUpdate={handleTimeUpdate}
         onLoadedData={handleLoadedData}
+        onPlay={handlePlay}
+        onPause={handlePause}
       >
         <source src={currentTrack?.src} type="audio/ogg" />
         <source src={currentTrack?.src} type="audio/wav" />
@@ -362,7 +362,7 @@ export const AudioPlayer = () => {
               },
             }}
             variant="translucent"
-            disabled={tracklist.length < 2}
+            disabled={!tracklist.length}
           >
             <IoPlaySkipBackSharp />
           </ControlButton>
@@ -372,14 +372,11 @@ export const AudioPlayer = () => {
             }}
             disabled={!tracklist.length}
             playing={playing}
-            size="2"
+            size="1"
             data-playing={playing}
             aria-checked={playing}
             role="switch"
-            onClick={() => {
-              togglePlaying?.();
-              handlePlayPause();
-            }}
+            onClick={() => togglePlaying?.()}
           >
             {playing ? <IoPauseSharp /> : <IoPlaySharp />}
           </PlayButton>
@@ -396,7 +393,7 @@ export const AudioPlayer = () => {
               },
             }}
             variant="translucent"
-            disabled={tracklist.length < 2}
+            disabled={!tracklist.length}
           >
             <IoPlaySkipForwardSharp />
           </ControlButton>

@@ -76,7 +76,7 @@ export const AudioPlayerContext = createContext<{
   currentTrackId: string;
   setCurrentTrackIndex?: (index: number) => void;
   setCurrentTrackId?: (id: string) => void;
-  togglePlaying?: () => void;
+  togglePlaying?: (playAction?: "play" | "pause") => void;
   toggleShuffle?: () => void;
   toggleLoop?: () => void;
   seeking?: boolean | undefined;
@@ -235,14 +235,39 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     }
   };
 
-  const togglePlaying = () => {
-    dispatch({ type: "PLAYING", payload: state.playing ? false : true });
+  const togglePlaying = (playAction?: "play" | "pause") => {
+    if (playAction) {
+      if (playAction === "play") {
+        dispatch({ type: "PLAYING", payload: true });
+      } else {
+        dispatch({ type: "PLAYING", payload: false });
+      }
+    } else {
+      if (!audioRef.current || !audioCtxRef.current) return;
+
+      const isPlaying = !state.playing;
+
+      if (isPlaying) {
+        if (audioCtxRef.current.state === "suspended") {
+          audioCtxRef.current.resume().then(() => {
+            //@ts-ignore
+            audioRef.current.play();
+          });
+        } else {
+          audioRef.current.play();
+        }
+      } else {
+        audioRef.current.pause(); // Pause the audio
+      }
+
+      dispatch({ type: "PLAYING", payload: isPlaying });
+    }
   };
 
   const toggleShuffle = () => {
     dispatch({ type: "SHUFFLE", payload: !state.shuffle });
     if (!state.shuffle) {
-      // If shuffle is being turned on
+      // shuffle is being turned on
       dispatch({ type: "SET_ORIGINAL_TRACKLIST", payload: state.tracklist });
       const shuffledTracklist = shuffleTracklist(
         state.tracklist,
@@ -250,7 +275,7 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
       );
       dispatch({ type: "SET_TRACKLIST", payload: shuffledTracklist });
     } else {
-      // If shuffle is being turned off
+      // shuffle is being turned off
       dispatch({ type: "SET_TRACKLIST", payload: state.originalTracklist });
     }
   };
