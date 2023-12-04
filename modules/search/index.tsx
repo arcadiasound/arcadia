@@ -1,7 +1,7 @@
 import { Button } from "@/ui/Button";
 import { Flex } from "@/ui/Flex";
 import { TextField } from "@/ui/TextField";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { useQuery } from "@tanstack/react-query";
 import { getSearchResults } from "@/lib/getSearchResults";
@@ -65,6 +65,11 @@ export const Search = () => {
   const query = location.search;
   const urlParams = new URLSearchParams(query);
   const queryValue = urlParams.get("q");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate("/");
+  }, []);
 
   const formik = useFormik<{ value: string }>({
     initialValues: {
