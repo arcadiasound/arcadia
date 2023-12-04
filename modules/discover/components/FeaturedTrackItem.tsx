@@ -57,7 +57,7 @@ export const FeaturedTrackItem = ({
       togglePlaying?.();
     } else {
       if (trackIndex >= 0) {
-        setTracklist?.(tracklist);
+        setTracklist?.(tracklist, trackIndex);
         setCurrentTrackId?.(track.txid);
         setCurrentTrackIndex?.(trackIndex);
       }

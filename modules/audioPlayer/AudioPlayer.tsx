@@ -326,7 +326,7 @@ export const AudioPlayer = () => {
             my: "$3",
           }}
           align="center"
-          gap="2"
+          gap="1"
         >
           <IconButton
             size="1"
@@ -341,7 +341,7 @@ export const AudioPlayer = () => {
               },
 
               "&:hover": {
-                backgroundColor: "transparent",
+                backgroundColor: "$neutralInvertedA3",
                 color: shuffle ? "$blue10" : "$neutralInvertedA12",
               },
             }}
@@ -359,6 +359,10 @@ export const AudioPlayer = () => {
               backgroundColor: "transparent",
               svg: {
                 size: "$6",
+              },
+
+              "&:hover": {
+                backgroundColor: "$neutralInvertedA3",
               },
             }}
             variant="translucent"
@@ -391,6 +395,10 @@ export const AudioPlayer = () => {
               svg: {
                 size: "$6",
               },
+
+              "&:hover": {
+                backgroundColor: "$neutralInvertedA3",
+              },
             }}
             variant="translucent"
             disabled={!tracklist.length}
@@ -410,7 +418,7 @@ export const AudioPlayer = () => {
               },
 
               "&:hover": {
-                backgroundColor: "transparent",
+                backgroundColor: "$neutralInvertedA3",
                 color: loop ? "$blue10" : "$neutralInvertedA12",
               },
             }}

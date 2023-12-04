@@ -40,7 +40,7 @@ export const getTrack = async (
       // .filter((edge) => Number(edge.node.data.size) < 1e7)
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .map((edge) =>
-        setTrackInfo(
+        setTrackInfoWithDuration(
           edge.node as Transaction,
           audioContext,
           gateway || "https://arweave.net"
@@ -58,7 +58,7 @@ export const getTrack = async (
   }
 };
 
-const setTrackInfo = async (
+export const setTrackInfoWithDuration = async (
   node: Transaction,
   audioContext: MutableRefObject<AudioContext | null>,
   gateway: string
@@ -87,6 +87,7 @@ const setTrackInfo = async (
   let creator: string;
 
   try {
+    const creatorTag = node.tags.find((x) => x.name === "Creator")?.value;
     // find owner from balances
     const initStateTag = node.tags.find((x) => x.name === "Init-State")?.value;
 
@@ -94,7 +95,7 @@ const setTrackInfo = async (
 
     const assetOwner = Object.keys(initState.balances)[0];
 
-    creator = assetOwner;
+    creator = creatorTag || assetOwner;
   } catch (error) {
     creator = node.owner.address;
   }

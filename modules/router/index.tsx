@@ -9,6 +9,7 @@ import { Track } from "../track";
 import { appConfig } from "@/appConfig";
 import { Search } from "../search";
 import { AudioPlayer } from "../audioPlayer/AudioPlayer";
+import { Album } from "../album";
 
 export const AppRouter = () => (
   <HashRouter>
@@ -41,6 +42,7 @@ export const AppRouter = () => (
         <Route path={"/"} element={<Discover />} />
         <Route path={"/profile"} element={<Profile />} />
         <Route path={"/track"} element={<Track />} />
+        <Route path={"/album"} element={<Album />} />
         <Route path={"/upload"} element={<Upload />} />
         <Route path={"/search"} element={<Search />} />
       </Routes>

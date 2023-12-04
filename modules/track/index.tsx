@@ -308,7 +308,7 @@ export const Track = () => {
       togglePlaying?.();
       handlePlayPause();
     } else {
-      setTracklist?.([track]);
+      setTracklist?.([track], 0);
       setCurrentTrackId?.(track.txid);
       setCurrentTrackIndex?.(0);
     }
