@@ -107,65 +107,6 @@ export const HeaderDropdown = ({
               </Flex>
             </StyledLink>
           </DropdownMenuItem>
-          <DropdownMenuSubRoot>
-            <DropdownMenuSubTrigger>
-              <Flex align="center" gap="2">
-                <RxChevronLeft />
-                Switch gateway
-              </Flex>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent
-                css={{
-                  minWidth: 200,
-
-                  '[role="menuitem"]': {
-                    py: "$3",
-                  },
-                }}
-                // variant="compact"
-                sideOffset={8}
-              >
-                <DropdownMenuItem
-                  css={{
-                    color:
-                      currentGateway === "https://arweave.net"
-                        ? "$green11"
-                        : "$slate12",
-                  }}
-                  onClick={() => handleGatewaySwitch("arweave.net")}
-                >
-                  arweave.net
-                  {currentGateway === "https://arweave.net" && <RxDotFilled />}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  css={{
-                    color:
-                      currentGateway === "https://g8way.io"
-                        ? "$green11"
-                        : "$slate12",
-                  }}
-                  onClick={() => handleGatewaySwitch("g8way.io")}
-                >
-                  g8way.io
-                  {currentGateway === "https://g8way.io" && <RxDotFilled />}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  css={{
-                    color:
-                      currentGateway === "https://ar-io.dev"
-                        ? "$green11"
-                        : "$slate",
-                  }}
-                  onClick={() => handleGatewaySwitch("ar-io.dev")}
-                >
-                  ar-io.dev
-                  {currentGateway === "https://ar-io.dev" && <RxDotFilled />}
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSubRoot>
-
           <DropdownMenuItem
             onClick={() => {
               window.arweaveWallet.disconnect().then(() => {

@@ -10,7 +10,7 @@ import {
   Transaction,
   TransactionEdge,
 } from "arweave-graphql";
-import { gql } from "./helpers";
+// import { gql } from "./helpers";
 
 export const getRecentTracks = async () => {
   try {
@@ -22,14 +22,19 @@ export const getRecentTracks = async () => {
   }
 };
 
+// maximum number of recursive calls
+const MAX_RECURSION_DEPTH = 10;
+
 const queryRecentTracks = async (
   tracks: Track[],
-  cursor?: string
+  cursor?: string,
+  depth: number = 0
 ): Promise<Track[]> => {
-  console.log({ tracks });
-
-  if (tracks.length >= 5) {
-    return tracks.slice(0, 5);
+  if (tracks.length >= 5 || depth >= MAX_RECURSION_DEPTH) {
+    return removeDuplicatesByCreator(removeDuplicatesByTxid(tracks)).slice(
+      0,
+      5
+    );
   }
 
   const variables: GQLQuery["variables"] = {
@@ -39,43 +44,52 @@ const queryRecentTracks = async (
         values: ["audio/mpeg", "audio/wav", "audio/aac"],
       },
       {
+        name: "Indexed-By",
+        values: ["ucm"],
+      },
+      {
         name: "App-Name",
         values: ["SmartWeaveContract"],
+      },
+      {
+        name: "App-Version",
+        values: ["0.3.0"],
+      },
+      {
+        name: "Contract-Src",
+        values: ["Of9pi--Gj7hCTawhgxOwbuWnFI1h24TTgO5pw8ENJNQ"],
       },
     ],
   };
 
   if (cursor) {
-    // variables.first = tracks.length * 2;
     variables.after = cursor;
   }
 
-  const res = await gql({
-    variables: {
-      ...variables,
-    },
+  const res: GetTransactionsQuery = await gql({
+    variables,
   });
 
-  const data = filterQueryResults(res);
+  const resultsArray = res.transactions.edges;
 
-  tracks = tracks.concat(data);
-
-  if (tracks.length >= 5) {
+  if (resultsArray.length === 0) {
     return removeDuplicatesByCreator(removeDuplicatesByTxid(tracks)).slice(
       0,
       5
     );
-  } else {
-    const lastItem = data[data.length - 1];
-
-    return await queryRecentTracks(tracks, lastItem?.cursor);
   }
+
+  const data = filterQueryResults(res);
+
+  tracks = tracks.concat(data);
+  const lastItem = resultsArray[resultsArray.length - 1];
+
+  return await queryRecentTracks(tracks, lastItem?.cursor, depth + 1);
 };
 
 const filterQueryResults = (res: GetTransactionsQuery) => {
   const data = res.transactions.edges
     .filter((edge) => !appConfig.featuredIds.includes(edge.node.id))
-    // .filter((edge) => Number(edge.node.data.size) < 1e8)
     .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
     .filter(
       (edge) =>
@@ -93,7 +107,62 @@ const filterQueryResults = (res: GetTransactionsQuery) => {
 
   const dedupedData = removeDuplicatesByCreator(removeDuplicatesByTxid(data));
 
-  console.log({ dedupedData });
-
   return dedupedData;
+};
+
+const gql = async ({ variables }: GQLQuery): Promise<GetTransactionsQuery> => {
+  const query = {
+    query: `
+    query {
+      transactions(
+        first: 20,
+        tags: [
+          {
+            name: "Content-Type",
+            values: ["audio/mpeg", "audio/wav", "audio/aac"],
+            },
+            {
+            name: "Indexed-By",
+            values: ["ucm"],
+            },
+            {
+            name: "App-Name",
+            values: ["SmartWeaveContract"],
+            },
+            {
+            name: "App-Version",
+            values: ["0.3.0"],
+            },
+            {
+            name: "Contract-Src",
+            values: ["Of9pi--Gj7hCTawhgxOwbuWnFI1h24TTgO5pw8ENJNQ"],
+            }
+        ]
+      ){
+      edges {
+        cursor
+        node {
+          id
+          tags {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+    `,
+  };
+
+  const response = await fetch(`${appConfig.goldskyUrl}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(query),
+  });
+
+  const resObj = await response.json();
+
+  return resObj.data;
 };

@@ -29,6 +29,9 @@ export const Accordion = styled(AccordionPrimitive.Root);
 export const AccordionItem = styled(AccordionPrimitive.Item, {
   overflow: "hidden",
   marginTop: 1,
+  boxShadow: "0 0 0 1px $colors$neutralInvertedA6",
+  backgroundColor: "$neutralInvertedA1",
+  br: "$2",
 
   "&:focus-within": {
     "&:focus-visible": {
@@ -46,16 +49,17 @@ const StyledHeader = styled(AccordionPrimitive.Header, {
 
 const StyledTrigger = styled(AccordionPrimitive.Trigger, {
   all: "unset",
+  userSelect: "none",
   display: "flex",
   alignItems: "center",
   gap: "$2",
-  py: "$1",
+  p: "$3",
   flex: 1,
-  backgroundColor: "transparent",
   fontSize: "$3",
   lineHeight: 1,
 
   "&:hover": {
+    backgroundColor: "$neutralInvertedA3",
     color: "$slate12",
 
     "& svg": {
@@ -63,7 +67,10 @@ const StyledTrigger = styled(AccordionPrimitive.Trigger, {
     },
   },
 
-  "[data-state=open] &": { color: "$slate12" },
+  "[data-state=open] &": {
+    color: "$slate12",
+    backgroundColor: "$neutralInvertedA4",
+  },
 });
 
 const StyledIcon = styled("span", {
@@ -90,7 +97,7 @@ export const AccordionTrigger = forwardRef<
 ));
 
 const StyledContentWrapper = styled("div", {
-  px: "$3",
+  p: "$3",
 });
 
 const StyledContent = styled(AccordionPrimitive.Content, {

@@ -10,6 +10,7 @@ export const TabsList = styled(TabsPrimitive.List, {
 
 export const TabsTrigger = styled(TabsPrimitive.Trigger, {
   all: "unset",
+  userSelect: "none",
   color: "$slate9",
 
   "&:hover": {

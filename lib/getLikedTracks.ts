@@ -25,18 +25,8 @@ export const getLikedTracks = async (address: string, gateway?: string) => {
 };
 
 const getStampedIds = async (address: string, cursor?: string) => {
-  const res = await gql({
-    variables: {
-      owners: [address],
-      after: cursor,
-      tags: [
-        {
-          name: "Protocol-Name",
-          values: ["Stamp"],
-        },
-      ],
-    },
-  });
+  console.log("cursor", cursor);
+  const res = await gqlStampedIds(address, cursor);
 
   const stampTxs = res.transactions.edges
     .filter(
@@ -93,9 +83,7 @@ const queryLikedTracks = async (
   };
 
   const res = await gql({
-    variables: {
-      ...variables,
-    },
+    variables,
   });
 
   const data = filterQueryResults(res);
@@ -108,7 +96,6 @@ const queryLikedTracks = async (
     return removeDuplicatesByCreator(removeDuplicatesByTxid(tracks));
   } else {
     timesRefetched++;
-    console.log(timesRefetched);
     if (timesRefetched > refetchLimit) {
       return [];
     }
@@ -141,4 +128,50 @@ const filterQueryResults = (res: GetTransactionsQuery) => {
   console.log({ dedupedData });
 
   return dedupedData;
+};
+
+const gqlStampedIds = async (
+  address: string,
+  cursor?: string
+): Promise<GetTransactionsQuery> => {
+  const query = {
+    query: `
+    query {
+      transactions(
+        first: 50,
+        after: "${cursor}",
+        owners: ["${address}"],
+        tags: [
+          {
+            name: "Protocol-Name",
+            values: ["Stamp"],
+          },
+        ]
+      ){
+      edges {
+        cursor
+        node {
+          id
+          tags {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+    `,
+  };
+
+  const response = await fetch(`${appConfig.goldskyUrl}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(query),
+  });
+
+  const resObj = await response.json();
+
+  return resObj.data;
 };

@@ -16,6 +16,7 @@ import { formatDuration } from "@/utils/audio";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
+import { RxDotFilled } from "react-icons/rx";
 import { Link, useLocation } from "react-router-dom";
 import { PlayButton } from "../track/components/PlayButton";
 import { TrackItem } from "./components/TrackItem";
@@ -134,7 +135,9 @@ export const Album = () => {
   };
 
   const trackInAlbumPlaying =
-    albumTracks && albumTracks.some((track) => track.txid === currentTrackId);
+    albumTracks &&
+    albumTracks === tracklist &&
+    albumTracks.some((track) => track.txid === currentTrackId);
 
   const isPlaying = playing && trackInAlbumPlaying;
 
@@ -245,10 +248,10 @@ export const Album = () => {
                   </Box>
                 </Flex>
 
-                <Flex gap="3" align="center">
+                <Flex gap="2" align="center">
                   {album.creator && (
                     <StyledLink
-                      gap="3"
+                      gap="1"
                       align="center"
                       to={{
                         pathname: "/profile",
@@ -261,7 +264,9 @@ export const Album = () => {
                           br: "$round",
                         }}
                         src={
-                          account?.profile && account?.profile.avatarURL
+                          account?.profile &&
+                          account?.profile.avatarURL !==
+                            appConfig.accountAvatarDefault
                             ? account?.profile.avatarURL
                             : `https://source.boringavatars.com/marble/20/${album.creator}`
                         }
@@ -276,9 +281,7 @@ export const Album = () => {
                   )}
                   {albumTracks && albumTracks.length && (
                     <>
-                      <StyledTypography contrast="hi" size="2">
-                        •
-                      </StyledTypography>
+                      <RxDotFilled />
                       <StyledTypography contrast="hi" size="2">
                         {albumTracks.length} tracks
                       </StyledTypography>
@@ -286,9 +289,7 @@ export const Album = () => {
                   )}
                   {totalDuration && (
                     <>
-                      <StyledTypography contrast="hi" size="2">
-                        •
-                      </StyledTypography>
+                      <RxDotFilled />
                       <StyledTypography size="2">
                         {formatDuration({
                           duration: totalDuration,

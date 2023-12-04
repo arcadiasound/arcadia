@@ -67,7 +67,6 @@ export const Discover = () => {
   });
 
   useEffect(() => {
-    console.log(recentTracks);
     if (recentTracks && recentTracks.length > 0) {
       play();
     }

@@ -61,9 +61,7 @@ const AudioContainer = styled(Box, {
   gridTemplateColumns: "1fr 2fr 1fr",
   width: "100%",
   height: "max-content",
-  py: "$1",
-  px: "$5",
-  overflow: "hidden",
+  p: "$2",
   position: "fixed",
   zIndex: "$docked",
   bottom: 0,
@@ -499,6 +497,7 @@ export const AudioPlayer = () => {
               maxWidth: "$40",
               minWidth: "$30",
               flex: 1,
+              mr: "$2",
             }}
           >
             <VolumeSlider

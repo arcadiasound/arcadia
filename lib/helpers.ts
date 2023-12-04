@@ -1,5 +1,6 @@
 import { appConfig } from "@/appConfig";
 import { GQLQuery } from "@/types";
+import { userPreferredGateway } from "@/utils";
 import arweaveGql, { Transaction, Query } from "arweave-graphql";
 
 export const gql = async ({ variables, gateway }: GQLQuery) => {

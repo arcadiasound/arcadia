@@ -1,4 +1,4 @@
-import { keyframes, styled } from "@/stitches.config";
+import { CSS, keyframes, styled } from "@/stitches.config";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 const slideUpAndFade = keyframes({
@@ -21,13 +21,14 @@ const slideLeftAndFade = keyframes({
   "100%": { opacity: 1, transform: "translateX(0)" },
 });
 
-const contentStyles = {
+const contentStyles: CSS = {
+  zIndex: "$dropdown",
   minWidth: 220,
   backgroundColor: "$slate2",
   borderRadius: "$1",
   padding: 5,
-  boxShadow:
-    "0px 10px 38px -10px rgba(22, 23, 24, 0.35), 0px 10px 20px -15px rgba(22, 23, 24, 0.2)",
+  boxShadow: "$4",
+  border: "1px solid $colors$slate6",
   animationDuration: "400ms",
   animationTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
   willChange: "transform, opacity",
@@ -47,7 +48,7 @@ export const DropdownMenuSubContent = styled(
 
 export const DropdownMenuArrow = styled(DropdownMenu.Arrow, { fill: "white" });
 
-export const itemStyles = {
+export const itemStyles: CSS = {
   all: "unset",
   fontSize: 13,
   lineHeight: 1,

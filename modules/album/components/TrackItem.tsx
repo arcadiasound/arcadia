@@ -4,6 +4,7 @@ import { getDuration } from "@/lib/getDuration";
 import { getProfile } from "@/lib/getProfile";
 import { LikeButton } from "@/modules/track/components/LikeButton";
 import { PlayButton } from "@/modules/track/components/PlayButton";
+import { keyframes, styled } from "@/stitches.config";
 import { Track } from "@/types";
 import { Box } from "@/ui/Box";
 import { Flex } from "@/ui/Flex";
@@ -12,8 +13,23 @@ import { Typography } from "@/ui/Typography";
 import { abbreviateAddress } from "@/utils";
 import { formatDuration } from "@/utils/audio";
 import { useQuery } from "@tanstack/react-query";
+import { BsDiscFill } from "react-icons/bs";
 import { IoPauseSharp, IoPlaySharp } from "react-icons/io5";
+import { RxDotFilled } from "react-icons/rx";
 import { Link } from "react-router-dom";
+
+const spin = keyframes({
+  to: { transform: "rotate(360deg)" },
+});
+
+const SpinWrapper = styled("span", {
+  display: "grid",
+  placeItems: "center",
+  color: "$neutralInvertedA12",
+  "& svg": {
+    animation: `${spin} 1s linear infinite`,
+  },
+});
 
 interface TrackItemProps {
   track: Track;
@@ -23,8 +39,7 @@ interface TrackItemProps {
 
 export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
   const {
-    audioCtxRef,
-    audioRef,
+    tracklist,
     playing,
     togglePlaying,
     currentTrackId,
@@ -45,7 +60,7 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
   });
 
   const handleClick = () => {
-    if (track.txid === currentTrackId) {
+    if (track.txid === currentTrackId && tracks === tracklist) {
       togglePlaying?.();
     } else {
       setTracklist?.(tracks, trackIndex);
@@ -54,7 +69,8 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
     }
   };
 
-  const isPlaying = playing && track.txid === currentTrackId;
+  const isPlaying =
+    playing && tracks === tracklist && track.txid === currentTrackId;
 
   return (
     <Flex
@@ -62,8 +78,11 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
       css={{
         py: "$3",
         px: "$5",
+        pl: "$10",
         position: "relative",
         br: "$2",
+
+        backgroundColor: isPlaying ? "$neutralInvertedA4" : "transparent",
 
         "& [data-play-button], [data-like-button]": {
           opacity: 0,
@@ -93,10 +112,23 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
       justify="between"
       align="center"
     >
-      <Flex align="center" gap="5">
-        <Typography css={{ userSelect: "none" }} size="1">
-          {trackIndex + 1}
-        </Typography>
+      <Flex align="center" gap="3">
+        <Box
+          css={{
+            position: "absolute",
+            left: "$3",
+          }}
+        >
+          {isPlaying ? (
+            <SpinWrapper as="span">
+              <BsDiscFill />
+            </SpinWrapper>
+          ) : (
+            <Typography css={{ userSelect: "none" }} size="1">
+              {trackIndex + 1}
+            </Typography>
+          )}
+        </Box>
         <Box
           css={{
             position: "relative",
@@ -148,7 +180,7 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
               {track.title}
             </Typography>
           </Link>
-          <Box as="span">•</Box>
+          <RxDotFilled />
           <Link
             to={{
               pathname: "/profile",

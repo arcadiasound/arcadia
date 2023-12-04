@@ -65,6 +65,39 @@ const testData = {
   ],
 };
 
+const StyledTabsTrigger = styled(TabsTrigger, {
+  br: "$1",
+  flex: 1,
+  textAlign: "center",
+
+  "&:hover": {
+    backgroundColor: "$slate3",
+    color: "$slate12",
+  },
+
+  '&[data-state="active"]': {
+    backgroundColor: "$slate4",
+    color: "$slate12",
+    boxShadow: "none",
+    fontWeight: 400,
+  },
+
+  variants: {
+    size: {
+      1: {
+        fontSize: "$2",
+        px: "$5",
+        py: "$2",
+      },
+      2: {
+        fontSize: "$3",
+        px: "$5",
+        py: "$2",
+      },
+    },
+  },
+});
+
 interface ActivityProps {
   activity: {
     timestamp: number;
@@ -141,7 +174,7 @@ const Creator = ({
         search: `?addr=${address}`,
       }}
     >
-      <Flex gap="2" align="center">
+      <Flex gap="1" align="center">
         <Image
           size={size}
           css={{
@@ -306,21 +339,10 @@ export const Track = () => {
     }
     if (currentTrackId === track?.txid) {
       togglePlaying?.();
-      handlePlayPause();
     } else {
       setTracklist?.([track], 0);
       setCurrentTrackId?.(track.txid);
       setCurrentTrackIndex?.(0);
-    }
-  };
-
-  const handlePlayPause = () => {
-    if (!audioRef.current) return;
-
-    if (audioRef.current.paused) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
     }
   };
 
@@ -376,7 +398,7 @@ export const Track = () => {
   return (
     <Flex
       css={{
-        pt: 80 + appConfig.headerMaxHeight,
+        pt: 60 + appConfig.headerMaxHeight,
         height: "100%",
       }}
       direction={{
@@ -386,7 +408,7 @@ export const Track = () => {
       gap="10"
       align={{
         "@initial": "center",
-        "@bp4": "center",
+        "@bp4": "start",
       }}
       justify="center"
     >
@@ -394,9 +416,21 @@ export const Track = () => {
         <Box
           css={{
             position: "relative",
-
             width: 200,
             height: 200,
+            outline: "1px solid $colors$neutralInvertedA3",
+            outlineOffset: "-1px",
+            maxHeight: "max-content",
+
+            "& [data-play-button]": {
+              opacity: 0,
+            },
+
+            "&:hover": {
+              "& [data-play-button]": {
+                opacity: 1,
+              },
+            },
 
             "@bp2": {
               width: 400,
@@ -404,13 +438,13 @@ export const Track = () => {
             },
 
             "@bp3": {
-              width: 450,
-              height: 450,
+              width: 540,
+              height: 540,
             },
 
             "@bp5": {
-              width: 550,
-              height: 550,
+              width: 600,
+              height: 600,
             },
           }}
         >
@@ -429,14 +463,15 @@ export const Track = () => {
                 }
               />
               <IconButton
+                data-play-button
                 css={{
                   position: "absolute",
                   br: 9999,
                   color: "$whiteA12",
                   backgroundColor: "$blackA12",
                   opacity: 0.9,
-                  width: 64,
-                  height: 64,
+                  width: 80,
+                  height: 80,
                   left: 0,
                   right: 0,
                   top: 0,
@@ -444,7 +479,7 @@ export const Track = () => {
                   m: "auto",
 
                   "& svg": {
-                    fontSize: 28,
+                    fontSize: 40,
                     transform: isPlaying ? "translateX(0)" : "translateX(1px)",
                   },
 
@@ -457,7 +492,6 @@ export const Track = () => {
                     transform: "scale(0.95)",
                   },
                 }}
-                size="3"
                 data-playing={isPlaying}
                 aria-checked={isPlaying}
                 role="switch"
@@ -479,8 +513,8 @@ export const Track = () => {
                 },
 
                 "@bp3": {
-                  width: 450,
-                  height: 450,
+                  width: 540,
+                  height: 540,
                 },
 
                 "@bp5": {
@@ -494,44 +528,18 @@ export const Track = () => {
 
         {track && (
           <Flex justify="between" align="center" css={{ px: "$2" }}>
-            <Flex align="center">
-              <Flex direction="column" gap="1">
-                <Typography contrast="hi" size="5">
-                  {track.title}
-                </Typography>
-                <Link
-                  to={{
-                    pathname: "/profile",
-                    search: `?addr=${track.creator}`,
-                  }}
-                >
-                  <Typography>
-                    {account?.profile.name ||
-                      abbreviateAddress({
-                        address: track.creator,
-                        options: { startChars: 6, endChars: 6 },
-                      })}
-                  </Typography>
-                </Link>
-              </Flex>
-            </Flex>
+            <LikeButton txid={id} size="3" />
 
-            <Flex gap="5" align="center">
-              <Flex align="center" gap="5">
-                <LikeButton txid={id} size="3" />
-
-                {sponsors && (
-                  <Button
-                    as="a"
-                    href={`https://bazar.arweave.dev/#/asset/${track.txid}`}
-                    css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
-                    variant="solid"
-                  >
-                    View on Marketplace
-                  </Button>
-                )}
-              </Flex>
-            </Flex>
+            {sponsors && (
+              <Button
+                as="a"
+                href={`https://bazar.arweave.dev/#/asset/${track.txid}`}
+                css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
+                variant="solid"
+              >
+                View on Marketplace
+              </Button>
+            )}
           </Flex>
         )}
 
@@ -549,17 +557,49 @@ export const Track = () => {
         gap="10"
         css={{ flex: 1, "@bp4": { maxWidth: 500, alignSelf: "start" } }}
       >
+        {track && (
+          <Flex css={{ pt: "$5" }} direction="column" gap="1">
+            <Typography contrast="hi" size="5">
+              {track.title}
+            </Typography>
+            <Link
+              to={{
+                pathname: "/profile",
+                search: `?addr=${track.creator}`,
+              }}
+            >
+              <Typography>
+                {account?.profile.name ||
+                  abbreviateAddress({
+                    address: track.creator,
+                    options: { startChars: 6, endChars: 6 },
+                  })}
+              </Typography>
+            </Link>
+          </Flex>
+        )}
+        {trackLoading && (
+          <Skeleton css={{ height: 72, width: "100%", pt: "$5" }} />
+        )}
         <Tabs
           onValueChange={(e) => setActiveTab(e as TrackTab)}
           defaultValue="details"
         >
-          <TabsList>
-            <TabsTrigger value="details">details</TabsTrigger>
-            <TabsTrigger value="comments">comments</TabsTrigger>
-            <TabsTrigger value="activity">activity</TabsTrigger>
-            <TabsTrigger disabled={!sponsors} value="sponsors">
+          <TabsList
+            css={{
+              br: "$2",
+              gap: "$1",
+              backgroundColor: "$slate1",
+              boxShadow: "0 0 0 1px $colors$slate5",
+              p: "$1",
+            }}
+          >
+            <StyledTabsTrigger value="details">details</StyledTabsTrigger>
+            <StyledTabsTrigger value="comments">comments</StyledTabsTrigger>
+            <StyledTabsTrigger value="activity">activity</StyledTabsTrigger>
+            <StyledTabsTrigger disabled={!sponsors} value="sponsors">
               sponsors
-            </TabsTrigger>
+            </StyledTabsTrigger>
           </TabsList>
           <StyledTabsContent
             css={{
@@ -571,18 +611,6 @@ export const Track = () => {
           >
             {track && (
               <>
-                <Typography contrast="hi" size="4">
-                  {track.title}
-                  <Box css={{ color: "$slate11" }} as="span">
-                    {" "}
-                    by{" "}
-                    {account?.profile.name ||
-                      abbreviateAddress({
-                        address: track.creator,
-                        options: { startChars: 6, endChars: 6 },
-                      })}
-                  </Box>
-                </Typography>
                 <Flex css={{ alignSelf: "start" }} direction="column" gap="2">
                   <DetailHeading>About this track</DetailHeading>
                   <Typography
