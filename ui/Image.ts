@@ -1,6 +1,7 @@
 import { styled } from "@/stitches.config";
 
 export const Image = styled("img", {
+  userSelect: "none",
   variants: {
     size: {
       1: {
