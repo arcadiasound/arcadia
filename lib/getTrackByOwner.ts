@@ -1,31 +1,49 @@
+import { appConfig } from "@/appConfig";
+import { GQLQuery } from "@/types";
 import {
   removeDuplicatesByCreator,
   removeDuplicatesByTxid,
 } from "@/utils/query";
 import { setTrackInfo } from "@/utils/setTrackInfo";
 import arweaveGql, {
+  GetTransactionsQuery,
   SortOrder,
   Transaction,
   TransactionEdge,
 } from "arweave-graphql";
 
 export const getTrackByOwners = async (address: string, gateway?: string) => {
+  console.log("address: ", address);
+
   try {
-    const res = await arweaveGql(
-      `${gateway || "https://arweave.net"}/graphql`
-    ).getTransactions({
-      owners: [address],
-      tags: [
-        {
-          name: "Content-Type",
-          values: ["audio/mpeg", "audio/wav", "audio/aac"],
-        },
-        {
-          name: "App-Name",
-          values: ["SmartWeaveContract"],
-        },
-      ],
+    const res = await gql({
+      variables: {
+        tags: [
+          {
+            name: "Content-Type",
+            values: ["audio/mpeg", "audio/wav", "audio/aac"],
+          },
+          {
+            name: "Indexed-By",
+            values: ["ucm"],
+          },
+          {
+            name: "App-Name",
+            values: ["SmartWeaveContract"],
+          },
+          {
+            name: "App-Version",
+            values: ["0.3.0"],
+          },
+          {
+            name: "Contract-Src",
+            values: ["Of9pi--Gj7hCTawhgxOwbuWnFI1h24TTgO5pw8ENJNQ"],
+          },
+        ],
+      },
     });
+
+    console.log(res);
 
     const data = res.transactions.edges
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
@@ -38,11 +56,9 @@ export const getTrackByOwners = async (address: string, gateway?: string) => {
 
         const creator = edge.node.tags.find((x) => x.name === "Creator")?.value;
 
-        const txOwner = edge.node.owner.address;
-
         const isOwner =
-          Object.keys(initState.balances).includes(txOwner) ||
-          creator === txOwner;
+          Object.keys(initState.balances).includes(address) ||
+          creator === address;
 
         if (isOwner) {
           return true;
@@ -61,4 +77,57 @@ export const getTrackByOwners = async (address: string, gateway?: string) => {
     console.error(error);
     throw new Error("Error occured whilst fetching data:", error.message);
   }
+};
+
+const gql = async ({ variables }: GQLQuery): Promise<GetTransactionsQuery> => {
+  const query = {
+    query: `
+    query {
+      transactions(
+        first: 50,
+        tags: [
+          {
+            name: "Content-Type",
+            values: ["audio/mpeg", "audio/wav", "audio/aac"],
+            },
+            {
+            name: "Indexed-By",
+            values: ["ucm"],
+            },
+            {
+            name: "App-Name",
+            values: ["SmartWeaveContract"],
+            },
+            {
+            name: "App-Version",
+            values: ["0.3.0"],
+            },
+        ]
+      ){
+      edges {
+        cursor
+        node {
+          id
+          tags {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+    `,
+  };
+
+  const response = await fetch(`${appConfig.goldskyUrl}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(query),
+  });
+
+  const resObj = await response.json();
+
+  return resObj.data;
 };

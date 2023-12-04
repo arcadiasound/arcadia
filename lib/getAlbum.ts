@@ -1,15 +1,15 @@
+import { appConfig } from "@/appConfig";
+import { GQLQuery } from "@/types";
+import { GetTransactionsQuery } from "arweave-graphql";
 import { arweave } from "./arweave";
-import { gql } from "./helpers";
+// import { gql } from "./helpers";
 
 export const getAlbum = async (txid: string) => {
   try {
     // retrieve album
-    const res = await gql({
-      variables: {
-        first: 1,
-        ids: [txid],
-      },
-    });
+    const res = await gql(txid);
+
+    console.log({ res });
 
     const data = res.transactions.edges
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
@@ -94,4 +94,39 @@ export const getAlbum = async (txid: string) => {
   } catch (error) {
     throw error;
   }
+};
+
+const gql = async (txid: string): Promise<GetTransactionsQuery> => {
+  const query = {
+    query: `
+    query {
+      transactions(
+        ids: ["${txid}"]
+      ){
+      edges {
+        cursor
+        node {
+          id
+          tags {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+    `,
+  };
+
+  const response = await fetch(`${appConfig.goldskyUrl}/graphql`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(query),
+  });
+
+  const resObj = await response.json();
+
+  return resObj.data;
 };
