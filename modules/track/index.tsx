@@ -337,12 +337,31 @@ export const Track = () => {
     if (!track) {
       return;
     }
+
+    handlePlayPause();
+
     if (currentTrackId === track?.txid) {
       togglePlaying?.();
     } else {
       setTracklist?.([track], 0);
       setCurrentTrackId?.(track.txid);
       setCurrentTrackIndex?.(0);
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (!audioRef.current || !audioCtxRef.current) return;
+
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+
+    if (playing) {
+      audioRef.current.pause();
+    }
+
+    if (!playing && audioRef.current.readyState >= 2) {
+      audioRef.current.play();
     }
   };
 

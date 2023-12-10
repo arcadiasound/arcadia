@@ -46,6 +46,7 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
     setTracklist,
     setCurrentTrackId,
     setCurrentTrackIndex,
+    handlePlayPause,
   } = useAudioPlayer();
 
   const { data: duration, isLoading: durationLoading } = useQuery({
@@ -60,6 +61,8 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackItemProps) => {
   });
 
   const handleClick = () => {
+    handlePlayPause?.();
+
     if (track.txid === currentTrackId && tracks === tracklist) {
       togglePlaying?.();
     } else {

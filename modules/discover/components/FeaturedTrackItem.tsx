@@ -142,33 +142,35 @@ export const FeaturedTrackItem = ({
           />
         </Link>
         <Flex css={{ zIndex: 1 }} direction="column" gap="7">
-          <Link
-            to={{
-              pathname: "/track",
-              search: `?tx=${track.txid}`,
-            }}
-          >
-            <Typography size="6" weight="5" css={{ color: "$whiteA12" }}>
-              {track.title}
-            </Typography>
-            <Typography weight="5" css={{ color: "$whiteA11" }}>
-              {creator
-                ? creator.profile.name
-                : abbreviateAddress({
-                    address: track.creator,
-                  })}
-            </Typography>
-          </Link>
-          <Link
-            to={{
-              pathname: "/track",
-              search: `?tx=${track.txid}`,
-            }}
-          >
-            <Typography css={{ maxWidth: "40ch", color: "$whiteA11" }} size="2">
-              {track.description || "-"}
-            </Typography>
-          </Link>
+          <Box>
+            <Link
+              to={{
+                pathname: "/track",
+                search: `?tx=${track.txid}`,
+              }}
+            >
+              <Typography size="6" weight="5" css={{ color: "$whiteA12" }}>
+                {track.title}
+              </Typography>
+            </Link>
+            <Link
+              to={{
+                pathname: "/profile",
+                search: `?addr=${track.creator}`,
+              }}
+            >
+              <Typography weight="5" css={{ color: "$whiteA11" }}>
+                {creator
+                  ? creator.profile.name
+                  : abbreviateAddress({
+                      address: track.creator,
+                    })}
+              </Typography>
+            </Link>
+          </Box>
+          <Typography css={{ maxWidth: "40ch", color: "$whiteA11" }} size="2">
+            {track.description || "-"}
+          </Typography>
           <Flex gap="5">
             <PlayButton
               css={{
@@ -188,9 +190,9 @@ export const FeaturedTrackItem = ({
             >
               {isPlaying ? <IoPauseSharp /> : <IoPlaySharp />}
             </PlayButton>
-            <IconButton size="3" variant="translucent" rounded>
+            {/* <IconButton size="3" variant="translucent" rounded>
               <BsSuitHeart />
-            </IconButton>
+            </IconButton> */}
             {/* <IconButton size="3" variant="translucent" rounded>
               <RxDotsHorizontal />
             </IconButton> */}

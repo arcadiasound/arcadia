@@ -43,6 +43,7 @@ export const TrackCard = ({
     setTracklist,
     setCurrentTrackId,
     setCurrentTrackIndex,
+    handlePlayPause,
   } = useAudioPlayer();
   const { walletAddress, connect } = useConnect();
 
@@ -111,7 +112,7 @@ export const TrackCard = ({
   });
 
   const handleClick = () => {
-    handlePlayPause();
+    handlePlayPause?.();
 
     if (currentTrackId === track.txid) {
       togglePlaying?.();
@@ -121,22 +122,6 @@ export const TrackCard = ({
         setCurrentTrackId?.(track.txid);
         setCurrentTrackIndex?.(trackIndex);
       }
-    }
-  };
-
-  const handlePlayPause = () => {
-    if (!audioRef.current || !audioCtxRef.current) return;
-
-    if (audioCtxRef.current.state === "suspended") {
-      audioCtxRef.current.resume();
-    }
-
-    if (playing) {
-      audioRef.current.pause();
-    }
-
-    if (!playing && audioRef.current.readyState >= 2) {
-      audioRef.current.play();
     }
   };
 
@@ -244,8 +229,8 @@ export const TrackCard = ({
               css={{
                 width: size || 200,
                 height: size || 200,
-                outline: "4px solid $whiteA3",
-                outlineOffset: -4,
+                outline: "1px solid $whiteA3",
+                outlineOffset: -1,
               }}
               src={
                 track.artworkId
