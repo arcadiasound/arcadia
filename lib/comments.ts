@@ -11,6 +11,7 @@ export const writeComment = async ({ comment, sourceTx }: Comment) => {
     });
     savedTx.addTag("Content-Type", "text/plain");
     savedTx.addTag("Data-Protocol", "Comment");
+    savedTx.addTag("App-Name", "Arcadia");
     savedTx.addTag("Type", "comment");
     savedTx.addTag("Published", Date.now().toString());
     savedTx.addTag("Data-Source", sourceTx);
