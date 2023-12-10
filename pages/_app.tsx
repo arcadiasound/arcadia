@@ -43,6 +43,10 @@ const globalStyles = globalCss({
     color: "$slate11",
   },
   "& a": {
+    "&:hover": {
+      textDecoration: "underline",
+      textDecorationThickness: "1px",
+    },
     "&:focus-visible": {
       boxShadow: "0 0 0 2px $colors$blue8",
     },

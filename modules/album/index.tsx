@@ -57,6 +57,7 @@ export const Album = () => {
     setCurrentTrackId,
     setCurrentTrackIndex,
     audioCtxRef,
+    handlePlayPause,
   } = useAudioPlayer();
 
   const id = urlParams.get("tx");
@@ -124,6 +125,8 @@ export const Album = () => {
     if (!albumTracks) {
       return;
     }
+
+    handlePlayPause?.();
 
     if (tracklist === albumTracks) {
       togglePlaying?.();
