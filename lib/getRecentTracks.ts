@@ -24,16 +24,17 @@ export const getRecentTracks = async () => {
 
 // maximum number of recursive calls
 const MAX_RECURSION_DEPTH = 10;
+const MAX_ITEMS = 5;
 
 const queryRecentTracks = async (
   tracks: Track[],
   cursor?: string,
   depth: number = 0
 ): Promise<Track[]> => {
-  if (tracks.length >= 5 || depth >= MAX_RECURSION_DEPTH) {
+  if (tracks.length >= MAX_ITEMS || depth >= MAX_RECURSION_DEPTH) {
     return removeDuplicatesByCreator(removeDuplicatesByTxid(tracks)).slice(
       0,
-      5
+      MAX_ITEMS
     );
   }
 
@@ -70,16 +71,20 @@ const queryRecentTracks = async (
     variables,
   });
 
+  console.log(res);
+
   const resultsArray = res.transactions.edges;
 
   if (resultsArray.length === 0) {
     return removeDuplicatesByCreator(removeDuplicatesByTxid(tracks)).slice(
       0,
-      5
+      MAX_ITEMS
     );
   }
 
   const data = filterQueryResults(res);
+
+  console.log(data);
 
   tracks = tracks.concat(data);
   const lastItem = resultsArray[resultsArray.length - 1];
@@ -123,6 +128,7 @@ const gql = async ({ variables }: GQLQuery): Promise<GetTransactionsQuery> => {
     query {
       transactions(
         first: 20,
+        after: "${variables.after}",
         tags: [
           {
             name: "Content-Type",
