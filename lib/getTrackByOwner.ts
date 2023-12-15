@@ -21,7 +21,7 @@ export const getTrackByOwners = async (address: string, gateway?: string) => {
         tags: [
           {
             name: "Content-Type",
-            values: ["audio/mpeg", "audio/wav", "audio/aac"],
+            values: ["audio/mpeg", "audio/wav", "audio/aac", "audio/x-m4a"],
           },
           {
             name: "Indexed-By",
@@ -88,7 +88,7 @@ const gql = async ({ variables }: GQLQuery): Promise<GetTransactionsQuery> => {
         tags: [
           {
             name: "Content-Type",
-            values: ["audio/mpeg", "audio/wav", "audio/aac"],
+            values: ["audio/mpeg", "audio/wav", "audio/aac", "audio/x-m4a"],
             },
             {
             name: "Indexed-By",

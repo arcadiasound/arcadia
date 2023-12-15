@@ -53,7 +53,7 @@ const getTracks = async (searchValue: string) => {
           tags: [
             {
               name: "Content-Type",
-              values: ["audio/mpeg", "audio/wav", "audio/aac"],
+              values: ["audio/mpeg", "audio/wav", "audio/aac", "audio/x-m4a"],
             },
             {
               name: "Indexed-By",

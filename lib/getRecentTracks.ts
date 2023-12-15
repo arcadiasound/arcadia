@@ -96,6 +96,10 @@ const filterQueryResults = (res: GetTransactionsQuery) => {
     )
     .filter(
       (edge) =>
+        edge.node.tags.find((x) => x.name === "Intent")?.value !== "Test"
+    )
+    .filter(
+      (edge) =>
         edge.node.tags.find((x) => x.name === "Indexed-By")?.value === "ucm"
     )
     .filter(

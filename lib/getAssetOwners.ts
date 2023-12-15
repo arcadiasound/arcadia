@@ -2,7 +2,6 @@ import { appConfig } from "@/appConfig";
 import { warp } from "./arweave";
 
 export const getAssetOwners = async (assetId: string) => {
-  console.log(assetId);
   const asset = warp.contract(assetId).setEvaluationOptions({
     allowBigInt: true,
     internalWrites: true,
@@ -12,5 +11,6 @@ export const getAssetOwners = async (assetId: string) => {
   });
 
   const { cachedValue } = await asset.readState();
+  console.log(cachedValue);
   return cachedValue.state as any;
 };
