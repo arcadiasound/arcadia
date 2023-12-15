@@ -24,9 +24,9 @@ const CarouselSkipButton = styled(IconButton, {
 const carouselParams: CarouselProps = {
   wrapAround: true,
   dragThreshold: 0.2,
-  autoplay: true,
-  autoplayInterval: 8000,
-  speed: 1250,
+  // autoplay: true,
+  // autoplayInterval: 8000,
+  // speed: 1250,
 };
 
 const TrackSkeleton = styled(Skeleton, {

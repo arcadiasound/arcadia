@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { PlayButton } from "@/modules/track/components/PlayButton";
+import { getTrackDescription } from "@/lib/getTrackDescription";
 
 interface FeaturedTrackItemProps {
   track: Track;
@@ -47,6 +48,26 @@ export const FeaturedTrackItem = ({
       }
 
       return getProfile(track.creator);
+    },
+  });
+
+  const {
+    data: trackDescription,
+    isLoading: trackDescriptionLoading,
+    isError: trackDescriptionError,
+  } = useQuery({
+    queryKey: [`description-${track.txid}`],
+    enabled: !!track,
+    refetchOnWindowFocus: false,
+    queryFn: () => {
+      if (!track) {
+        return;
+      }
+
+      return getTrackDescription(track.txid);
+    },
+    onSuccess: (data) => {
+      console.log({ data });
     },
   });
 
@@ -135,8 +156,8 @@ export const FeaturedTrackItem = ({
             css={{
               width: 300,
               height: 300,
-              outline: "4px solid $whiteA4",
-              outlineOffset: -4,
+              outline: "1px solid $whiteA4",
+              outlineOffset: -1,
             }}
             src={`${appConfig.defaultGateway}/${track.artworkId}`}
           />
@@ -168,8 +189,19 @@ export const FeaturedTrackItem = ({
               </Typography>
             </Link>
           </Box>
-          <Typography css={{ maxWidth: "40ch", color: "$whiteA11" }} size="2">
-            {track.description || "-"}
+          <Typography
+            css={{
+              maxWidth: "40ch",
+              color: "$whiteA11",
+              display: "-webkit-box",
+              "-webkit-box-orient": "vertical",
+              "-webkit-line-clamp": 2,
+              overflow: "hidden",
+              whiteSpace: "pre-wrap",
+            }}
+            size="2"
+          >
+            {trackDescription || track.description || "-"}
           </Typography>
           <Flex gap="5">
             <PlayButton
