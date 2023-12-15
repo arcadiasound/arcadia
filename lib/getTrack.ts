@@ -17,7 +17,7 @@ export const getTrack = async (
       tags: [
         {
           name: "Content-Type",
-          values: ["audio/mpeg", "audio/wav", "audio/aac"],
+          values: ["audio/mpeg", "audio/wav", "audio/aac", "audio/x-m4a"],
         },
         {
           name: "Indexed-By",
@@ -34,7 +34,9 @@ export const getTrack = async (
       ],
     });
 
-    console.log({ res });
+    console.log(res);
+
+    // console.log({ res });
 
     const data = res.transactions.edges
       // .filter((edge) => Number(edge.node.data.size) < 1e7)
@@ -47,7 +49,7 @@ export const getTrack = async (
         )
       );
 
-    console.log({ data });
+    // console.log({ data });
 
     const track = await Promise.all(data);
 

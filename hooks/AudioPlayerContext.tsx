@@ -89,6 +89,7 @@ export const AudioPlayerContext = createContext<{
   handlePrevTrack?: (index?: number) => void;
   handleNextTrack?: (index?: number) => void;
   handleTrackEnd?: () => void;
+  handlePlayPause?: () => void;
 }>({
   audioRef: null as any,
   audioCtxRef: null as any,
@@ -318,6 +319,22 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
 
   const handleTrackEnd = () => handleNextTrack();
 
+  const handlePlayPause = () => {
+    if (!audioRef.current || !audioCtxRef.current) return;
+
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+
+    if (state.playing) {
+      audioRef.current.pause();
+    }
+
+    if (!state.playing && audioRef.current.readyState >= 2) {
+      audioRef.current.play();
+    }
+  };
+
   return (
     <AudioPlayerContext.Provider
       value={{
@@ -340,6 +357,7 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
         handleNextTrack,
         handlePrevTrack,
         handleTrackEnd,
+        handlePlayPause,
         togglePlaying,
         toggleShuffle,
         toggleLoop,

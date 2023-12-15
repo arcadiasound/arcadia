@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-arweave",
+  "name": "arcadia",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,9 +7,8 @@
     "prebuild": "pnpm clean-build && node scripts/add-asset-prefix.mjs",
     "postbuild": "node scripts/remove-asset-prefix.mjs && prettier --write './next.config.js'",
     "build": "pnpm prebuild && next build && next export && pnpm postbuild",
-    "upload": "pnpm build && pnpm bundlr",
-    "upload-nc": "pnpm build && pnpm bundlr --no-confirmation",
-    "bundlr": "bundlr upload-dir out -c arweave -h https://node2.bundlr.network -w ./wallet.json --index-file index.html",
+    "upload": "pnpm build && pnpm irys",
+    "irys": "irys upload-dir out -h https://node2.irys.xyz --wallet /Users/Shared/wallet1.json -t arweave --index-file index.html --tags App-Name Arcadia --no-confirmation",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write '**/*.{json,md,mjs,js,ts,jsx,tsx,yml,css}'",
@@ -24,6 +23,7 @@
     "@radix-ui/react-avatar": "1.0.4",
     "@radix-ui/react-dialog": "1.0.5",
     "@radix-ui/react-dropdown-menu": "2.0.6",
+    "@radix-ui/react-hover-card": "1.0.7",
     "@radix-ui/react-slider": "1.1.2",
     "@radix-ui/react-tabs": "1.0.4",
     "@stitches/react": "1.2.8",

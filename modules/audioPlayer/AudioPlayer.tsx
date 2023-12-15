@@ -130,10 +130,10 @@ export const AudioPlayer = () => {
   useEffect(() => {
     if (!audioCtxRef.current) {
       audioCtxRef.current = new AudioContext();
-      console.log("setting audio context");
+      // console.log("setting audio context");
     }
 
-    console.log("audioCtx", audioCtxRef);
+    // console.log("audioCtx", audioCtxRef);
 
     // set gain node
     if (!gainRef.current) {
@@ -167,7 +167,7 @@ export const AudioPlayer = () => {
   const handleProgressChange = (e: number[]) => {
     if (!audioRef.current) return;
 
-    console.log("dragging");
+    // console.log("dragging");
 
     setScrubbing(true);
     setScrubbedValue(e[0]);
@@ -176,7 +176,7 @@ export const AudioPlayer = () => {
   const handleProgressCommit = (e: number[]) => {
     if (!audioRef.current) return;
 
-    console.log("dragging stopped");
+    // console.log("dragging stopped");
 
     setScrubbing(false);
     audioRef.current.currentTime = e[0];

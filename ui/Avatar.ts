@@ -9,8 +9,16 @@ export const Avatar = styled(AvatarPrimitive.Root, {
   alignItems: "center",
   justifyContent: "center",
   verticalAlign: "middle",
-  overflow: "hidden",
   userSelect: "none",
+
+  "& span": {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    verticalAlign: "middle",
+    backgroundColor: "$neutralInvertedA3",
+    color: "$neutralInvertedA11",
+  },
 
   variants: {
     size: {
@@ -79,19 +87,15 @@ export const Avatar = styled(AvatarPrimitive.Root, {
         },
       },
     },
-    shape: {
-      round: {
+    rounded: {
+      true: {
         br: "$round",
-      },
-      square: {
-        br: 0,
       },
     },
   },
 
   defaultVariants: {
     size: "4",
-    shape: "round",
   },
 });
 

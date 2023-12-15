@@ -109,7 +109,7 @@ export const AppHeader = () => {
           <Image
             src={src}
             css={{
-              width: 94,
+              width: 100,
               height: 17,
             }}
           />

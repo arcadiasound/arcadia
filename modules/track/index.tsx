@@ -1,4 +1,8 @@
-import { Track as TrackType } from "@/types";
+import {
+  ProfileOwnershipProps,
+  ProfileWithOwnership,
+  Track as TrackType,
+} from "@/types";
 import { Flex } from "@/ui/Flex";
 import { Link, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
@@ -28,7 +32,13 @@ import {
   AccordionTrigger,
 } from "@/ui/Accordion";
 import { styled } from "@/stitches.config";
-import { RxCheck, RxCopy } from "react-icons/rx";
+import {
+  RxCheck,
+  RxChevronDown,
+  RxChevronRight,
+  RxCopy,
+  RxSize,
+} from "react-icons/rx";
 import { TrackComments } from "./TrackComments";
 import { LikeButton } from "./components/LikeButton";
 import { ArAccount } from "arweave-account";
@@ -40,30 +50,13 @@ import { Skeleton } from "@/ui/Skeleton";
 import { LoadingSpinner } from "@/ui/Loader";
 import { useConnect } from "@/hooks/useConnect";
 import { getAssetOwners } from "@/lib/getAssetOwners";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import { getAssetListedStatus } from "@/lib/getAssetListedStatus";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
-
-const testData = {
-  labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-  datasets: [
-    {
-      label: "% ownership",
-      data: [12, 19, 3, 5, 2, 3],
-      backgroundColor: [
-        "rgba(255, 99, 132, 0.2)",
-        "rgba(54, 162, 235, 0.2)",
-        "rgba(255, 206, 86, 0.2)",
-        "rgba(75, 192, 192, 0.2)",
-        "rgba(153, 102, 255, 0.2)",
-        "rgba(255, 159, 64, 0.2)",
-      ],
-      borderWidth: 0,
-    },
-  ],
-};
+import { getUCMAsset } from "@/lib/getUCMAsset";
+import { getTrackDescription } from "@/lib/getTrackDescription";
+import { HoverCard } from "@radix-ui/react-hover-card";
+import { HoverCardContent, HoverCardTrigger } from "@/ui/HoverCard";
+import { OwnershipChartDialog } from "./components/OwnershipChartDialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/ui/Avatar";
 
 const StyledTabsTrigger = styled(TabsTrigger, {
   br: "$1",
@@ -122,13 +115,7 @@ const Activity = ({ activity }: ActivityProps) => {
   return (
     <Flex align="center" justify="between">
       <Flex align="center" gap="2">
-        <Creator
-          account={account}
-          address={activity.owner}
-          avatarUrl={account?.profile.avatarURL}
-          contrast="hi"
-          size="2"
-        />
+        <Creator account={account} contrast="hi" size="2" />
         <Typography size="2">
           {activity.type} {activity.type === "commented" && "on "}
           this track
@@ -152,45 +139,122 @@ const StyledTabsContent = styled(TabsContent, {
   },
 });
 
-interface CreatorProps {
-  address: string;
+const ProfileWithOwnership = ({
+  profileWithOwnership,
+  songTitle,
+}: ProfileOwnershipProps) => {
+  return (
+    <HoverCard openDelay={570}>
+      <HoverCardTrigger asChild>
+        <Link
+          to={{
+            pathname: "/profile",
+            search: `?addr=${profileWithOwnership.account?.addr}`,
+          }}
+        >
+          <Flex gap="1" align="center">
+            <Avatar>
+              <AvatarImage
+                css={{
+                  br: "$1",
+                  boxSize: "$10",
+                  mb: "$1",
+                }}
+                src={
+                  profileWithOwnership.account?.profile?.avatarURL ===
+                  appConfig.accountAvatarDefault
+                    ? `https://source.boringavatars.com/marble/100/${profileWithOwnership.account?.txid}?square=true`
+                    : profileWithOwnership.account?.profile.avatarURL
+                }
+              />
+              <AvatarFallback
+                css={{
+                  br: "$1",
+                }}
+              >
+                {profileWithOwnership.account?.profile.name.slice(0, 2) ||
+                  profileWithOwnership.account?.addr.slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+          </Flex>
+        </Link>
+      </HoverCardTrigger>
+      <HoverCardContent
+        side="top"
+        sideOffset={12}
+        css={{
+          backgroundColor: "$neutralA11",
+          backdropFilter: "blur(20px)",
+          boxShadow: "0 0 0 1px $colors$neutralInvertedA5",
+        }}
+      >
+        <Avatar>
+          <AvatarImage
+            css={{
+              br: "$1",
+              boxSize: "$10",
+              mb: "$1",
+            }}
+            src={
+              profileWithOwnership.account?.profile?.avatarURL ===
+              appConfig.accountAvatarDefault
+                ? `https://source.boringavatars.com/marble/100/${profileWithOwnership.account?.txid}?square=true`
+                : profileWithOwnership.account?.profile.avatarURL
+            }
+          />
+          <AvatarFallback
+            css={{
+              br: "$1",
+            }}
+          >
+            {profileWithOwnership.account?.profile.name.slice(0, 2) ||
+              profileWithOwnership.account?.addr.slice(0, 2)}
+          </AvatarFallback>
+        </Avatar>
+        <Typography size="1" contrast="hi">
+          {profileWithOwnership.account?.profile.name ||
+            abbreviateAddress({
+              address: profileWithOwnership.account?.addr,
+            })}
+        </Typography>
+        <Typography css={{ mt: "$2" }} size="3" contrast="hi" weight="5">
+          Owns {profileWithOwnership.ownershipAmount}% of {songTitle}
+        </Typography>
+      </HoverCardContent>
+    </HoverCard>
+  );
+};
+
+interface ProfileProps {
   account: ArAccount | undefined;
-  avatarUrl: string | undefined;
   contrast?: "hi" | "lo";
   size?: "1" | "2" | "3";
 }
 
-const Creator = ({
-  address,
-  account,
-  avatarUrl,
-  size = "2",
-  contrast = "lo",
-}: CreatorProps) => {
+const Creator = ({ account, size = "2", contrast = "lo" }: ProfileProps) => {
   return (
     <Link
       to={{
         pathname: "/profile",
-        search: `?addr=${address}`,
+        search: `?addr=${account?.addr}`,
       }}
     >
       <Flex gap="1" align="center">
         <Image
           size={size}
           css={{
-            br: 9999,
+            br: "9999px",
           }}
           src={
-            avatarUrl === appConfig.accountAvatarDefault
+            account?.profile?.avatarURL === appConfig.accountAvatarDefault
               ? `https://source.boringavatars.com/marble/100/${account?.txid}?square=true`
-              : avatarUrl
+              : account?.profile.avatarURL
           }
         />
         <Typography size={size} contrast={contrast}>
           {account?.profile.name ||
             abbreviateAddress({
-              address: address,
-              options: { startChars: 6, endChars: 6 },
+              address: account?.addr,
             })}
         </Typography>
       </Flex>
@@ -226,12 +290,16 @@ type TrackTab = "details" | "comments" | "activity" | "sponsors";
 
 export const Track = () => {
   const [isCopied, setIsCopied] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
   const [activeTab, setActiveTab] = useState<TrackTab>("details");
-  const [owners, setOwners] = useState<string[]>();
-  const [ownershipAmount, setOwnershipAmount] = useState<number[]>();
+  const [owners, setOwners] = useState<ProfileWithOwnership[]>();
+  const [showOwnershipChart, setShowOwnershipChart] = useState(false);
+
+  const handleShowOwnershipChart = () => setShowOwnershipChart(true);
+  const handleCancelOwnershipChart = () => setShowOwnershipChart(false);
 
   const { play } = useMotionAnimate(
     ".comment",
@@ -276,12 +344,33 @@ export const Track = () => {
       return getTrack(id, audioCtxRef);
     },
     onSuccess: (data) => {
+      // console.log({ data });
+    },
+  });
+
+  const {
+    data: trackDescription,
+    isLoading: trackDescriptionLoading,
+    isError: trackDescriptionError,
+  } = useQuery({
+    queryKey: [`description-${id}`],
+    enabled: !!track,
+    refetchOnWindowFocus: false,
+    queryFn: () => {
+      if (!track) {
+        return;
+      }
+
+      return getTrackDescription(track.txid);
+    },
+    onSuccess: (data) => {
       console.log({ data });
     },
   });
 
   const { data: account } = useQuery({
     queryKey: [`profile-${track?.creator}`],
+    enabled: !!track,
     queryFn: () => {
       if (!track?.creator) {
         throw new Error("No profile has been found");
@@ -291,28 +380,17 @@ export const Track = () => {
     },
   });
 
-  // const { data: assetListed } = useQuery({
-  //   queryKey: [`listedStatus-${track?.txid}`],
-  //   refetchOnWindowFocus: false,
-  //   queryFn: () => {
-  //     if (!track?.txid) {
-  //       throw new Error("No txid found");
-  //     }
-
-  //     return getAssetListedStatus(track.txid);
-  //   },
-  // });
-
-  const { data: sponsors } = useQuery({
-    queryKey: [`sponsors-${track?.txid}`],
+  const { data: ucmAsset, isLoading: ucmAssetLoading } = useQuery({
+    queryKey: [`ucmAsset-${track?.txid}`],
+    enabled: !!track,
+    cacheTime: 0,
     refetchOnWindowFocus: false,
-    // enabled: activeTab === "sponsors",
     queryFn: () => {
       if (!track?.txid) {
         throw new Error("No txid found");
       }
 
-      return getAssetOwners(track.txid);
+      return getUCMAsset(track.txid);
     },
   });
 
@@ -337,12 +415,31 @@ export const Track = () => {
     if (!track) {
       return;
     }
+
+    handlePlayPause();
+
     if (currentTrackId === track?.txid) {
       togglePlaying?.();
     } else {
       setTracklist?.([track], 0);
       setCurrentTrackId?.(track.txid);
       setCurrentTrackIndex?.(0);
+    }
+  };
+
+  const handlePlayPause = () => {
+    if (!audioRef.current || !audioCtxRef.current) return;
+
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
+
+    if (playing) {
+      audioRef.current.pause();
+    }
+
+    if (!playing && audioRef.current.readyState >= 2) {
+      audioRef.current.play();
     }
   };
 
@@ -363,37 +460,40 @@ export const Track = () => {
   const avatarUrl = account?.profile.avatarURL;
 
   useEffect(() => {
-    if (sponsors) {
-      const balances = Object.keys(sponsors.balances);
-      const ownership = Object.values(sponsors.balances) as number[];
+    if (ucmAsset) {
+      const balances = Object.keys(ucmAsset.state.balances);
+      const ownership = Object.values(ucmAsset.state.balances) as number[];
 
       const getProfiles = async () => {
-        // const profiles: { name: string; imageUrl: string }[] = [];
-        const profiles: string[] = [];
+        const profiles: ProfileWithOwnership[] = [];
 
         for (let i = 0; i < balances.length; i++) {
           const address = balances[i];
+          const amount = ownership[i];
 
-          console.log("here");
+          // catch edge case where user with 0% can show up
+          if (amount === 0) {
+            continue;
+          }
 
           const account = await getProfile(address);
-          const profileName = account.profile.handleName || account.handle;
-          const profileImage =
-            account.profile.avatarURL !== appConfig.accountAvatarDefault
-              ? account.profile.avatarURL
-              : `https://source.boringavatars.com/marble/20/${account.addr}`;
-          // profiles.push({ name: profileImage, imageUrl: profileImage });
-          profiles.push(profileName);
+          profiles.push({
+            account: account,
+            ownershipAmount: amount,
+          });
         }
+
+        // Sort the profiles array based on ownershipAmount in descending order
+        profiles.sort((a, b) => b.ownershipAmount - a.ownershipAmount);
 
         setOwners(profiles);
       };
 
       getProfiles();
-
-      setOwnershipAmount(ownership);
     }
-  }, [sponsors]);
+  }, [ucmAsset]);
+
+  const toggleShowDescription = () => setShowDescription(!showDescription);
 
   return (
     <Flex
@@ -530,11 +630,19 @@ export const Track = () => {
           <Flex justify="between" align="center" css={{ px: "$2" }}>
             <LikeButton txid={id} size="3" />
 
-            {sponsors && (
+            {!!ucmAsset && (
               <Button
                 as="a"
                 href={`https://bazar.arweave.dev/#/asset/${track.txid}`}
-                css={{ alignSelf: "start", br: "$2", cursor: "pointer" }}
+                css={{
+                  alignSelf: "start",
+                  br: "$2",
+                  cursor: "pointer",
+
+                  "&:hover": {
+                    textDecoration: "none",
+                  },
+                }}
                 variant="solid"
               >
                 View on Marketplace
@@ -597,9 +705,9 @@ export const Track = () => {
             <StyledTabsTrigger value="details">details</StyledTabsTrigger>
             <StyledTabsTrigger value="comments">comments</StyledTabsTrigger>
             <StyledTabsTrigger value="activity">activity</StyledTabsTrigger>
-            <StyledTabsTrigger disabled={!sponsors} value="sponsors">
+            {/* <StyledTabsTrigger disabled={!sponsors} value="sponsors">
               sponsors
-            </StyledTabsTrigger>
+            </StyledTabsTrigger> */}
           </TabsList>
           <StyledTabsContent
             css={{
@@ -618,33 +726,86 @@ export const Track = () => {
                     css={{
                       // fix needed: webkit-box removes space between this section and button
                       display: "-webkit-box",
-                      "-webkit-line-clamp": 2,
+                      "-webkit-line-clamp": showDescription ? "none" : 2,
                       "-webkit-box-orient": "vertical",
                       overflow: "hidden",
                       maxWidth: "60ch",
+                      whiteSpace: "pre-wrap",
                     }}
                   >
-                    {track.description || "No track description."}
+                    {trackDescription ||
+                      track.description ||
+                      "No track description."}
                   </Typography>
+                  {((trackDescription && trackDescription.length > 120) ||
+                    (track.description && track.description.length > 120)) && (
+                    <Button
+                      onClick={toggleShowDescription}
+                      css={{
+                        alignSelf: "start",
+                        pl: 0,
+                        color: "$slate12",
+
+                        "& svg": {
+                          transform: showDescription
+                            ? "rotate(-90deg)"
+                            : "none",
+                        },
+                      }}
+                      variant="transparent"
+                      size="1"
+                    >
+                      Show {showDescription ? "less" : "more"}{" "}
+                      <RxChevronRight />
+                    </Button>
+                  )}
                 </Flex>
                 <Flex justify="between" gap="5">
                   <Flex direction="column" gap="3">
-                    <DetailHeading>Creators</DetailHeading>
-                    {/* creators ready to be mapped over */}
-                    <Flex wrap="wrap" gap="5">
-                      <Creator
-                        account={account}
-                        address={track.creator}
-                        avatarUrl={avatarUrl}
-                      />
+                    <Flex gap="1" align="center">
+                      <DetailHeading>Owners</DetailHeading>
+                      <IconButton
+                        onClick={handleShowOwnershipChart}
+                        size="2"
+                        aria-label="Maximize owner view"
+                        variant="transparent"
+                      >
+                        <RxSize />
+                      </IconButton>
                     </Flex>
+                    {(ucmAssetLoading || (ucmAsset && !owners)) && (
+                      <Skeleton
+                        css={{ height: "$10", minWidth: 300, width: "100%" }}
+                      />
+                    )}
+                    {owners && (
+                      <>
+                        <Flex
+                          css={{ listStyleType: "none" }}
+                          as="ul"
+                          wrap="wrap"
+                          gap="2"
+                        >
+                          {owners.length &&
+                            owners.map((owner) => (
+                              <Box key={owner.account.addr} as="li">
+                                <ProfileWithOwnership
+                                  profileWithOwnership={owner}
+                                  songTitle={track.title}
+                                />
+                              </Box>
+                            ))}
+                        </Flex>
+                        <OwnershipChartDialog
+                          profilesWithOwnership={owners}
+                          open={showOwnershipChart}
+                          onClose={handleCancelOwnershipChart}
+                          title={track.title}
+                        />
+                      </>
+                    )}
                   </Flex>
                 </Flex>
-                {/* <Flex direction="column" gap="1">
-                  <Typography size="5" contrast="hi">
-                    Supporters
-                  </Typography>
-                </Flex> */}
                 <Accordion
                   css={{
                     display: "flex",
@@ -773,30 +934,6 @@ export const Track = () => {
               >
                 <LoadingSpinner />
               </Flex>
-            )}
-          </StyledTabsContent>
-          <StyledTabsContent value="sponsors">
-            {sponsors && (
-              <Doughnut
-                data={{
-                  labels: owners || mapKeys(sponsors.balances),
-                  datasets: [
-                    {
-                      label: "% ownership",
-                      data: Object.values(sponsors.balances),
-                      backgroundColor: [
-                        "rgba(255, 99, 132, 0.9)",
-                        "rgba(54, 162, 235, 0.9)",
-                        "rgba(255, 206, 86, 0.9)",
-                        "rgba(75, 192, 192, 0.9)",
-                        "rgba(153, 102, 255, 0.9)",
-                        "rgba(255, 159, 64, 0.9)",
-                      ],
-                      borderWidth: 0,
-                    },
-                  ],
-                }}
-              />
             )}
           </StyledTabsContent>
         </Tabs>

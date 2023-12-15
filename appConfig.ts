@@ -12,8 +12,8 @@ export const appConfig = {
   playerMaxHeight: 80,
   headerMaxHeight: 64,
   featuredIds: [
-    "uo_sAi90zv2XOtbz3Kan80IelT_A65uDYeMLHayq5E4",
-    "sJ04uWVUxcyzGHTw3O1jSc8AY4MlO2f8Ruy3EgudyhY",
-    "68yXgCsxmrkvAa1q6fDtKUfMnkadKKFm443jKjxObIU",
+    "oIhTcWmJnI1UPvyT0UwWUJlXZS1CTEcJ-OEq4yWKzZo",
+    "S2iCyKXwl3EGFY5xKuDFsglojl4_Mb8q3UriCIBYgfc",
+    "mS6oQkP-1VVW6aaubCmtHtjqlx5JSezBMkDfWLwYwCo",
   ],
 };

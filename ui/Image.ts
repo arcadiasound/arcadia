@@ -17,5 +17,17 @@ export const Image = styled("img", {
         height: 28,
       },
     },
+    fit: {
+      cover: {
+        objectFit: "cover",
+      },
+      contain: {
+        objectFit: "contain",
+      },
+    },
+  },
+
+  defaultVariants: {
+    fit: "cover",
   },
 });

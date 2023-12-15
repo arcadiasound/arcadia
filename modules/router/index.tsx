@@ -3,7 +3,6 @@ import { Routes, Route } from "react-router-dom";
 import { AppHeader } from "../layout/AppHeader";
 import { Discover } from "../discover";
 import { Profile } from "../profile";
-import { Upload } from "../upload";
 import { Box } from "@/ui/Box";
 import { Track } from "../track";
 import { appConfig } from "@/appConfig";
@@ -43,7 +42,6 @@ export const AppRouter = () => (
         <Route path={"/profile"} element={<Profile />} />
         <Route path={"/track"} element={<Track />} />
         <Route path={"/album"} element={<Album />} />
-        <Route path={"/upload"} element={<Upload />} />
         <Route path={"/search"} element={<Search />} />
       </Routes>
       <AudioPlayer />

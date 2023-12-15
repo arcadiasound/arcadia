@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 import { IconButton } from "@/ui/IconButton";
 import { FormikErrors, useFormik } from "formik";
@@ -37,19 +37,22 @@ const StyledComboboxItem = styled(ComboboxItem, {
   p: "$3",
   fontSize: "$2",
   lineHeight: "$2",
-  color: "$whiteA11",
+  color: "$neutralA11",
 
   "&:hover": {
-    backgroundColor: "$whiteA4",
-    color: "$whiteA12",
+    backgroundColor: "$neutralInvertedA11",
+    color: "$neutralA12",
   },
 });
 
 const StyledComboboxPopover = styled(ComboboxPopover, {
-  backgroundColor: "$whiteA11",
+  zIndex: "$popover",
+  backgroundColor: "$neutralInvertedA12",
+  backdropFilter: "blur(4px)",
   boxShadow: "0 0 2px 0 $colors$neutralInvertedA6",
-  borderBottomLeftRadius: "$1",
-  borderBottomRightRadius: "$1",
+  br: "$1",
+  // borderBottomLeftRadius: "$1",
+  // borderBottomRightRadius: "$1",
   overflow: "hidden",
 });
 
@@ -112,6 +115,7 @@ export const SearchBar = () => {
   const [showResultsDropdown, setShowResultsDropdown] = useState(false);
   const searchFieldRef = useRef<HTMLInputElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const debounceRequest = useDebounce(() => {
     if (searchValue) {
@@ -131,6 +135,7 @@ export const SearchBar = () => {
 
   const {
     data: searchResults,
+    isLoading: searchResultsLoading,
     isError,
     refetch,
     isRefetching,
@@ -234,11 +239,13 @@ export const SearchBar = () => {
           />
 
           <StyledComboboxPopover gutter={4} sameWidth portal>
-            {searchValue && (
+            {/* {searchValue && (
               <StyledComboboxItem
-                css={{
-                  backgroundColor: "$whiteA2",
-                }}
+                css={
+                  {
+                    // backgroundColor: "$whiteA2",
+                  }
+                }
                 hideOnClick
                 render={
                   <LinkItem
@@ -247,6 +254,11 @@ export const SearchBar = () => {
                 }
               >
                 Search for "{searchValue}"
+              </StyledComboboxItem>
+            )} */}
+            {searchValue && !searchResults?.length && !searchResultsLoading && (
+              <StyledComboboxItem hideOnClick>
+                No results found
               </StyledComboboxItem>
             )}
             {searchResults && searchResults.length > 0 && (
@@ -286,11 +298,11 @@ export const SearchBar = () => {
           <LoadingSpinner
             css={{
               position: "absolute",
-              right: "$10",
+              right: 0,
             }}
           />
         )}
-        <IconButton
+        {/* <IconButton
           css={{
             position: "absolute",
             right: "$2",
@@ -299,7 +311,7 @@ export const SearchBar = () => {
           variant="transparent"
         >
           <FiSearch />
-        </IconButton>
+        </IconButton> */}
       </Flex>
     </Flex>
   );

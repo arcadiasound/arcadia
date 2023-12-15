@@ -6,6 +6,37 @@ import arweaveGql, {
   Query,
   GetTransactionsQueryVariables,
 } from "arweave-graphql";
+import { ArAccount } from "arweave-account";
+
+export interface ProfileWithOwnership {
+  account: ArAccount;
+  ownershipAmount: number;
+}
+
+export interface ProfileOwnershipProps {
+  profileWithOwnership: ProfileWithOwnership;
+  songTitle: string | undefined;
+}
+
+interface UCMAssetState {
+  balances: {
+    [address: string]: number;
+  };
+  claimable: [];
+  creator: string;
+  description?: string;
+  name: string;
+  ticker: string;
+}
+
+export interface UCMAssetProps {
+  contractTxid: string;
+  errorMessages: {};
+  signature: string;
+  sortKey: string;
+  state: UCMAssetState;
+  validityCount: number;
+}
 
 interface AssetPaging {
   limit: number;

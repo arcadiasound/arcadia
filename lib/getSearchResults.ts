@@ -3,6 +3,7 @@ import arweaveGql, {
   GetTransactionsQuery,
   SortOrder,
   Transaction,
+  TransactionEdge,
 } from "arweave-graphql";
 import { arweave } from "./arweave";
 import { appConfig } from "@/appConfig";
@@ -23,7 +24,7 @@ export const getSearchResults = async (
 
     const data = trackResults.transactions.edges.map((edge) =>
       setTrackInfo(
-        edge.node as Transaction,
+        edge as TransactionEdge,
         userPreferredGateway() || appConfig.defaultGateway
       )
     );
@@ -52,7 +53,7 @@ const getTracks = async (searchValue: string) => {
           tags: [
             {
               name: "Content-Type",
-              values: ["audio/mpeg", "audio/wav", "audio/aac"],
+              values: ["audio/mpeg", "audio/wav", "audio/aac", "audio/x-m4a"],
             },
             {
               name: "Indexed-By",

@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { PlayButton } from "@/modules/track/components/PlayButton";
+import { getTrackDescription } from "@/lib/getTrackDescription";
 
 interface FeaturedTrackItemProps {
   track: Track;
@@ -47,6 +48,26 @@ export const FeaturedTrackItem = ({
       }
 
       return getProfile(track.creator);
+    },
+  });
+
+  const {
+    data: trackDescription,
+    isLoading: trackDescriptionLoading,
+    isError: trackDescriptionError,
+  } = useQuery({
+    queryKey: [`description-${track.txid}`],
+    enabled: !!track,
+    refetchOnWindowFocus: false,
+    queryFn: () => {
+      if (!track) {
+        return;
+      }
+
+      return getTrackDescription(track.txid);
+    },
+    onSuccess: (data) => {
+      console.log({ data });
     },
   });
 
@@ -135,40 +156,53 @@ export const FeaturedTrackItem = ({
             css={{
               width: 300,
               height: 300,
-              outline: "4px solid $whiteA4",
-              outlineOffset: -4,
+              outline: "1px solid $whiteA4",
+              outlineOffset: -1,
             }}
             src={`${appConfig.defaultGateway}/${track.artworkId}`}
           />
         </Link>
         <Flex css={{ zIndex: 1 }} direction="column" gap="7">
-          <Link
-            to={{
-              pathname: "/track",
-              search: `?tx=${track.txid}`,
+          <Box>
+            <Link
+              to={{
+                pathname: "/track",
+                search: `?tx=${track.txid}`,
+              }}
+            >
+              <Typography size="6" weight="5" css={{ color: "$whiteA12" }}>
+                {track.title}
+              </Typography>
+            </Link>
+            <Link
+              to={{
+                pathname: "/profile",
+                search: `?addr=${track.creator}`,
+              }}
+            >
+              <Typography weight="5" css={{ color: "$whiteA11" }}>
+                {creator
+                  ? creator.profile.name
+                  : abbreviateAddress({
+                      address: track.creator,
+                    })}
+              </Typography>
+            </Link>
+          </Box>
+          <Typography
+            css={{
+              maxWidth: "40ch",
+              color: "$whiteA11",
+              display: "-webkit-box",
+              "-webkit-box-orient": "vertical",
+              "-webkit-line-clamp": 2,
+              overflow: "hidden",
+              whiteSpace: "pre-wrap",
             }}
+            size="2"
           >
-            <Typography size="6" weight="5" css={{ color: "$whiteA12" }}>
-              {track.title}
-            </Typography>
-            <Typography weight="5" css={{ color: "$whiteA11" }}>
-              {creator
-                ? creator.profile.name
-                : abbreviateAddress({
-                    address: track.creator,
-                  })}
-            </Typography>
-          </Link>
-          <Link
-            to={{
-              pathname: "/track",
-              search: `?tx=${track.txid}`,
-            }}
-          >
-            <Typography css={{ maxWidth: "40ch", color: "$whiteA11" }} size="2">
-              {track.description || "-"}
-            </Typography>
-          </Link>
+            {trackDescription || track.description || "-"}
+          </Typography>
           <Flex gap="5">
             <PlayButton
               css={{
@@ -188,9 +222,9 @@ export const FeaturedTrackItem = ({
             >
               {isPlaying ? <IoPauseSharp /> : <IoPlaySharp />}
             </PlayButton>
-            <IconButton size="3" variant="translucent" rounded>
+            {/* <IconButton size="3" variant="translucent" rounded>
               <BsSuitHeart />
-            </IconButton>
+            </IconButton> */}
             {/* <IconButton size="3" variant="translucent" rounded>
               <RxDotsHorizontal />
             </IconButton> */}

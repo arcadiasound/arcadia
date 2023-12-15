@@ -28,7 +28,7 @@ export const stamps = async () => {
 };
 
 export const stamp = async (txid: string) =>
-  (await stamps()).stamp(txid, 0, []);
+  (await stamps()).stamp(txid, 0, [{ name: "App-Name", value: "Arcadia" }]);
 
 export const superStamp = async (
   txid: string,
