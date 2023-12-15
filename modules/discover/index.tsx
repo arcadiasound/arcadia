@@ -81,7 +81,7 @@ export const Discover = () => {
   return (
     <Flex
       css={{
-        pt: 64,
+        // pt: 64,
         ".trackItem": {
           opacity: 0,
         },
@@ -95,7 +95,7 @@ export const Discover = () => {
             css={{
               width: "100%",
               height: "100%",
-              maxHeight: "52dvh",
+              maxHeight: "58dvh",
               aspectRatio: 4 / 3,
             }}
           />
@@ -184,14 +184,14 @@ export const Discover = () => {
             latest tracks
           </Typography>
           {recentTracks && recentTracks.length > 0 && (
-            <Flex css={{ width: "100%", rowGap: "$10" }} wrap="wrap" gap="5">
+            <Flex css={{ width: "100%", rowGap: "$10" }} wrap="wrap" gap="10">
               {recentTracks.map((track, idx) => (
                 <TrackCard
                   key={track.txid}
                   track={track}
                   trackIndex={idx}
                   tracks={recentTracks}
-                  size={250}
+                  size={220}
                 />
               ))}
             </Flex>

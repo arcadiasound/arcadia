@@ -67,7 +67,7 @@ export const FeaturedTrackItem = ({
       return getTrackDescription(track.txid);
     },
     onSuccess: (data) => {
-      console.log({ data });
+      // console.log({ data });
     },
   });
 
@@ -108,7 +108,7 @@ export const FeaturedTrackItem = ({
       key={track.txid}
       css={{
         width: "100%",
-        maxHeight: "52dvh",
+        maxHeight: "58dvh",
         overflow: "hidden",
         position: "relative",
       }}
@@ -138,6 +138,7 @@ export const FeaturedTrackItem = ({
       />
       <Flex
         css={{
+          pt: 64,
           zIndex: 0,
           position: "absolute",
           inset: 0,

@@ -339,7 +339,7 @@ export const TrackCard = ({
       </Box>
       <Box
         css={{
-          pl: 6,
+          pl: 2,
           "&:focus-within": {
             outline: "2px solid $focus",
             outlineOffset: "$1",
@@ -352,7 +352,7 @@ export const TrackCard = ({
             search: `?tx=${track.txid}`,
           }}
         >
-          <Typography size="2" contrast="hi">
+          <Typography size="1" contrast="hi">
             {track?.title}
           </Typography>
         </Link>
