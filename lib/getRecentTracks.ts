@@ -24,7 +24,7 @@ export const getRecentTracks = async () => {
 
 // maximum number of recursive calls
 const MAX_RECURSION_DEPTH = 10;
-const MAX_ITEMS = 5;
+const MAX_ITEMS = 15;
 
 const queryRecentTracks = async (
   tracks: Track[],

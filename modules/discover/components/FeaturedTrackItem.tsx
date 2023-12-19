@@ -1,17 +1,13 @@
 import { getProfile } from "@/lib/getProfile";
 import { Track } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { BsSuitHeart } from "react-icons/bs";
 import { IoPauseSharp, IoPlay, IoPlaySharp } from "react-icons/io5";
 import { Flex } from "@/ui/Flex";
 import { Typography } from "@/ui/Typography";
 import { Image } from "@/ui/Image";
 import { Box } from "@/ui/Box";
 import { appConfig } from "@/appConfig";
-import { IconButton } from "@/ui/IconButton";
-import { RxDotsHorizontal } from "react-icons/rx";
 import { abbreviateAddress } from "@/utils";
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { PlayButton } from "@/modules/track/components/PlayButton";
@@ -107,10 +103,17 @@ export const FeaturedTrackItem = ({
     <Flex
       key={track.txid}
       css={{
+        // pt: 64,
         width: "100%",
-        maxHeight: "58dvh",
+        maxHeight: "max-content",
         overflow: "hidden",
         position: "relative",
+
+        "@bp2": {
+          // pt: appConfig.headerMaxHeight,
+          width: "100%",
+          maxHeight: "58dvh",
+        },
       }}
     >
       <Image
@@ -155,10 +158,15 @@ export const FeaturedTrackItem = ({
         >
           <Image
             css={{
-              width: 300,
-              height: 300,
+              width: 140,
+              height: 140,
               outline: "1px solid $whiteA4",
               outlineOffset: -1,
+
+              "@bp2": {
+                width: 300,
+                height: 300,
+              },
             }}
             src={`${appConfig.defaultGateway}/${track.artworkId}`}
           />
@@ -171,7 +179,14 @@ export const FeaturedTrackItem = ({
                 search: `?tx=${track.txid}`,
               }}
             >
-              <Typography size="6" weight="5" css={{ color: "$whiteA12" }}>
+              <Typography
+                size={{
+                  "@initial": "3",
+                  "@bp2": "6",
+                }}
+                weight="5"
+                css={{ color: "$whiteA12" }}
+              >
                 {track.title}
               </Typography>
             </Link>
@@ -181,7 +196,14 @@ export const FeaturedTrackItem = ({
                 search: `?addr=${track.creator}`,
               }}
             >
-              <Typography weight="5" css={{ color: "$whiteA11" }}>
+              <Typography
+                size={{
+                  "@initial": "2",
+                  "@bp2": "3",
+                }}
+                weight="5"
+                css={{ color: "$whiteA11" }}
+              >
                 {creator
                   ? creator.profile.name
                   : abbreviateAddress({
