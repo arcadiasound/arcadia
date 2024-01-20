@@ -37,7 +37,7 @@ export const AccordionItem = styled(AccordionPrimitive.Item, {
     "&:focus-visible": {
       position: "relative",
       zIndex: 1,
-      boxShadow: "0 0 0 2px $colors$blue8",
+      boxShadow: "0 0 0 2px $colors$focus",
     },
   },
 });

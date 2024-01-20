@@ -5,7 +5,6 @@ import { arweave } from "./arweave";
 export const getDuration = async (id: string) => {
   try {
     const response = await fetch(`${appConfig.defaultGateway}/${id}`);
-    console.log({ response });
 
     const buffer = await response.arrayBuffer();
 

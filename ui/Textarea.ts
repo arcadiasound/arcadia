@@ -30,7 +30,7 @@ export const Textarea = styled("textarea", {
 
   "&:focus": {
     boxShadow:
-      "inset 0px 0px 0px 1px $colors$blue8, 0px 0px 0px 1px $colors$blue8",
+      "inset 0px 0px 0px 1px $colors$focus, 0px 0px 0px 1px $colors$focus",
   },
 
   "&:disabled": {

@@ -13,6 +13,7 @@ import { ConnectWallet } from "./components/ConnectWallet";
 import { useConnect } from "@/hooks/useConnect";
 import { IconButton } from "@/ui/IconButton";
 import { BsSun } from "react-icons/bs";
+import { Typography } from "@/ui/Typography";
 
 const NavLink = styled(Link, {
   display: "flex",
@@ -114,16 +115,30 @@ export const AppHeader = () => {
             }}
           />
         </Link>
-      </Flex>
-      <SearchBar />
-      {/* <Flex as="nav" gap="5" justify="center">
-        <NavLink selected={location.pathname === "/"} to={"/"}>
+        <Flex as="nav" gap="5" justify="center">
+          <Typography
+            size="2"
+            // contrast="hi"
+            css={{
+              "&:hover": {
+                textDecoration: "none",
+                color: "$slate12",
+              },
+            }}
+            as="a"
+            href="https://uploader_arcadia.g8way.io"
+          >
+            Upload
+          </Typography>
+          {/* <NavLink selected={location.pathname === "/"} to={"/"}>
           discover
         </NavLink>
         <NavLink selected={location.pathname === "/profile"} to={"/profile"}>
           profile
-        </NavLink>
-      </Flex> */}
+        </NavLink> */}
+        </Flex>
+      </Flex>
+      <SearchBar />
       <Flex align="center" justify="end" gap="2">
         <IconButton
           css={{

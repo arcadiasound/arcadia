@@ -16,27 +16,29 @@ export const getTracks = async (
   try {
     const res = await gql({
       variables: {
-        ids: txids,
-        tags: [
-          {
-            name: "Content-Type",
-            values: ["audio/mpeg", "audio/wav", "audio/aac"],
-          },
-          {
-            name: "Indexed-By",
-            values: ["ucm"],
-          },
-          {
-            name: "App-Name",
-            values: ["SmartWeaveContract"],
-          },
-          {
-            name: "App-Version",
-            values: ["0.3.0"],
-          },
-        ],
+        ids: txids.slice(0, 5),
+        // tags: [
+        //   {
+        //     name: "Content-Type",
+        //     values: ["audio/mpeg", "audio/wav", "audio/aac"],
+        //   },
+        //   {
+        //     name: "Indexed-By",
+        //     values: ["ucm"],
+        //   },
+        //   {
+        //     name: "App-Name",
+        //     values: ["SmartWeaveContract"],
+        //   },
+        //   {
+        //     name: "App-Version",
+        //     values: ["0.3.0"],
+        //   },
+        // ],
       },
     });
+
+    console.log(res.transactions.edges);
 
     const data = res.transactions.edges
       // .filter((edge) => Number(edge.node.data.size) < 1e7)
@@ -50,6 +52,8 @@ export const getTracks = async (
       );
 
     const tracks = await Promise.all(data);
+
+    console.log({ tracks });
 
     const dedupedTracks = removeDuplicatesByCreator(
       removeDuplicatesByTxid(tracks)

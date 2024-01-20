@@ -14,16 +14,16 @@ export const slate = {
 };
 
 export const slateDark = {
-  slate1: "hsl(200, 6.0%, 6.0%)",
-  slate2: "hsl(195, 7.1%, 10.0%)",
-  slate3: "hsl(197, 6.8%, 13.1%)",
-  slate4: "hsl(198, 6.6%, 15.3%)",
-  slate5: "hsl(199, 6.4%, 17.9%)",
-  slate6: "hsl(201, 6.2%, 20.5%)",
-  slate7: "hsl(203, 6.0%, 24.3%)",
-  slate8: "hsl(207, 5.6%, 31.6%)",
-  slate9: "hsl(206, 6.0%, 43.9%)",
-  slate10: "hsl(206, 5.2%, 49.5%)",
-  slate11: "hsl(206, 6.0%, 63.0%)",
-  slate12: "hsl(210, 6.0%, 93.0%)",
+  slate1: "#111113",
+  slate2: "#18191B",
+  slate3: "#212225",
+  slate4: "#272A2D",
+  slate5: "#2E3135",
+  slate6: "#363A3F",
+  slate7: "#43484E",
+  slate8: "#5A6169",
+  slate9: "#696E77",
+  slate10: "#777B84",
+  slate11: "#B0B4BA",
+  slate12: "#EDEEF0",
 };

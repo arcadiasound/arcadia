@@ -17,7 +17,13 @@ export const getTrack = async (
       tags: [
         {
           name: "Content-Type",
-          values: ["audio/mpeg", "audio/wav", "audio/aac", "audio/x-m4a"],
+          values: [
+            "audio/mpeg",
+            "audio/wav",
+            "audio/aac",
+            "audio/x-m4a",
+            "audio/ogg",
+          ],
         },
         {
           name: "Indexed-By",

@@ -158,10 +158,18 @@ export const TrackCard = ({
   const isStamped = stamped || localStamped;
 
   return (
-    <Flex className="trackItem" direction="column" gap="2">
+    <Flex
+      className="trackItem"
+      direction="column"
+      gap="2"
+      css={{
+        maxWidth: "max-content",
+      }}
+    >
       <Box
         css={{
           position: "relative",
+          maxWidth: "max-content",
 
           "&:focus-within": {
             outline: "2px solid $focus",
@@ -339,7 +347,8 @@ export const TrackCard = ({
       </Box>
       <Box
         css={{
-          pl: 6,
+          maxWidth: "max-content",
+          pl: 2,
           "&:focus-within": {
             outline: "2px solid $focus",
             outlineOffset: "$1",
@@ -352,7 +361,7 @@ export const TrackCard = ({
             search: `?tx=${track.txid}`,
           }}
         >
-          <Typography size="2" contrast="hi">
+          <Typography size="1" contrast="hi">
             {track?.title}
           </Typography>
         </Link>

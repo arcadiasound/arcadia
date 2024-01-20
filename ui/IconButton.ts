@@ -25,7 +25,7 @@ export const IconButton = styled("button", {
   br: "$2",
 
   "&:focus-visible": {
-    boxShadow: "0 0 0 2px $colors$blue8",
+    boxShadow: "0 0 0 2px $colors$focus",
   },
 
   "&:disabled": {

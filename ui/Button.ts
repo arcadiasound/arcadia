@@ -187,6 +187,10 @@ export const Button = styled("button", {
         "&:hover": {
           color: "$slate12",
         },
+
+        "&:focus-visible": {
+          boxShadow: "0 0 0 2px $$focus",
+        },
       },
     },
     colorScheme: {
@@ -224,11 +228,11 @@ export const Button = styled("button", {
 
         // hover styles
         $$bgHover: "$colors$blue4",
-        $$borderHover: "$colors$blue8",
+        $$borderHover: "$colors$focus",
 
         // active styles
         $$bgActive: "$colors$blue5",
-        $$borderActive: "$colors$blue8",
+        $$borderActive: "$colors$focus",
 
         $$bgSubtle: "$colors$blue4",
         $$bgSubtleHover: "$colors$blue5",

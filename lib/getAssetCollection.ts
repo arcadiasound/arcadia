@@ -26,7 +26,7 @@ export const getAssetCollection = async (address: string) => {
         tags: [
           {
             name: "Content-Type",
-            values: ["audio/mpeg", "audio/wav", "audio/x-m4a"],
+            values: ["audio/mpeg", "audio/wav", "audio/x-m4a", "audio/ogg"],
           },
         ],
       },

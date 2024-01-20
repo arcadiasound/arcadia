@@ -75,9 +75,8 @@ const SearchField = styled(Combobox, {
   },
 
   // custom
-  backgroundColor: "$neutralInvertedA3",
+  backgroundColor: "$neutralInvertedA4",
   minWidth: 280,
-  br: "$2",
   px: "$4",
   color: "$neutralInvertedA12",
   fontSize: "$3",
@@ -194,11 +193,12 @@ export const SearchBar = () => {
         onSubmit={formik.handleSubmit}
         css={{
           position: "relative",
-          br: "$1",
-          boxShadow: "0px 0px 0px 1px $colors$neutralInvertedA6",
+          br: "$2",
+          boxShadow: "0px 0px 0px 1px $colors$neutralInvertedA7",
+          overflow: "hidden",
           "&:focus-within": {
             boxShadow:
-              "inset 0px 0px 0px 1px $colors$blue8, 0px 0px 0px 1px $colors$blue8",
+              "inset 0px 0px 0px 1px $colors$focus, 0px 0px 0px 1px $colors$focus",
           },
         }}
         gap="1"

@@ -1,6 +1,5 @@
 import { Flex } from "@/ui/Flex";
 import { Typography } from "@/ui/Typography";
-import { getRecentAlbums } from "@/lib/getRecentAlbums";
 import { getRecentTracks } from "@/lib/getRecentTracks";
 import { useQuery } from "@tanstack/react-query";
 import { TrackCard } from "../track/TrackCard";
@@ -10,31 +9,36 @@ import { useMotionAnimate } from "motion-hooks";
 import { stagger } from "motion";
 import { useEffect } from "react";
 import { getFeaturedTracks } from "@/lib/getFeaturedTracks";
-import Carousel, { CarouselProps } from "nuka-carousel";
 import { Box } from "@/ui/Box";
 import { IconButton } from "@/ui/IconButton";
-import { RxArrowLeft, RxArrowRight, RxDotFilled } from "react-icons/rx";
+import {
+  RxArrowLeft,
+  RxArrowRight,
+  RxChevronLeft,
+  RxChevronRight,
+  RxDotFilled,
+} from "react-icons/rx";
 import { FeaturedTrackItem } from "./components/FeaturedTrackItem";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Splide, SplideSlide, SplideTrack } from "@splidejs/react-splide";
+import "@splidejs/react-splide/css";
+
+const TRACK_CARD_SIZE = 220;
+
+const StyledSplide = styled(Splide);
 
 const CarouselSkipButton = styled(IconButton, {
   mx: "$5",
-  // backdropFilter: "blur(20px)",
+  mt: "$5",
 });
 
-const carouselParams: CarouselProps = {
-  wrapAround: true,
-  dragThreshold: 0.2,
-  // autoplay: true,
-  // autoplayInterval: 8000,
-  // speed: 1250,
-};
-
 const TrackSkeleton = styled(Skeleton, {
-  width: 250,
-  height: 250,
+  width: TRACK_CARD_SIZE,
+  height: TRACK_CARD_SIZE,
 });
 
 export const Discover = () => {
+  const isTablet = useMediaQuery("(min-width: 768px)");
   const { play } = useMotionAnimate(
     ".trackItem",
     { opacity: 1 },
@@ -81,7 +85,7 @@ export const Discover = () => {
   return (
     <Flex
       css={{
-        pt: 64,
+        // pt: 64,
         ".trackItem": {
           opacity: 0,
         },
@@ -95,79 +99,57 @@ export const Discover = () => {
             css={{
               width: "100%",
               height: "100%",
-              maxHeight: "52dvh",
+              maxHeight: "58dvh",
               aspectRatio: 4 / 3,
             }}
           />
         )}
         {featuredTracks && featuredTracks.length && (
-          <Carousel
-            renderCenterLeftControls={(control) => (
+          <StyledSplide
+            hasTrack={false}
+            tag="section"
+            aria-label="Featured tracks"
+            options={{
+              speed: 950,
+              type: "loop",
+              arrows: isTablet ? true : false,
+            }}
+          >
+            <SplideTrack>
+              {featuredTracks.map((track, index) => (
+                <SplideSlide key={track.txid}>
+                  <FeaturedTrackItem
+                    track={track}
+                    trackIndex={index}
+                    tracklist={featuredTracks}
+                  />
+                </SplideSlide>
+              ))}
+            </SplideTrack>
+
+            <Box
+              css={{
+                ".splide__arrow": {
+                  backgroundColor: "$whiteA12",
+                  color: "$blackA11",
+                },
+              }}
+              className="splide__arrows"
+            >
               <CarouselSkipButton
-                onClick={() => control.previousSlide()}
-                size="3"
+                className="splide__arrow splide__arrow--next"
                 rounded
-                variant="translucent"
-              >
-                <RxArrowLeft />
-              </CarouselSkipButton>
-            )}
-            renderCenterRightControls={(control) => (
-              <CarouselSkipButton
-                onClick={() => control.nextSlide()}
-                size="3"
-                rounded
-                variant="translucent"
               >
                 <RxArrowRight />
               </CarouselSkipButton>
-            )}
-            renderBottomCenterControls={(control) => (
-              <Flex
-                css={{
-                  listStyleType: "none",
-                  // mb: "$3",
-                  "& svg": { width: 28, height: 28 },
-                }}
-                as="ul"
+              <CarouselSkipButton
+                className="splide__arrow splide__arrow--prev"
+                rounded
               >
-                {featuredTracks.map((track, index) => (
-                  <Box as="li" key={track.txid}>
-                    <IconButton
-                      css={{
-                        color:
-                          control.currentSlide === index
-                            ? "$whiteA12"
-                            : "$whiteA7",
-
-                        "&:hover": {
-                          color:
-                            control.currentSlide === index
-                              ? "$whiteA12"
-                              : "$whiteA9",
-                        },
-                      }}
-                      onClick={() => control.goToSlide(index)}
-                      size="2"
-                      variant="transparent"
-                    >
-                      <RxDotFilled />
-                    </IconButton>
-                  </Box>
-                ))}
-              </Flex>
-            )}
-            {...carouselParams}
-          >
-            {featuredTracks.map((track, index) => (
-              <FeaturedTrackItem
-                key={track.txid}
-                track={track}
-                trackIndex={index}
-                tracklist={featuredTracks}
-              />
-            ))}
-          </Carousel>
+                <RxArrowRight />
+              </CarouselSkipButton>
+            </Box>
+          </StyledSplide>
         )}
         <Flex
           css={{ maxWidth: 1400, alignSelf: "center" }}
@@ -175,32 +157,114 @@ export const Discover = () => {
           justify="center"
         >
           <Typography
-            css={{ mb: "$3", width: "100%" }}
+            css={{ width: "100%" }}
             as="h2"
             size="4"
             weight="4"
             contrast="hi"
           >
-            latest tracks
+            fresh sounds
           </Typography>
-          {recentTracks && recentTracks.length > 0 && (
-            <Flex css={{ width: "100%", rowGap: "$10" }} wrap="wrap" gap="5">
-              {recentTracks.map((track, idx) => (
-                <TrackCard
-                  key={track.txid}
-                  track={track}
-                  trackIndex={idx}
-                  tracks={recentTracks}
-                  size={250}
-                />
-              ))}
-            </Flex>
+          {recentTracks && recentTracks.length && (
+            <StyledSplide
+              hasTrack={false}
+              onArrowsUpdated={(Styled, prev, next) => {
+                console.log(prev, next);
+              }}
+              options={{
+                speed: 950,
+                pagination: false,
+                gap: 20,
+                loop: isTablet ? true : false,
+                drag: isTablet ? true : false,
+                breakpoints: {
+                  3840: {
+                    perPage: 5,
+                    width: "80dvw",
+                  },
+                  1536: {
+                    perPage: 5,
+                    width: "80dvw",
+                  },
+                  1280: {
+                    perPage: 5,
+                    width: 1080,
+                  },
+                  1024: {
+                    perPage: 3,
+                    width: "90dvw",
+                    arrows: false,
+                  },
+                  768: {
+                    perPage: 3,
+                    width: "90dvw",
+                  },
+                  520: {
+                    perPage: 2,
+                    width: "90dvw",
+                  },
+                },
+              }}
+              css={{
+                pt: "$5",
+              }}
+            >
+              <SplideTrack>
+                {/* <Flex
+                  css={{ width: "100%", rowGap: "$10" }}
+                  wrap="wrap"
+                  gap="7"
+                > */}
+                {recentTracks.map((track, idx) => (
+                  <SplideSlide>
+                    <TrackCard
+                      key={track.txid}
+                      track={track}
+                      trackIndex={idx}
+                      tracks={recentTracks}
+                      size={TRACK_CARD_SIZE}
+                    />
+                  </SplideSlide>
+                ))}
+                {/* </Flex> */}
+              </SplideTrack>
+
+              <Flex
+                css={{
+                  gap: "$5",
+                  position: "absolute",
+                  top: "-$3",
+                  right: 0,
+
+                  ".splide__arrow": {
+                    top: 0,
+                    right: 0,
+                    position: "relative",
+                    backgroundColor: "transparent",
+                  },
+                }}
+                className="splide__arrows"
+              >
+                <IconButton
+                  className="splide__arrow splide__arrow--prev"
+                  variant="transparent"
+                >
+                  <RxChevronRight />
+                </IconButton>
+                <IconButton
+                  className="splide__arrow splide__arrow--next"
+                  variant="transparent"
+                >
+                  <RxChevronRight />
+                </IconButton>
+              </Flex>
+            </StyledSplide>
           )}
           {isLoading && (
             <Flex
               css={{ width: "100%", maxWidth: 1400, rowGap: "$10" }}
               wrap="wrap"
-              gap="5"
+              gap="7"
             >
               <TrackSkeleton />
               <TrackSkeleton />

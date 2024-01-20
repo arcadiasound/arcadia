@@ -57,7 +57,8 @@ const Slider = styled(SliderRoot, {
 });
 
 const AudioContainer = styled(Box, {
-  display: "grid",
+  display: "none",
+
   gridTemplateColumns: "1fr 2fr 1fr",
   width: "100%",
   height: "max-content",
@@ -69,6 +70,10 @@ const AudioContainer = styled(Box, {
   backdropFilter: "blur(10px)",
   maxHeight: appConfig.playerMaxHeight,
   borderTop: "1px solid $colors$neutralInvertedA3",
+
+  "@bp2": {
+    display: "grid",
+  },
 });
 
 const VolumeSlider = styled(Slider);
@@ -238,10 +243,10 @@ export const AudioPlayer = () => {
         onPlay={handlePlay}
         onPause={handlePause}
       >
-        <source src={currentTrack?.src} type="audio/ogg" />
         <source src={currentTrack?.src} type="audio/wav" />
         <source src={currentTrack?.src} type="audio/mpeg" />
         <source src={currentTrack?.src} type="audio/aac" />
+        <source src={currentTrack?.src} type="audio/ogg" />
         <Typography>Audio file type not supported.</Typography>
       </audio>
 
