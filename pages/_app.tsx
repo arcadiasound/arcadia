@@ -71,11 +71,7 @@ export default function App({ Component, pageProps }: AppProps) {
           value={{ light: "light-theme", dark: darkTheme.className }}
           enableSystem
         >
-          <ConnectProvider
-            webWallet={webWallet}
-            includeProfile
-            detectWalletSwitch
-          >
+          <ConnectProvider webWallet={webWallet} detectWalletSwitch>
             <Component {...pageProps} />
           </ConnectProvider>
         </ThemeProvider>

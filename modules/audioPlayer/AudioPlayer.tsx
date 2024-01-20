@@ -243,10 +243,10 @@ export const AudioPlayer = () => {
         onPlay={handlePlay}
         onPause={handlePause}
       >
-        <source src={currentTrack?.src} type="audio/ogg" />
         <source src={currentTrack?.src} type="audio/wav" />
         <source src={currentTrack?.src} type="audio/mpeg" />
         <source src={currentTrack?.src} type="audio/aac" />
+        <source src={currentTrack?.src} type="audio/ogg" />
         <Typography>Audio file type not supported.</Typography>
       </audio>
 

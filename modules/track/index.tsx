@@ -565,6 +565,7 @@ export const Track = () => {
               <IconButton
                 data-play-button
                 css={{
+                  boxShadow: "0 0 0 1px $colors$neutralInvertedA5",
                   position: "absolute",
                   br: 9999,
                   color: "$whiteA12",
