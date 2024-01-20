@@ -73,7 +73,7 @@ const queryLikedTracks = async (
     tags: [
       {
         name: "Content-Type",
-        values: ["audio/mpeg", "audio/wav", "audio/x-m4a"],
+        values: ["audio/mpeg", "audio/wav", "audio/x-m4a", "audio/ogg"],
       },
       {
         name: "App-Name",

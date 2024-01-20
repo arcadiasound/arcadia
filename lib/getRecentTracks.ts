@@ -95,6 +95,7 @@ const queryRecentTracks = async (
 const filterQueryResults = (res: GetTransactionsQuery) => {
   const data = res.transactions.edges
     .filter((edge) => !appConfig.featuredIds.includes(edge.node.id))
+    .filter((edge) => !appConfig.hiddenIds.includes(edge.node.id))
     .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
     .filter(
       (edge) => edge.node.tags.find((x) => x.name === "Env")?.value !== "Test"
