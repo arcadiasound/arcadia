@@ -12,6 +12,8 @@ import { Link } from "react-router-dom";
 import { useAudioPlayer } from "@/hooks/AudioPlayerContext";
 import { PlayButton } from "@/modules/track/components/PlayButton";
 import { getTrackDescription } from "@/lib/getTrackDescription";
+import { useEffect } from "react";
+import { getAlbumIdFromCode } from "@/lib/getAlbumIdFromCode";
 
 interface FeaturedTrackItemProps {
   track: Track;
@@ -64,6 +66,18 @@ export const FeaturedTrackItem = ({
     },
     onSuccess: (data) => {
       // console.log({ data });
+    },
+  });
+
+  const { data: albumId } = useQuery({
+    queryKey: [`albumIdFor-${track.collectionCode}`],
+    enabled: !!track.collectionCode,
+    queryFn: () => {
+      if (!track.collectionCode) {
+        return;
+      }
+
+      return getAlbumIdFromCode(track.collectionCode);
     },
   });
 
@@ -175,8 +189,8 @@ export const FeaturedTrackItem = ({
           <Box>
             <Link
               to={{
-                pathname: "/track",
-                search: `?tx=${track.txid}`,
+                pathname: albumId ? "/album" : "/track",
+                search: `?tx=${albumId ? albumId : track.txid}`,
               }}
             >
               <Typography
@@ -204,11 +218,10 @@ export const FeaturedTrackItem = ({
                 weight="5"
                 css={{ color: "$whiteA11" }}
               >
-                {creator
-                  ? creator.profile.name
-                  : abbreviateAddress({
-                      address: track.creator,
-                    })}
+                {creator?.profile.name ||
+                  abbreviateAddress({
+                    address: track.creator,
+                  })}
               </Typography>
             </Link>
           </Box>

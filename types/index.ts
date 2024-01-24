@@ -86,6 +86,7 @@ export type Track = {
   artworkId: string | undefined;
   src: string;
   txid: string;
+  collectionCode?: string;
   dateCreated?: number;
   license?: License;
   cursor?: string;
