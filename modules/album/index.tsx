@@ -277,7 +277,7 @@ export const Album = () => {
                       <StyledTypography contrast="hi" size="2" weight="5">
                         {account?.profile?.name ||
                           abbreviateAddress({
-                            address: walletAddress,
+                            address: album.creator,
                           })}
                       </StyledTypography>
                     </StyledLink>
