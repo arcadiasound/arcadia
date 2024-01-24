@@ -7,34 +7,37 @@ import { MutableRefObject } from "react";
 import {
   removeDuplicatesByCreator,
   removeDuplicatesByTxid,
+  reorderArrayByTxid,
 } from "@/utils/query";
 
 export const getTracks = async (
   txids: string[],
   audioContext: MutableRefObject<AudioContext | null>
 ) => {
+  console.log(txids);
   try {
     const res = await gql({
       variables: {
-        ids: txids.slice(0, 5),
-        // tags: [
-        //   {
-        //     name: "Content-Type",
-        //     values: ["audio/mpeg", "audio/wav", "audio/aac"],
-        //   },
-        //   {
-        //     name: "Indexed-By",
-        //     values: ["ucm"],
-        //   },
-        //   {
-        //     name: "App-Name",
-        //     values: ["SmartWeaveContract"],
-        //   },
-        //   {
-        //     name: "App-Version",
-        //     values: ["0.3.0"],
-        //   },
-        // ],
+        ids: txids,
+        first: txids.length,
+        tags: [
+          {
+            name: "Content-Type",
+            values: ["audio/mpeg", "audio/wav", "audio/aac"],
+          },
+          {
+            name: "Indexed-By",
+            values: ["ucm"],
+          },
+          {
+            name: "App-Name",
+            values: ["SmartWeaveContract"],
+          },
+          {
+            name: "App-Version",
+            values: ["0.3.0"],
+          },
+        ],
       },
     });
 
@@ -59,7 +62,9 @@ export const getTracks = async (
       removeDuplicatesByTxid(tracks)
     );
 
-    return dedupedTracks;
+    const reorderedTracks = reorderArrayByTxid(dedupedTracks, txids);
+
+    return reorderedTracks;
   } catch (error) {
     throw error;
   }

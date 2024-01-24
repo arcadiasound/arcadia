@@ -31,3 +31,22 @@ export const removeDuplicatesByCreator = (arr: Track[]) => {
     return true;
   });
 };
+
+export const reorderArrayByTxid = (
+  tracksArray: Track[],
+  txidArray: string[]
+) => {
+  const txidMap = new Map<string, Track>();
+
+  // Map each txid to its corresponding object
+  tracksArray.forEach((obj) => {
+    txidMap.set(obj.txid, obj);
+  });
+
+  // Reorder the tracks based on the order of txids in txidArray
+  const reorderedArray = txidArray
+    .map((txid) => txidMap.get(txid))
+    .filter((obj) => obj !== undefined) as Track[];
+
+  return reorderedArray;
+};
