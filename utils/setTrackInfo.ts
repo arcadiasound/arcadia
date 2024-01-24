@@ -42,6 +42,9 @@ export const setTrackInfo = (edge: TransactionEdge, gateway: string) => {
 
   const src = gateway + "/" + edge.node.id;
   const txid = edge.node.id;
+  const collectionCode = edge.node.tags.find(
+    (x) => x.name === "Collection-Code"
+  )?.value;
   const cursor = edge.cursor;
 
   return {
@@ -51,6 +54,7 @@ export const setTrackInfo = (edge: TransactionEdge, gateway: string) => {
     artworkId,
     src,
     txid,
+    collectionCode,
     cursor,
   };
 };

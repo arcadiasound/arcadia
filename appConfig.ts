@@ -14,7 +14,7 @@ export const appConfig = {
   featuredIds: [
     "pUqlEhRsSDuut-f7f58E-Vs6k62aA9HoBaVDP-ape2A",
     "oIhTcWmJnI1UPvyT0UwWUJlXZS1CTEcJ-OEq4yWKzZo",
-    "S2iCyKXwl3EGFY5xKuDFsglojl4_Mb8q3UriCIBYgfc",
+    "3NVzQEufRl-ytEe1KBDdX_iCNe0XtDrpL2qhwBNISTI",
   ],
   hiddenIds: ["6yz7UJ6iF_K6dLqG2sgIq2kUwAQJFiZB-AwH9MKFqr0"],
 };
