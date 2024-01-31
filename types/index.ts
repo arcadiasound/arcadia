@@ -1,12 +1,15 @@
 import { PermissionType } from "arconnect";
 import { AppInfo } from "arweave-wallet-connector";
 import { ReactiveConnector } from "arweave-wallet-connector/lib/browser/Reactive";
-import arweaveGql, {
-  Transaction,
-  Query,
-  GetTransactionsQueryVariables,
-} from "arweave-graphql";
+import { GetTransactionsQueryVariables } from "arweave-graphql";
 import { ArAccount } from "arweave-account";
+
+export interface ListAssetProps {
+  assetId: string;
+  qty: number;
+  price: number;
+  address: string;
+}
 
 export interface ProfileWithOwnership {
   account: ArAccount;
