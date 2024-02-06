@@ -64,7 +64,7 @@ export const TextField = styled("input", {
         lineHeight: "$sizes$9",
       },
       3: {
-        fontSize: "$4",
+        fontSize: "$3",
         lineHeight: "$sizes$11",
       },
     },

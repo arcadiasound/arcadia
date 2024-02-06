@@ -1,11 +1,28 @@
 import Arweave from "arweave";
 import { WarpFactory, LoggerFactory } from "warp-contracts";
+import { OrderBook } from "permaweb-orderbook";
+import { DeployPlugin } from "warp-contracts-plugin-deploy";
+import { InjectedArweaveSigner } from "warp-contracts-plugin-signature";
 
-export const arweave = Arweave.init({
-  host: "arweave.net",
-  port: 443,
-  protocol: "https",
-});
+export const arweave = Arweave.init({});
 
-export const warp = WarpFactory.forMainnet();
+export const warp = WarpFactory.forMainnet().use(new DeployPlugin());
 LoggerFactory.INST.logLevel("fatal");
+
+export const initSigner = async () => {
+  const signer = new InjectedArweaveSigner(window.arweaveWallet);
+  signer.getAddress = window.arweaveWallet.getActiveAddress;
+
+  await signer.setPublicKey();
+
+  return signer;
+};
+
+export const orderbook = OrderBook.init({
+  currency: "U",
+  arweaveGet: arweave,
+  arweavePost: arweave,
+  bundlrKey: null,
+  warp: warp,
+  warpDreNode: "https://dre-u.warp.cc/contract",
+});
