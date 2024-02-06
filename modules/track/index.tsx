@@ -57,6 +57,7 @@ import { HoverCard } from "@radix-ui/react-hover-card";
 import { HoverCardContent, HoverCardTrigger } from "@/ui/HoverCard";
 import { OwnershipChartDialog } from "./components/OwnershipChartDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/ui/Avatar";
+import { ListAssetDialog } from "./components/ListAssetDialog";
 
 const StyledTabsTrigger = styled(TabsTrigger, {
   br: "$1",
@@ -297,6 +298,8 @@ export const Track = () => {
   const [activeTab, setActiveTab] = useState<TrackTab>("details");
   const [owners, setOwners] = useState<ProfileWithOwnership[]>();
   const [showOwnershipChart, setShowOwnershipChart] = useState(false);
+  const [showListAssetDialog, setShowListAssetDialog] = useState(false);
+  const { walletAddress } = useConnect();
 
   const handleShowOwnershipChart = () => setShowOwnershipChart(true);
   const handleCancelOwnershipChart = () => setShowOwnershipChart(false);
@@ -495,6 +498,11 @@ export const Track = () => {
 
   const toggleShowDescription = () => setShowDescription(!showDescription);
 
+  const isAssetOwner =
+    ucmAsset && walletAddress && walletAddress in ucmAsset.state.balances
+      ? true
+      : false;
+
   return (
     <Flex
       css={{
@@ -667,24 +675,51 @@ export const Track = () => {
         css={{ flex: 1, "@bp4": { maxWidth: 500, alignSelf: "start" } }}
       >
         {track && (
-          <Flex css={{ pt: "$5" }} direction="column" gap="1">
-            <Typography contrast="hi" size="5">
-              {track.title}
-            </Typography>
-            <Link
-              to={{
-                pathname: "/profile",
-                search: `?addr=${track.creator}`,
-              }}
-            >
-              <Typography>
-                {account?.profile.name ||
-                  abbreviateAddress({
-                    address: track.creator,
-                    options: { startChars: 6, endChars: 6 },
-                  })}
+          <Flex justify="between" align="center">
+            <Flex css={{ pt: "$5" }} direction="column" gap="1">
+              <Typography contrast="hi" size="5">
+                {track.title}
               </Typography>
-            </Link>
+              <Link
+                to={{
+                  pathname: "/profile",
+                  search: `?addr=${track.creator}`,
+                }}
+              >
+                <Typography>
+                  {account?.profile.name ||
+                    abbreviateAddress({
+                      address: track.creator,
+                      options: { startChars: 6, endChars: 6 },
+                    })}
+                </Typography>
+              </Link>
+            </Flex>
+            {isAssetOwner && (
+              <>
+                <Button
+                  variant="solid"
+                  size="1"
+                  onClick={() => setShowListAssetDialog(true)}
+                >
+                  Sell
+                </Button>
+                <ListAssetDialog
+                  open={showListAssetDialog}
+                  onClose={() => setShowListAssetDialog(false)}
+                  address={walletAddress!!}
+                  track={track}
+                  ucmAsset={ucmAsset!!}
+                  creatorName={
+                    account?.profile.name ||
+                    abbreviateAddress({
+                      address: track.creator,
+                      options: { startChars: 6, endChars: 6 },
+                    })
+                  }
+                />
+              </>
+            )}
           </Flex>
         )}
         {trackLoading && (

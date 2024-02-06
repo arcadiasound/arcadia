@@ -27,7 +27,7 @@ const contentShow = keyframes({
 const StyledDialogContent = styled(DialogPrimitive.Content, {
   br: "$3",
   backgroundColor: "$slate1",
-  boxShadow: "0px 0px 33px rgba(0, 0, 0, 0.08)",
+  boxShadow: "0 0 0 1px $colors$slate3",
   position: "fixed",
   zIndex: "$modal",
   top: 0,

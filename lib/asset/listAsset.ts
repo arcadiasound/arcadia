@@ -1,5 +1,5 @@
 import { ListAssetProps } from "@/types";
-import { orderbook } from "../arweave";
+import { initSigner, orderbook } from "../arweave";
 
 export const listAsset = async ({
   assetId,
@@ -8,16 +8,20 @@ export const listAsset = async ({
   address,
 }: ListAssetProps) => {
   try {
+    const signer = await initSigner();
+
     const orderTx = await orderbook.sell({
       assetId,
       qty,
-      price,
-      wallet: "use_wallet",
+      price: price * 1e6,
+      wallet: signer,
       walletAddress: address,
     });
 
+    console.log({ orderTx });
     return orderTx;
   } catch (error) {
-    throw error;
+    console.error(error);
+    throw new Error("An error occurred trying to create your listing");
   }
 };

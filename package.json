@@ -48,6 +48,7 @@
     "react-icons": "4.7.1",
     "react-router-dom": "6.11.2",
     "warp-contracts": "1.4.19",
+    "warp-contracts-plugin-deploy": "1.0.12",
     "warp-contracts-plugin-signature": "1.0.17"
   },
   "devDependencies": {
