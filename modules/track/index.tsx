@@ -1,6 +1,7 @@
 import {
   ProfileOwnershipProps,
   ProfileWithOwnership,
+  SaleOrder,
   Track as TrackType,
 } from "@/types";
 import { Flex } from "@/ui/Flex";
@@ -58,6 +59,7 @@ import { HoverCardContent, HoverCardTrigger } from "@/ui/HoverCard";
 import { OwnershipChartDialog } from "./components/OwnershipChartDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/ui/Avatar";
 import { ListAssetDialog } from "./components/ListAssetDialog";
+import { getActiveSaleOrders } from "@/lib/asset/getActiveSaleOrders";
 
 const StyledTabsTrigger = styled(TabsTrigger, {
   br: "$1",
@@ -263,6 +265,96 @@ const Creator = ({ account, size = "2", contrast = "lo" }: ProfileProps) => {
   );
 };
 
+interface ListingTableProps {
+  listings: SaleOrder[];
+}
+
+const ListingTable = ({ listings }: ListingTableProps) => {
+  return (
+    <Flex direction="column">
+      <Box
+        css={{
+          height: 1,
+          backgroundColor: "$slate3",
+        }}
+      />
+      <Flex
+        css={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr",
+          backgroundColor: "$slate2",
+          p: "$3",
+          "& p": { fontSize: "$2" },
+        }}
+      >
+        <Typography>Price (U)</Typography>
+        <Typography>Quantity</Typography>
+        <Typography>Seller</Typography>
+      </Flex>
+      <Box
+        css={{
+          height: 1,
+          backgroundColor: "$slate3",
+        }}
+      />
+      {listings.map((listing) => (
+        <ListingItem key={listing.id} listing={listing} />
+      ))}
+    </Flex>
+  );
+};
+
+interface ListingItemProps {
+  listing: SaleOrder;
+}
+
+const ListingItem = ({ listing }: ListingItemProps) => {
+  const { data: account } = useQuery({
+    queryKey: [`profile-${listing.creator}`],
+    queryFn: () => {
+      if (!listing.creator) {
+        return;
+      }
+
+      return getProfile(listing.creator);
+    },
+  });
+
+  return (
+    <>
+      <Flex
+        css={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr",
+          p: "$3",
+          "& p": { fontSize: "$2", color: "$slate12" },
+        }}
+        align="center"
+      >
+        <Typography>{(listing.price / 1e6).toFixed(2)}</Typography>
+        <Typography>{listing.quantity}</Typography>
+        <Typography>
+          {account?.profile?.name ||
+            abbreviateAddress({ address: listing.creator })}
+        </Typography>
+        <Button
+          variant="solid"
+          size="1"
+          css={{ width: "max-content", ml: "auto" }}
+        >
+          Buy
+        </Button>
+      </Flex>
+      <Box
+        css={{
+          height: 1,
+          backgroundColor: "$slate3",
+        }}
+      />
+    </>
+  );
+};
+
 const AccordionContentItem = styled(Flex, {
   mt: "$2",
 
@@ -396,6 +488,21 @@ export const Track = () => {
       return getUCMAsset(track.txid);
     },
   });
+
+  const { data: activeSaleOrder, isLoading: activeSaleOrderLoading } = useQuery(
+    {
+      queryKey: [`activeSaleOrder-${track?.txid}`],
+      enabled: !!track,
+      refetchOnWindowFocus: false,
+      queryFn: () => {
+        if (!track?.txid) {
+          return;
+        }
+
+        return getActiveSaleOrders({ assetId: track.txid });
+      },
+    }
+  );
 
   const { data: recentActivity, isLoading: activityLoading } = useQuery({
     queryKey: [`activity-${track?.txid}`],
@@ -842,6 +949,7 @@ export const Track = () => {
                     )}
                   </Flex>
                 </Flex>
+
                 <Accordion
                   css={{
                     display: "flex",
@@ -849,7 +957,32 @@ export const Track = () => {
                     gap: "$7",
                   }}
                   type="multiple"
+                  defaultValue={["listings"]}
+                  // defaultValue={
+                  //   activeSaleOrder && activeSaleOrder.length > 0
+                  //     ? ["listings"]
+                  //     : []
+                  // }
                 >
+                  {activeSaleOrderLoading && (
+                    <Skeleton css={{ width: "100%", height: 48 }} />
+                  )}
+                  {activeSaleOrder && activeSaleOrder.length > 0 && (
+                    <AccordionItem value="listings">
+                      <AccordionTrigger>
+                        Active Listings ({activeSaleOrder.length})
+                      </AccordionTrigger>
+                      <AccordionContent
+                        css={{
+                          "& div:first-child": {
+                            p: 0,
+                          },
+                        }}
+                      >
+                        <ListingTable listings={activeSaleOrder} />
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
                   <AccordionItem value="provenance_details">
                     <AccordionTrigger>Provenance Details</AccordionTrigger>
                     <AccordionContent>
