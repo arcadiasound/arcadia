@@ -10,12 +10,25 @@ export const warp = WarpFactory.forMainnet().use(new DeployPlugin());
 LoggerFactory.INST.logLevel("fatal");
 
 export const initSigner = async () => {
-  const signer = new InjectedArweaveSigner(window.arweaveWallet);
-  signer.getAddress = window.arweaveWallet.getActiveAddress;
+  const permissions = await window.arweaveWallet.getPermissions();
 
-  await signer.setPublicKey();
+  if (permissions.includes("ACCESS_PUBLIC_KEY")) {
+    const signer = new InjectedArweaveSigner(window.arweaveWallet);
+    signer.getAddress = window.arweaveWallet.getActiveAddress;
 
-  return signer;
+    await signer.setPublicKey();
+
+    return signer;
+  } else {
+    await window.arweaveWallet.connect(["ACCESS_PUBLIC_KEY"]);
+
+    const signer = new InjectedArweaveSigner(window.arweaveWallet);
+    signer.getAddress = window.arweaveWallet.getActiveAddress;
+
+    await signer.setPublicKey();
+
+    return signer;
+  }
 };
 
 export const orderbook = OrderBook.init({

@@ -60,6 +60,7 @@ import { OwnershipChartDialog } from "./components/OwnershipChartDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/ui/Avatar";
 import { ListAssetDialog } from "./components/ListAssetDialog";
 import { getActiveSaleOrders } from "@/lib/asset/getActiveSaleOrders";
+import { cancelOrder } from "@/lib/asset/cancelOrder";
 
 const StyledTabsTrigger = styled(TabsTrigger, {
   br: "$1",
@@ -282,6 +283,11 @@ const ListingItem = ({ listing, isOrderCreator }: ListingItemProps) => {
     },
   });
 
+  const cancelOrderMutation = useMutation({
+    mutationFn: cancelOrder,
+    mutationKey: [`cancelOrder-${listing.id}`],
+  });
+
   return (
     <>
       <Flex
@@ -301,6 +307,12 @@ const ListingItem = ({ listing, isOrderCreator }: ListingItemProps) => {
         </Typography>
         {isOrderCreator ? (
           <Button
+            onClick={() =>
+              cancelOrderMutation.mutate({
+                orderId: listing.id,
+                address: listing.creator,
+              })
+            }
             variant="solid"
             size="1"
             css={{ width: "max-content", ml: "auto" }}

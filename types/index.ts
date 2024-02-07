@@ -4,6 +4,11 @@ import { ReactiveConnector } from "arweave-wallet-connector/lib/browser/Reactive
 import { GetTransactionsQueryVariables } from "arweave-graphql";
 import { ArAccount } from "arweave-account";
 
+export interface CancelOrderProps {
+  orderId: string;
+  address: string;
+}
+
 export interface ListAssetProps {
   assetId: string;
   qty: number;
