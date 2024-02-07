@@ -16,7 +16,7 @@ import { FormHelperError, FormRow } from "@/ui/Form";
 import { TextField } from "@/ui/TextField";
 import { Button } from "@/ui/Button";
 import { FormikErrors, useFormik } from "formik";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { listAsset } from "@/lib/asset/listAsset";
 
 interface ListAssetFormProps {
@@ -41,6 +41,8 @@ export const ListAssetDialog = ({
   creatorName,
   ucmAsset,
 }: ListAssetDialogProps) => {
+  const queryClient = useQueryClient();
+
   const balance = ucmAsset.state.balances[address];
 
   const getOwnershipPercentage = (
@@ -61,6 +63,10 @@ export const ListAssetDialog = ({
     mutationFn: listAsset,
     onSuccess: (data) => {
       formik.resetForm();
+      setTimeout(
+        () => queryClient.invalidateQueries([`activeSaleOrders-${track.txid}`]),
+        500
+      );
     },
     onError: (error) => {
       formik.setSubmitting(false);
@@ -92,7 +98,13 @@ export const ListAssetDialog = ({
   });
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        listAssetMutation.reset();
+        onClose();
+      }}
+    >
       <DialogOverlay />
       <DialogContent>
         {listAssetMutation.isSuccess ? (
@@ -114,6 +126,9 @@ export const ListAssetDialog = ({
             </Box>
             <Typography as="h2" size="5">
               Listing submitted
+            </Typography>
+            <Typography>
+              Your listing is being processed and will be visible shortly.
             </Typography>
             <DialogClose asChild pos="relative">
               <Button variant="solid" size="3">

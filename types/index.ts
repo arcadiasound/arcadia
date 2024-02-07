@@ -4,6 +4,11 @@ import { ReactiveConnector } from "arweave-wallet-connector/lib/browser/Reactive
 import { GetTransactionsQueryVariables } from "arweave-graphql";
 import { ArAccount } from "arweave-account";
 
+export interface CancelOrderProps {
+  orderId: string;
+  address: string;
+}
+
 export interface ListAssetProps {
   assetId: string;
   qty: number;
@@ -39,6 +44,54 @@ export interface UCMAssetProps {
   sortKey: string;
   state: UCMAssetState;
   validityCount: number;
+}
+
+export interface UCMAssetProps {
+  contractTxid: string;
+  errorMessages: {};
+  signature: string;
+  sortKey: string;
+  state: UCMAssetState;
+  validityCount: number;
+}
+
+interface PriceData {
+  vwap: number;
+  block: string;
+  matchLogs: { id: string; quantity: number; price: number }[];
+  dominantToken: string;
+}
+
+export interface SaleOrder {
+  id: string;
+  price: number;
+  token: string;
+  creator: string;
+  quantity: number;
+  transfer: string;
+  originalQuantity: number;
+}
+
+export interface AssetPair {
+  pair: string[];
+  orders: SaleOrder[];
+  priceData?: PriceData;
+}
+
+export interface UCMContract extends UCMAssetProps {
+  state: UCMAssetState & {
+    pairs: AssetPair[];
+    streaks: {
+      [address: string]: {
+        days: number;
+        lastHeight: number;
+      };
+    };
+    divisibility: number;
+    recentRewards: {
+      [address: string]: number;
+    };
+  };
 }
 
 interface AssetPaging {
