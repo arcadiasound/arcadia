@@ -61,6 +61,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/ui/Avatar";
 import { ListAssetDialog } from "./components/ListAssetDialog";
 import { getActiveSaleOrders } from "@/lib/asset/getActiveSaleOrders";
 import { cancelOrder } from "@/lib/asset/cancelOrder";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/ui/AlertDialog";
 
 const StyledTabsTrigger = styled(TabsTrigger, {
   br: "$1",
@@ -272,6 +281,8 @@ interface ListingItemProps {
 }
 
 const ListingItem = ({ listing, isOrderCreator }: ListingItemProps) => {
+  const queryClient = useQueryClient();
+
   const { data: account } = useQuery({
     queryKey: [`profile-${listing.creator}`],
     queryFn: () => {
@@ -286,56 +297,106 @@ const ListingItem = ({ listing, isOrderCreator }: ListingItemProps) => {
   const cancelOrderMutation = useMutation({
     mutationFn: cancelOrder,
     mutationKey: [`cancelOrder-${listing.id}`],
+    onSuccess: (data) => {
+      setTimeout(
+        () =>
+          queryClient.invalidateQueries([`activeSaleOrders-${listing.token}`]),
+        500
+      );
+    },
   });
 
   return (
     <>
-      <Flex
-        css={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 1fr",
-          p: "$3",
-          "& p": { fontSize: "$2", color: "$slate12" },
-        }}
-        align="center"
-      >
-        <Typography>{(listing.price / 1e6).toFixed(2)}</Typography>
-        <Typography>{listing.quantity}</Typography>
-        <Typography>
-          {account?.profile?.name ||
-            abbreviateAddress({ address: listing.creator })}
-        </Typography>
-        {isOrderCreator ? (
-          <Button
-            onClick={() =>
-              cancelOrderMutation.mutate({
-                orderId: listing.id,
-                address: listing.creator,
-              })
-            }
-            variant="solid"
-            size="1"
-            css={{ width: "max-content", ml: "auto" }}
-            colorScheme="danger"
+      {cancelOrderMutation.isSuccess ? null : (
+        <>
+          <Flex
+            css={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr 1fr 1fr",
+              p: "$3",
+              "& p": { fontSize: "$2", color: "$slate12" },
+            }}
+            align="center"
           >
-            Cancel order
-          </Button>
-        ) : (
-          <Button
-            variant="solid"
-            size="1"
-            css={{ width: "max-content", ml: "auto" }}
-          >
-            Buy
-          </Button>
-        )}
-      </Flex>
-      <Box
-        css={{
-          height: 1,
-          backgroundColor: "$slate3",
-        }}
-      />
+            <Typography>{(listing.price / 1e6).toFixed(2)}</Typography>
+            <Typography>{listing.quantity}</Typography>
+            <Typography>
+              {account?.profile?.name ||
+                abbreviateAddress({ address: listing.creator })}
+            </Typography>
+            {isOrderCreator ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    disabled={cancelOrderMutation.isLoading}
+                    variant="ghost"
+                    size="1"
+                    css={{ width: "max-content", ml: "auto" }}
+                    colorScheme="danger"
+                  >
+                    {cancelOrderMutation.isLoading ? "Removing..." : "Cancel"}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent css={{ width: 480 }}>
+                  <AlertDialogTitle asChild>
+                    <Typography
+                      size="4"
+                      weight="6"
+                      contrast="hi"
+                      css={{ mb: "$3" }}
+                    >
+                      Remove listing
+                    </Typography>
+                  </AlertDialogTitle>
+                  <AlertDialogDescription asChild>
+                    <Typography
+                      contrast="hi"
+                      css={{ width: "40ch", lineHeight: 1.5 }}
+                    >
+                      Are you sure? This will remove your listing from the
+                      marketplace.
+                    </Typography>
+                  </AlertDialogDescription>
+                  <Flex align="center" justify="end" gap="3" css={{ mt: "$5" }}>
+                    <AlertDialogCancel asChild>
+                      <Button>Cancel</Button>
+                    </AlertDialogCancel>
+                    <AlertDialogAction asChild>
+                      <Button
+                        colorScheme="danger"
+                        variant="solid"
+                        onClick={() =>
+                          cancelOrderMutation.mutate({
+                            orderId: listing.id,
+                            address: listing.creator,
+                          })
+                        }
+                      >
+                        Remove listing
+                      </Button>
+                    </AlertDialogAction>
+                  </Flex>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : (
+              <Button
+                variant="solid"
+                size="1"
+                css={{ width: "max-content", ml: "auto" }}
+              >
+                Buy
+              </Button>
+            )}
+          </Flex>
+          <Box
+            css={{
+              height: 1,
+              backgroundColor: "$slate3",
+            }}
+          />
+        </>
+      )}
     </>
   );
 };
@@ -479,6 +540,7 @@ export const Track = () => {
       queryKey: [`activeSaleOrders-${track?.txid}`],
       enabled: !!track,
       refetchOnWindowFocus: false,
+      refetchInterval: 3000,
       queryFn: () => {
         if (!track?.txid) {
           return;
@@ -962,16 +1024,16 @@ export const Track = () => {
                           <Box
                             css={{
                               height: 1,
-                              backgroundColor: "$slate3",
+                              backgroundColor: "$slate5",
                             }}
                           />
                           <Flex
                             css={{
                               display: "grid",
                               gridTemplateColumns: "1fr 1fr 1fr 1fr",
-                              backgroundColor: "$slate2",
+                              backgroundColor: "$slate3",
                               p: "$3",
-                              "& p": { fontSize: "$2" },
+                              "& p": { fontSize: "$2", color: "$slate12" },
                             }}
                           >
                             <Typography>Price (U)</Typography>
@@ -981,21 +1043,23 @@ export const Track = () => {
                           <Box
                             css={{
                               height: 1,
-                              backgroundColor: "$slate3",
+                              backgroundColor: "$slate5",
                             }}
                           />
-                          {activeSaleOrders.map((listing) => (
-                            <ListingItem
-                              key={listing.id}
-                              listing={listing}
-                              isOrderCreator={
-                                walletAddress &&
-                                walletAddress === listing.creator
-                                  ? true
-                                  : false
-                              }
-                            />
-                          ))}
+                          {activeSaleOrders
+                            .map((listing, index) => (
+                              <ListingItem
+                                key={listing.id}
+                                listing={listing}
+                                isOrderCreator={
+                                  walletAddress &&
+                                  walletAddress === listing.creator
+                                    ? true
+                                    : false
+                                }
+                              />
+                            ))
+                            .reverse()}
                         </Flex>
                       </AccordionContent>
                     </AccordionItem>
