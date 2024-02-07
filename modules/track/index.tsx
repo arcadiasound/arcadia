@@ -265,50 +265,12 @@ const Creator = ({ account, size = "2", contrast = "lo" }: ProfileProps) => {
   );
 };
 
-interface ListingTableProps {
-  listings: SaleOrder[];
-}
-
-const ListingTable = ({ listings }: ListingTableProps) => {
-  return (
-    <Flex direction="column">
-      <Box
-        css={{
-          height: 1,
-          backgroundColor: "$slate3",
-        }}
-      />
-      <Flex
-        css={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr 1fr 1fr",
-          backgroundColor: "$slate2",
-          p: "$3",
-          "& p": { fontSize: "$2" },
-        }}
-      >
-        <Typography>Price (U)</Typography>
-        <Typography>Quantity</Typography>
-        <Typography>Seller</Typography>
-      </Flex>
-      <Box
-        css={{
-          height: 1,
-          backgroundColor: "$slate3",
-        }}
-      />
-      {listings.map((listing) => (
-        <ListingItem key={listing.id} listing={listing} />
-      ))}
-    </Flex>
-  );
-};
-
 interface ListingItemProps {
   listing: SaleOrder;
+  isOrderCreator: boolean;
 }
 
-const ListingItem = ({ listing }: ListingItemProps) => {
+const ListingItem = ({ listing, isOrderCreator }: ListingItemProps) => {
   const { data: account } = useQuery({
     queryKey: [`profile-${listing.creator}`],
     queryFn: () => {
@@ -337,13 +299,24 @@ const ListingItem = ({ listing }: ListingItemProps) => {
           {account?.profile?.name ||
             abbreviateAddress({ address: listing.creator })}
         </Typography>
-        <Button
-          variant="solid"
-          size="1"
-          css={{ width: "max-content", ml: "auto" }}
-        >
-          Buy
-        </Button>
+        {isOrderCreator ? (
+          <Button
+            variant="solid"
+            size="1"
+            css={{ width: "max-content", ml: "auto" }}
+            colorScheme="danger"
+          >
+            Cancel order
+          </Button>
+        ) : (
+          <Button
+            variant="solid"
+            size="1"
+            css={{ width: "max-content", ml: "auto" }}
+          >
+            Buy
+          </Button>
+        )}
       </Flex>
       <Box
         css={{
@@ -489,9 +462,9 @@ export const Track = () => {
     },
   });
 
-  const { data: activeSaleOrder, isLoading: activeSaleOrderLoading } = useQuery(
-    {
-      queryKey: [`activeSaleOrder-${track?.txid}`],
+  const { data: activeSaleOrders, isLoading: activeSaleOrdersLoading } =
+    useQuery({
+      queryKey: [`activeSaleOrders-${track?.txid}`],
       enabled: !!track,
       refetchOnWindowFocus: false,
       queryFn: () => {
@@ -501,8 +474,7 @@ export const Track = () => {
 
         return getActiveSaleOrders({ assetId: track.txid });
       },
-    }
-  );
+    });
 
   const { data: recentActivity, isLoading: activityLoading } = useQuery({
     queryKey: [`activity-${track?.txid}`],
@@ -958,19 +930,14 @@ export const Track = () => {
                   }}
                   type="multiple"
                   defaultValue={["listings"]}
-                  // defaultValue={
-                  //   activeSaleOrder && activeSaleOrder.length > 0
-                  //     ? ["listings"]
-                  //     : []
-                  // }
                 >
-                  {activeSaleOrderLoading && (
+                  {activeSaleOrdersLoading && (
                     <Skeleton css={{ width: "100%", height: 48 }} />
                   )}
-                  {activeSaleOrder && activeSaleOrder.length > 0 && (
+                  {activeSaleOrders && activeSaleOrders.length > 0 && (
                     <AccordionItem value="listings">
                       <AccordionTrigger>
-                        Active Listings ({activeSaleOrder.length})
+                        Active Listings ({activeSaleOrders.length})
                       </AccordionTrigger>
                       <AccordionContent
                         css={{
@@ -979,7 +946,45 @@ export const Track = () => {
                           },
                         }}
                       >
-                        <ListingTable listings={activeSaleOrder} />
+                        <Flex direction="column">
+                          <Box
+                            css={{
+                              height: 1,
+                              backgroundColor: "$slate3",
+                            }}
+                          />
+                          <Flex
+                            css={{
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                              backgroundColor: "$slate2",
+                              p: "$3",
+                              "& p": { fontSize: "$2" },
+                            }}
+                          >
+                            <Typography>Price (U)</Typography>
+                            <Typography>Quantity</Typography>
+                            <Typography>Seller</Typography>
+                          </Flex>
+                          <Box
+                            css={{
+                              height: 1,
+                              backgroundColor: "$slate3",
+                            }}
+                          />
+                          {activeSaleOrders.map((listing) => (
+                            <ListingItem
+                              key={listing.id}
+                              listing={listing}
+                              isOrderCreator={
+                                walletAddress &&
+                                walletAddress === listing.creator
+                                  ? true
+                                  : false
+                              }
+                            />
+                          ))}
+                        </Flex>
                       </AccordionContent>
                     </AccordionItem>
                   )}
