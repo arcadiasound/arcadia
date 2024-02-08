@@ -9,6 +9,12 @@ export interface CancelOrderProps {
   address: string;
 }
 
+export interface BuyAssetProps {
+  assetId: string;
+  spend: number;
+  address: string;
+}
+
 export interface ListAssetProps {
   assetId: string;
   qty: number;

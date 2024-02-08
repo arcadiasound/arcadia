@@ -70,6 +70,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/ui/AlertDialog";
+import { BuyAssetDialog } from "./components/BuyAssetDialog";
 
 const StyledTabsTrigger = styled(TabsTrigger, {
   br: "$1",
@@ -278,9 +279,17 @@ const Creator = ({ account, size = "2", contrast = "lo" }: ProfileProps) => {
 interface ListingItemProps {
   listing: SaleOrder;
   isOrderCreator: boolean;
+  userAddress: string | undefined;
+  track: TrackType;
 }
 
-const ListingItem = ({ listing, isOrderCreator }: ListingItemProps) => {
+const ListingItem = ({
+  listing,
+  isOrderCreator,
+  userAddress,
+  track,
+}: ListingItemProps) => {
+  const [showBuyAssetDialog, setShowBuyAssetDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: account } = useQuery({
@@ -380,13 +389,26 @@ const ListingItem = ({ listing, isOrderCreator }: ListingItemProps) => {
                 </AlertDialogContent>
               </AlertDialog>
             ) : (
-              <Button
-                variant="solid"
-                size="1"
-                css={{ width: "max-content", ml: "auto" }}
-              >
-                Buy
-              </Button>
+              <>
+                {userAddress ? (
+                  <>
+                    <Button
+                      variant="solid"
+                      size="1"
+                      onClick={() => setShowBuyAssetDialog(true)}
+                      css={{ width: "max-content", ml: "auto" }}
+                    >
+                      Buy
+                    </Button>
+                    <BuyAssetDialog
+                      open={showBuyAssetDialog}
+                      onClose={() => setShowBuyAssetDialog(false)}
+                      address={userAddress}
+                      track={track}
+                    />
+                  </>
+                ) : null}
+              </>
             )}
           </Flex>
           <Box
@@ -1051,6 +1073,8 @@ export const Track = () => {
                               <ListingItem
                                 key={listing.id}
                                 listing={listing}
+                                userAddress={walletAddress}
+                                track={track}
                                 isOrderCreator={
                                   walletAddress &&
                                   walletAddress === listing.creator
