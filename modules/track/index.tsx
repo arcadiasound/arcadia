@@ -309,7 +309,11 @@ const ListingItem = ({
     onSuccess: (data) => {
       setTimeout(
         () =>
-          queryClient.invalidateQueries([`activeSaleOrders-${listing.token}`]),
+          queryClient.invalidateQueries([
+            `activeSaleOrders-${track.txid}`,
+            `uBalance-${userAddress}`,
+            `ucmAsset-${track.txid}`,
+          ]),
         500
       );
     },
@@ -547,7 +551,6 @@ export const Track = () => {
     queryKey: [`ucmAsset-${track?.txid}`],
     enabled: !!track,
     cacheTime: 0,
-    refetchOnWindowFocus: false,
     queryFn: () => {
       if (!track?.txid) {
         throw new Error("No txid found");
@@ -674,7 +677,7 @@ export const Track = () => {
   const toggleShowDescription = () => setShowDescription(!showDescription);
 
   const isAssetOwner =
-    ucmAsset && walletAddress && walletAddress in ucmAsset.state.balances
+    ucmAsset && walletAddress && ucmAsset.state.balances[walletAddress] > 0
       ? true
       : false;
 
@@ -814,24 +817,35 @@ export const Track = () => {
           <Flex justify="between" align="center" css={{ px: "$2" }}>
             <LikeButton txid={id} size="3" />
 
-            {!!ucmAsset && (
-              <Button
-                as="a"
-                href={`https://bazar.arweave.dev/#/asset/${track.txid}`}
-                css={{
-                  alignSelf: "start",
-                  br: "$2",
-                  cursor: "pointer",
-
-                  "&:hover": {
-                    textDecoration: "none",
-                  },
-                }}
-                variant="solid"
-              >
-                View on Marketplace
-              </Button>
-            )}
+            <Flex gap="3">
+              {activeSaleOrders && activeSaleOrders.length > 0 && (
+                <Button variant="solid">Buy</Button>
+              )}
+              {isAssetOwner && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowListAssetDialog(true)}
+                  >
+                    Sell
+                  </Button>
+                  <ListAssetDialog
+                    open={showListAssetDialog}
+                    onClose={() => setShowListAssetDialog(false)}
+                    address={walletAddress!!}
+                    track={track}
+                    ucmAsset={ucmAsset!!}
+                    creatorName={
+                      account?.profile.name ||
+                      abbreviateAddress({
+                        address: track.creator,
+                        options: { startChars: 6, endChars: 6 },
+                      })
+                    }
+                  />
+                </>
+              )}
+            </Flex>
           </Flex>
         )}
 
@@ -850,51 +864,24 @@ export const Track = () => {
         css={{ flex: 1, "@bp4": { maxWidth: 500, alignSelf: "start" } }}
       >
         {track && (
-          <Flex justify="between" align="center">
-            <Flex css={{ pt: "$5" }} direction="column" gap="1">
-              <Typography contrast="hi" size="5">
-                {track.title}
+          <Flex css={{ pt: "$5" }} direction="column" gap="1">
+            <Typography contrast="hi" size="5">
+              {track.title}
+            </Typography>
+            <Link
+              to={{
+                pathname: "/profile",
+                search: `?addr=${track.creator}`,
+              }}
+            >
+              <Typography>
+                {account?.profile.name ||
+                  abbreviateAddress({
+                    address: track.creator,
+                    options: { startChars: 6, endChars: 6 },
+                  })}
               </Typography>
-              <Link
-                to={{
-                  pathname: "/profile",
-                  search: `?addr=${track.creator}`,
-                }}
-              >
-                <Typography>
-                  {account?.profile.name ||
-                    abbreviateAddress({
-                      address: track.creator,
-                      options: { startChars: 6, endChars: 6 },
-                    })}
-                </Typography>
-              </Link>
-            </Flex>
-            {isAssetOwner && (
-              <>
-                <Button
-                  variant="solid"
-                  size="1"
-                  onClick={() => setShowListAssetDialog(true)}
-                >
-                  Sell
-                </Button>
-                <ListAssetDialog
-                  open={showListAssetDialog}
-                  onClose={() => setShowListAssetDialog(false)}
-                  address={walletAddress!!}
-                  track={track}
-                  ucmAsset={ucmAsset!!}
-                  creatorName={
-                    account?.profile.name ||
-                    abbreviateAddress({
-                      address: track.creator,
-                      options: { startChars: 6, endChars: 6 },
-                    })
-                  }
-                />
-              </>
-            )}
+            </Link>
           </Flex>
         )}
         {trackLoading && (
