@@ -463,6 +463,7 @@ export const Track = () => {
   const [owners, setOwners] = useState<ProfileWithOwnership[]>();
   const [showOwnershipChart, setShowOwnershipChart] = useState(false);
   const [showListAssetDialog, setShowListAssetDialog] = useState(false);
+  const [showBuyAssetDialog, setShowBuyAssetDialog] = useState(false);
   const { walletAddress } = useConnect();
 
   const handleShowOwnershipChart = () => setShowOwnershipChart(true);
@@ -816,11 +817,25 @@ export const Track = () => {
         {track && (
           <Flex justify="between" align="center" css={{ px: "$2" }}>
             <LikeButton txid={id} size="3" />
-
             <Flex gap="3">
-              {activeSaleOrders && activeSaleOrders.length > 0 && (
-                <Button variant="solid">Buy</Button>
-              )}
+              {walletAddress &&
+                activeSaleOrders &&
+                activeSaleOrders.length > 0 && (
+                  <>
+                    <Button
+                      variant="solid"
+                      onClick={() => setShowBuyAssetDialog(true)}
+                    >
+                      Buy
+                    </Button>
+                    <BuyAssetDialog
+                      open={showBuyAssetDialog}
+                      onClose={() => setShowBuyAssetDialog(false)}
+                      address={walletAddress}
+                      track={track}
+                    />
+                  </>
+                )}
               {isAssetOwner && (
                 <>
                   <Button
