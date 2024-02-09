@@ -64,7 +64,12 @@ export const ListAssetDialog = ({
     onSuccess: (data) => {
       formik.resetForm();
       setTimeout(
-        () => queryClient.invalidateQueries([`activeSaleOrders-${track.txid}`]),
+        () =>
+          queryClient.invalidateQueries([
+            `activeSaleOrders-${track.txid}`,
+            `uBalance-${address}`,
+            `ucmAsset-${track.txid}`,
+          ]),
         500
       );
     },

@@ -16,7 +16,8 @@ export const getUCMAsset = async (assetId: string) => {
     const data: UCMAssetProps = await res.json();
     console.log(data);
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    throw new Error(`Error occurred getting asset with ID: ${assetId}`);
   }
 };
