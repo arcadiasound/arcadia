@@ -182,7 +182,10 @@ export const ListAssetDialog = ({
             </Flex>
             <Typography contrast="hi">
               You own {balance} units of this song (
-              {getOwnershipPercentage(balance, ucmAsset.state.balances)}%)
+              {Math.round(
+                getOwnershipPercentage(balance, ucmAsset.state.balances)
+              )}
+              %)
             </Typography>
             <Box
               css={{
@@ -276,9 +279,11 @@ export const ListAssetDialog = ({
                     <Typography contrast="hi" size="1">
                       You will own {balance - formik.values.units} units of this
                       song after listing (
-                      {getOwnershipPercentage(
-                        balance - formik.values.units,
-                        ucmAsset.state.balances
+                      {Math.round(
+                        getOwnershipPercentage(
+                          balance - formik.values.units,
+                          ucmAsset.state.balances
+                        )
                       )}
                       %)
                     </Typography>
