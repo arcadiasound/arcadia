@@ -218,7 +218,7 @@ export const BuyAssetDialog = ({
             </Box>
             <Typography as="h2" size="5" css={{ textAlign: "center" }}>
               Congratulations! <br />{" "}
-              {isAssetOwner ? "You own more" : "You're an onwer"} of{" "}
+              {isAssetOwner ? "You own more" : "You're an owner"} of{" "}
               <Typography as="span" size="5" contrast="hi">
                 {track.title}
               </Typography>
