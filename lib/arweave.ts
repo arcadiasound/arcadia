@@ -1,12 +1,11 @@
 import Arweave from "arweave";
 import { WarpFactory, LoggerFactory } from "warp-contracts";
 import { OrderBook } from "permaweb-orderbook";
-import { DeployPlugin } from "warp-contracts-plugin-deploy";
 import { InjectedArweaveSigner } from "warp-contracts-plugin-signature";
 
 export const arweave = Arweave.init({});
 
-export const warp = WarpFactory.forMainnet().use(new DeployPlugin());
+export const warp = WarpFactory.forMainnet();
 LoggerFactory.INST.logLevel("fatal");
 
 export const initSigner = async () => {

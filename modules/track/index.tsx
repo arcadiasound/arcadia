@@ -643,7 +643,10 @@ export const Track = () => {
 
   useEffect(() => {
     if (ucmAsset) {
-      const balances = Object.keys(ucmAsset.state.balances);
+      const balances = Object.keys(ucmAsset.state.balances).filter(
+        // remove UCM as owner
+        (address) => address !== appConfig.UCM
+      );
       const ownership = Object.values(ucmAsset.state.balances) as number[];
 
       const getProfiles = async () => {

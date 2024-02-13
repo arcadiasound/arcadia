@@ -211,6 +211,7 @@ export const TrackComments = ({ txid }: TrackCommentsDialogProps) => {
             css={{
               br: "$1",
               overflow: "hidden",
+              boxSize: "$8",
             }}
             src={
               account?.profile.avatarURL !== appConfig.accountAvatarDefault
