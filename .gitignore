@@ -1,46 +1,48 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+*.log
+.DS_Store
 node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# next.js
+packages/*/node_modules
+dist
+packages/*/dist
+packages/*/.next
+packages/*/coverage
+test-output.*
+*.cache
+storybook-static
+.env
+.env.*
+.eslintcache
+packages/*/tsconfig.tsbuildinfo
+tsconfig.tsbuildinfo
 /.next/
 /out/
 
-# production
-/build
+# Yarn
+yarn-error.log
+.pnp/
+.pnp.js
+# Yarn Integrity file
+.yarn-integrity
 
-# misc
-.DS_Store
-*.pem
+# Yarn 2 build artifacts
+# https://yarnpkg.com/advanced/qa#which-files-should-be-gitignored
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
 
-# local env files
-.env*.local
+# Editor-specific
+.vscode
+.idea
 
-# vercel
-.vercel
+# verdaccio
+.verdaccio-db.json
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# turbo
+.turbo
 
-# build
-dist/
-
-# wallet
+#arweave
 wallet.json
 keyfile.json
-
-# bundlr
-out-*
