@@ -1,5 +1,4 @@
-import { RouterProvider, createHashRouter } from "react-router-dom";
-import { Home } from "@/modules/home";
+import { Home } from "./modules/home";
 import { Grid, ScrollArea } from "@radix-ui/themes";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { appConfig } from "@/config";
@@ -7,7 +6,6 @@ import { css } from "./styles/css";
 import { AudioPlayer } from "./modules/player/AudioPlayer";
 import { AppHeader } from "./modules/layout/AppHeader";
 import { Sidebar } from "./modules/layout/Sidebar";
-// import { Upload } from "./modules/upload";
 
 function App() {
   return (
