@@ -49,6 +49,7 @@ importers:
       lodash.debounce: 4.0.8
       motion: 10.15.5
       motion-hooks: 0.1.1
+      next-themes: 0.2.1
       permaweb-orderbook: 1.6.52
       prettier: 2.8.4
       react: 18.2.0
@@ -90,6 +91,7 @@ importers:
       lodash.debounce: 4.0.8
       motion: 10.15.5
       motion-hooks: 0.1.1_eovbccrvgnhxzuonatc5dz5wyy
+      next-themes: 0.2.1_biqbaboplfbrettd7655fr4n2y
       permaweb-orderbook: 1.6.52
       react: 18.2.0
       react-chartjs-2: 5.2.0_7w425rpwvpx4zc7k2ceveqhc4u
@@ -8139,6 +8141,17 @@ packages:
 
   /nested-error-stacks/2.1.1:
     resolution: {integrity: sha512-9iN1ka/9zmX1ZvLV9ewJYEk9h7RyRRtqdK0woXcqohu8EWIerfPUjYJPg0ULy0UqP7cslmdGc8xKDJcojlKiaw==}
+    dev: false
+
+  /next-themes/0.2.1_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-B+AKNfYNIzh0vqQQKqQItTS8evEouKD7H5Hj3kmuPERwddR2TxvDSFZuTj6T7Jfn1oyeUyJMydPl1Bkxkh0W7A==}
+    peerDependencies:
+      next: '*'
+      react: '*'
+      react-dom: '*'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /next-tick/0.2.2:

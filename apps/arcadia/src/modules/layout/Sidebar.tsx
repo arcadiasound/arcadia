@@ -55,15 +55,12 @@ export const Sidebar = () => {
       style={css({
         minWidth: 240,
         backgroundColor: "var(--side-panel-background)",
-        height: `calc(100% - ${appConfig.playerMaxHeight}px)`,
+        height: `calc(100dvh - ${appConfig.playerMaxHeight}px)`,
       })}
     >
       <ScrollArea
         scrollbars="vertical"
         style={css({
-          height: `calc(100dvh - ${appConfig.playerMaxHeight}px)`,
-
-          // maxHeight: "calc(100vh - 96px)",
           padding: "var(--space-1)",
         })}
       >
