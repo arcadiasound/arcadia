@@ -27,7 +27,13 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <style dangerouslySetInnerHTML={{ __html: hooks }} />
           <ArweaveWalletKit
             config={{
-              permissions: ["ACCESS_ADDRESS", "DISPATCH", "SIGN_TRANSACTION"],
+              permissions: [
+                "ACCESS_ADDRESS",
+                "DISPATCH",
+                "SIGN_TRANSACTION",
+                "ACCESS_PUBLIC_KEY",
+                "SIGNATURE",
+              ],
             }}
           >
             <Toaster position="bottom-center" />

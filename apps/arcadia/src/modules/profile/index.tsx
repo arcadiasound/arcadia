@@ -1,11 +1,12 @@
 import { appConfig } from "@/config";
 import { useGetUserProfile } from "@/hooks/appData";
 import { css } from "@/styles/css";
-import { abbreviateAddress } from "@/utils";
+import { abbreviateAddress, gateway } from "@/utils";
 import {
   AspectRatio,
   Avatar,
   Box,
+  Button,
   Flex,
   Grid,
   IconButton,
@@ -15,9 +16,12 @@ import {
 import { styled } from "@stitches/react";
 import { useActiveAddress } from "arweave-wallet-kit";
 import BoringAvatar from "boring-avatars";
+import { useState } from "react";
 import { BsCopy, BsPatchCheckFill } from "react-icons/bs";
+import { EditProfileDialog } from "./components/EditProfileDialog";
+import Avvvatars from "avvvatars-react";
 
-const StyledBoringAvatar = styled(BoringAvatar);
+const StyledAvatar = styled(Avatar);
 
 const BANNER_RADIUS = `max(var(--radius-1), var(--radius-4) * 0.8)`;
 const AVATAR_RADIUS = `max(var(--radius-3), var(--radius-full) * 0.8)`;
@@ -35,7 +39,6 @@ const AlphaIconButton = styled(IconButton, {
   },
 
   "&:hover": {
-    // backgroundColor: "var(--white-a4)",
     color: "var(--white-a12)",
   },
 
@@ -57,19 +60,15 @@ export const Profile = () => {
   const query = typeof window !== "undefined" ? window.location.search : "";
   const urlParams = new URLSearchParams(query);
   const addressFromParams = urlParams.get("addr");
+  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
 
   const addr = addressFromParams || address;
 
   const { data } = useGetUserProfile({ address: addr });
-  const profile = data?.length ? data[0] : undefined;
+  const profile = data?.profiles.length ? data.profiles[0] : undefined;
 
-  const bannerUrl = profile?.bannerSrc
-    ? profile.bannerSrc
-    : `${appConfig.boringAvatarsUrl}/marble/${AVATAR_SIZE}/${addr}?square=true`;
-
-  const avatarUrl = profile?.avatarSrc
-    ? profile.avatarSrc
-    : `${appConfig.boringAvatarsUrl}/marble/${AVATAR_SIZE}/${addr}?square=true`;
+  const bannerUrl = gateway() + "/" + profile?.bannerId;
+  const avatarUrl = gateway() + "/" + profile?.avatarId;
 
   if (!addr) {
     // temp
@@ -90,7 +89,9 @@ export const Profile = () => {
     >
       <Avatar
         src={bannerUrl}
-        fallback={<StyledBoringAvatar name={addr} variant="marble" />}
+        fallback={
+          <Box position="absolute" inset="0" style={css({ backgroundColor: "var(--accent-9)" })} />
+        }
         style={css({
           width: "100%",
           height: "100%",
@@ -125,16 +126,22 @@ export const Profile = () => {
           inset: 0,
         })}
       >
-        <Avatar
+        <StyledAvatar
           src={avatarUrl}
-          fallback={<BoringAvatar size={AVATAR_RADIUS} name={addr} variant="marble" />}
+          fallback={<Avvvatars style="shape" value={addr} size={AVATAR_SIZE} radius={0} />}
           style={css({
             width: AVATAR_SIZE,
             height: AVATAR_SIZE,
             borderRadius: AVATAR_RADIUS,
             outline: `${OUTLINE_OFFSET}px solid var(--white-a3)`,
             outlineOffset: -OUTLINE_OFFSET,
+            overflow: "hidden",
           })}
+          css={{
+            ".rt-AvatarFallback > div": {
+              borderRadius: 0,
+            },
+          }}
         />
         <Flex
           direction="column"
@@ -212,6 +219,22 @@ export const Profile = () => {
           )}
         </Flex>
       </Flex>
+
+      <EditProfileDialog address={addr} hasProfile={data?.hasProfile} profile={profile}>
+        <Button
+          variant="solid"
+          style={css({
+            position: "absolute",
+            bottom: "var(--space-3)",
+            right: "var(--space-3)",
+            backgroundColor: "var(--white-a3)",
+            color: "var(--white-a12)",
+            "&:hover": { backgroundColor: "var(--white-a4)" },
+          })}
+        >
+          Edit profile
+        </Button>
+      </EditProfileDialog>
     </Box>
   );
 };
