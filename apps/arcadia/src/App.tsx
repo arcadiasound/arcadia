@@ -6,6 +6,7 @@ import { css } from "./styles/css";
 import { AudioPlayer } from "./modules/player/AudioPlayer";
 import { AppHeader } from "./modules/layout/AppHeader";
 import { Sidebar } from "./modules/layout/Sidebar";
+import { Profile } from "./modules/profile";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
               <AppHeader />
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/profile" element={<Profile />} />
               </Routes>
             </ScrollArea>
           </Grid>

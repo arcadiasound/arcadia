@@ -14,17 +14,22 @@ export const getProfile = async ({ address }: GetUserProfileProps) => {
         tags: [
           {
             name: "Type",
-            values: ["profile"],
+            values: ["test-profile"],
           },
         ],
       },
     });
 
+    const hasProfile = !!res.transactions.edges.length;
+
     const profiles = res.transactions.edges
       .filter((edge) => edge.node.tags.find((x) => x.name === "Name")?.value)
       .map((edge) => setProfileInfo(edge as TransactionEdge));
 
-    return profiles;
+    return {
+      profiles,
+      hasProfile,
+    };
   } catch (error: any) {
     console.error(error);
     throw new Error(error.message);
@@ -57,8 +62,8 @@ const setProfileInfo = (edge: TransactionEdge): Profile => {
     handle,
     bio,
     thumbnailSrc,
-    avatarSrc,
-    bannerSrc,
+    avatarId,
+    bannerId,
     cursor,
   };
 };

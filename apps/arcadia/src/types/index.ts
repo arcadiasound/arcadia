@@ -10,14 +10,22 @@ export interface GetUserProfileProps {
   address: string | undefined;
 }
 
+export interface SetProfile {
+  name: string;
+  handle: string;
+  bio: string;
+  avatar: File | undefined;
+  banner: File | undefined;
+}
+
 export interface Profile {
   txid: string;
   addr: string;
   name: string;
   handle: string | undefined;
   thumbnailSrc: string | undefined;
-  avatarSrc: string | undefined;
-  bannerSrc: string | undefined;
+  avatarId: string | undefined;
+  bannerId: string | undefined;
   bio: string | undefined;
   links?: {
     [link: string]: string;

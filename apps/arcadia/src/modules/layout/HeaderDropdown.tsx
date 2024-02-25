@@ -16,7 +16,9 @@ import { styled } from "@stitches/react";
 import { useConnection } from "arweave-wallet-kit";
 import { Link, useLocation } from "react-router-dom";
 import { BsPersonBoundingBox, BsPlugFill, BsQuestionCircleFill } from "react-icons/bs";
+import Avvvatars from "avvvatars-react";
 
+const StyledAvatar = styled(Avatar);
 const AVATAR_SIZE = 24;
 const AVATAR_RADIUS = `max(var(--radius-1), var(--radius-full) * 0.8)`;
 
@@ -38,49 +40,43 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
     return null;
   }
 
-  const profile = data?.length ? data[0] : undefined;
+  const profile = data?.profiles.length ? data[0] : undefined;
 
   return (
     <DropdownMenuRoot>
       <DropdownMenuTrigger>
         <IconButton variant="ghost" color="gray" size="1">
-          <Avatar
+          <StyledAvatar
             size="1"
             src={profile?.thumbnailSrc || ``}
             fallback={
-              <img
-                src={`${appConfig.boringAvatarsUrl}/marble/${AVATAR_SIZE}/${props.address}?square=true`}
-                style={css({
-                  width: AVATAR_SIZE,
-                  height: AVATAR_SIZE,
-                  borderRadius: AVATAR_RADIUS,
-                })}
-              />
+              <Avvvatars style="shape" value={props.address} size={AVATAR_SIZE} radius={0} />
             }
-            style={css({
+            css={{
               borderRadius: AVATAR_RADIUS,
-            })}
+              overflow: "hidden",
+              ".rt-AvatarFallback > div": {
+                borderRadius: 0,
+              },
+            }}
           />
         </IconButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent sideOffset={6}>
         <Flex p="1" pr="7" align="center" gap="2">
-          <Avatar
-            size="2"
-            src={profile?.thumbnailSrc}
+          <StyledAvatar
+            size="1"
+            src={profile?.thumbnailSrc || ``}
             fallback={
-              <img
-                src={`${appConfig.boringAvatarsUrl}/marble/${AVATAR_SIZE}/${props.address}?square=true`}
-                style={css({
-                  width: AVATAR_SIZE,
-                  height: AVATAR_SIZE,
-                  borderRadius: AVATAR_RADIUS,
-                })}
-              />
+              <Avvvatars style="shape" value={props.address} size={AVATAR_SIZE} radius={0} />
             }
-            style={css({
+            css={{
               borderRadius: AVATAR_RADIUS,
-            })}
+              overflow: "hidden",
+              ".rt-AvatarFallback > div": {
+                borderRadius: 0,
+              },
+            }}
           />
           <Flex direction="column">
             <Text
