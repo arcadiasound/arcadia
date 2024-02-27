@@ -15,7 +15,7 @@ export const Home = () => {
   });
 
   return (
-    <Flex direction="column" gap="5">
+    <Flex direction="column" gap="5" pb="5">
       <Grid p="5" asChild columns="6" gapX="2" gapY="7" width="auto">
         <ul>
           {tracks?.length &&

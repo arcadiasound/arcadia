@@ -8,7 +8,7 @@ export const appConfig = {
   accountBannerDefault: "https://arweave.net:443/a0ieiziq2JkYhWamlrUCHxrGYnHWUAMcONxRmfkWt-k",
   accountAvatarDefault: "https://arweave.net:443/OrG-ZG2WN3wdcwvpjz1ihPe4MI24QBJUpsJGIdL85wA",
   playerMaxHeight: 80,
-  headerMaxHeight: 64,
+  headerMaxHeight: 56,
   featuredIds: [
     "pUqlEhRsSDuut-f7f58E-Vs6k62aA9HoBaVDP-ape2A",
     "oIhTcWmJnI1UPvyT0UwWUJlXZS1CTEcJ-OEq4yWKzZo",

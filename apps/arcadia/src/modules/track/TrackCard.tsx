@@ -8,6 +8,8 @@ import { ActionsDropdown } from "./components/ActionsDropdown";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { Track } from "@/types";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { abbreviateAddress } from "@/utils";
+import { useGetUserProfile } from "@/hooks/appData";
 
 const ActionsOverlay = styled(Flex, {
   width: "100%",
@@ -82,6 +84,9 @@ export const TrackCard = ({ track, tracks, trackIndex }: TrackCardProps) => {
     setCurrentTrackIndex,
     handlePlayPause,
   } = useAudioPlayer();
+
+  const { data } = useGetUserProfile({ address: track.creator });
+  const profile = data?.profiles.length ? data.profiles[0] : undefined;
 
   const isPlaying = playing && currentTrackId === track.txid;
 
@@ -185,7 +190,7 @@ export const TrackCard = ({ track, tracks, trackIndex }: TrackCardProps) => {
                 maxWidth: "20ch",
               })}
             >
-              {track.creator}
+              {profile?.name || abbreviateAddress({ address: track.creator })}
             </Link>
           </Flex>
         </Flex>

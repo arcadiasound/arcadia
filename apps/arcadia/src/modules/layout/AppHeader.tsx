@@ -5,6 +5,21 @@ import { RxChevronLeft, RxChevronRight } from "react-icons/rx";
 import { useNavigate, useLocation } from "react-router-dom";
 import { HeaderDropdown } from "./HeaderDropdown";
 import { useEffect, useState } from "react";
+import { styled } from "@stitches/react";
+import { appConfig } from "@/config";
+
+const AlphaIconButton = styled(IconButton, {
+  backgroundColor: "var(--white-a3)",
+  color: "var(--accent-9-contrast)",
+
+  "&:hover": {
+    backgroundColor: "var(--white-a4)",
+  },
+
+  "&:active": {
+    backgroundColor: "var(--white-a5)",
+  },
+});
 
 export const AppHeader = () => {
   const { connected, connect, disconnect } = useConnection();
@@ -20,39 +35,38 @@ export const AppHeader = () => {
     <Flex
       style={css({
         width: "100%",
+        height: appConfig.headerMaxHeight,
       })}
       align="center"
       justify="between"
       p="4"
       asChild
     >
-      <header>
+      <header style={css({ backgroundColor: connected ? "var(--accent-9)" : "var(--gray-2)" })}>
         <Flex gap="2">
-          <IconButton
+          <AlphaIconButton
             disabled={!location.state?.prevPage}
             variant="soft"
-            color="gray"
             size="1"
             onClick={() => navigate(-1)}
           >
             <RxChevronLeft />
-          </IconButton>
-          <IconButton
+          </AlphaIconButton>
+          <AlphaIconButton
             disabled={!location.state?.prevPage}
             variant="soft"
-            color="gray"
             size="1"
             onClick={() => navigate(1)}
           >
             <RxChevronRight />
-          </IconButton>
+          </AlphaIconButton>
         </Flex>
         {connected ? (
           <HeaderDropdown address={address} />
         ) : (
           // we still check in case of unlikely scenario that we are connected but no active address
           <Button variant="ghost" onClick={connected ? disconnect : connect} color="gray">
-            {connected ? "Disconnect" : "Connect"}
+            {connected ? "Sign out" : "Sign in"}
           </Button>
         )}
       </header>

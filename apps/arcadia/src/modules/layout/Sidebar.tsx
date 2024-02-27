@@ -55,7 +55,6 @@ export const Sidebar = () => {
       style={css({
         minWidth: 240,
         backgroundColor: "var(--side-panel-background)",
-        height: `calc(100dvh - ${appConfig.playerMaxHeight}px)`,
       })}
     >
       <ScrollArea
