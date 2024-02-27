@@ -198,7 +198,7 @@ export const AudioPlayer = () => {
     <Box
       style={css({
         display: "grid",
-        position: "fixed",
+        position: "sticky",
         bottom: 0,
         left: 0,
         right: 0,
@@ -209,7 +209,6 @@ export const AudioPlayer = () => {
         height: appConfig.playerMaxHeight,
         backgroundColor: "var(--audio-player-background)",
         borderTop: "1px solid var(--gray-3)",
-        marginBlockStart: "auto",
       })}
     >
       <audio

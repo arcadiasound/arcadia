@@ -1,5 +1,5 @@
 import { Home } from "./modules/home";
-import { Grid, ScrollArea } from "@radix-ui/themes";
+import { Flex, Grid, ScrollArea } from "@radix-ui/themes";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { appConfig } from "@/config";
 import { css } from "./styles/css";
@@ -11,17 +11,23 @@ import { Profile } from "./modules/profile";
 function App() {
   return (
     <HashRouter>
-      <Grid rows="1fr min-content" style={css({ height: "100%" })}>
-        <Grid columns="fit-content(420px) 1fr">
+      <Flex
+        direction="column"
+        justify="between"
+        style={css({
+          height: "100vh",
+        })}
+      >
+        <Grid columns="fit-content(420px) 1fr" style={css({ flex: 1, overflow: "hidden" })}>
           <Sidebar />
-          <Grid rows="auto 1fr" style={css({ paddingBlockEnd: appConfig.playerMaxHeight })}>
+          <Grid rows="auto 1fr">
+            <AppHeader />
             <ScrollArea
               scrollbars="vertical"
               style={css({
-                height: `calc(100dvh - calc(${appConfig.playerMaxHeight})`,
+                height: `calc(100dvh - ${appConfig.playerMaxHeight + appConfig.headerMaxHeight}px)`,
               })}
             >
-              <AppHeader />
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/profile" element={<Profile />} />
@@ -30,7 +36,7 @@ function App() {
           </Grid>
         </Grid>
         <AudioPlayer />
-      </Grid>
+      </Flex>
     </HashRouter>
   );
 }

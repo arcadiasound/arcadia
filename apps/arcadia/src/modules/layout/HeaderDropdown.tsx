@@ -17,6 +17,7 @@ import { useConnection } from "arweave-wallet-kit";
 import { Link, useLocation } from "react-router-dom";
 import { BsPersonBoundingBox, BsPlugFill, BsQuestionCircleFill } from "react-icons/bs";
 import Avvvatars from "avvvatars-react";
+import { gateway } from "@/utils";
 
 const StyledAvatar = styled(Avatar);
 const AVATAR_SIZE = 24;
@@ -40,7 +41,8 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
     return null;
   }
 
-  const profile = data?.profiles.length ? data[0] : undefined;
+  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const avatarUrl = gateway() + "/" + profile?.avatarId;
 
   return (
     <DropdownMenuRoot>
@@ -48,7 +50,7 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
         <IconButton variant="ghost" color="gray" size="1">
           <StyledAvatar
             size="1"
-            src={profile?.thumbnailSrc || ``}
+            src={avatarUrl}
             fallback={
               <Avvvatars style="shape" value={props.address} size={AVATAR_SIZE} radius={0} />
             }
@@ -62,11 +64,11 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
           />
         </IconButton>
       </DropdownMenuTrigger>
-      <DropdownMenuContent sideOffset={6}>
+      <DropdownMenuContent sideOffset={4}>
         <Flex p="1" pr="7" align="center" gap="2">
           <StyledAvatar
             size="1"
-            src={profile?.thumbnailSrc || ``}
+            src={avatarUrl}
             fallback={
               <Avvvatars style="shape" value={props.address} size={AVATAR_SIZE} radius={0} />
             }
