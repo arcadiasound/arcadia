@@ -1,4 +1,5 @@
 import { appConfig } from "@/config";
+import { Album, TrackOrAlbum } from "@/types";
 
 interface AbbreviateAddressOptions {
   startChars?: number;
@@ -111,3 +112,17 @@ export const fileToUint8Array = async (file: File) => {
   const uint8Array = new Uint8Array(arrayBuffer);
   return uint8Array;
 };
+
+export const formatReleaseDate = (timestamp: number) => new Date(timestamp * 1000).getFullYear();
+
+export const isAlbum = (toBeDetermined: TrackOrAlbum): toBeDetermined is Album => {
+  if (toBeDetermined as Album) {
+    return true;
+  }
+  return false;
+};
+
+export const compareArrays = (a, b) =>
+  a.length === b.length && a.every((element, index) => element === b[index]);
+
+export const compareArrayLengths = (a, b) => a.length === b.length;

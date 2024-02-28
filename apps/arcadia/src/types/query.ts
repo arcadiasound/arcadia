@@ -10,4 +10,12 @@ export interface GetTrack {
 
 export interface GetTracks {
   txids?: string[];
+  cursor?: string;
+  limit?: number;
+}
+
+export interface GetTracksByOwner {
+  owner: string;
+  cursor?: string;
+  limit?: number;
 }

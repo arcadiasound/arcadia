@@ -8,7 +8,7 @@ import { ActionsDropdown } from "./components/ActionsDropdown";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { Track } from "@/types";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import { abbreviateAddress } from "@/utils";
+import { abbreviateAddress, compareArrays } from "@/utils";
 import { useGetUserProfile } from "@/hooks/appData";
 
 const ActionsOverlay = styled(Flex, {
@@ -70,9 +70,10 @@ interface TrackCardProps {
   track: Track;
   tracks: Track[];
   trackIndex: number;
+  children?: React.ReactNode;
 }
 
-export const TrackCard = ({ track, tracks, trackIndex }: TrackCardProps) => {
+export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProps) => {
   const [actionsDropdownOpen, setActionsDropdownOpen] = useState(false);
   const [liked, setLiked] = useState(false);
   const {
@@ -83,17 +84,18 @@ export const TrackCard = ({ track, tracks, trackIndex }: TrackCardProps) => {
     setCurrentTrackId,
     setCurrentTrackIndex,
     handlePlayPause,
+    tracklist,
   } = useAudioPlayer();
 
   const { data } = useGetUserProfile({ address: track.creator });
   const profile = data?.profiles.length ? data.profiles[0] : undefined;
 
-  const isPlaying = playing && currentTrackId === track.txid;
+  const isPlaying = playing && currentTrackId === track.txid && compareArrays(tracks, tracklist);
 
   const handleClick = () => {
     handlePlayPause?.();
 
-    if (currentTrackId === track.txid) {
+    if (currentTrackId === track.txid && compareArrays(tracks, tracklist)) {
       togglePlaying?.();
     } else {
       if (trackIndex >= 0) {
@@ -111,7 +113,7 @@ export const TrackCard = ({ track, tracks, trackIndex }: TrackCardProps) => {
         width: `calc(${TRACK_ITEM_SIZE}px * var(--scaling))`,
       })}
     >
-      <li>
+      <li key={track.txid}>
         <Flex
           direction="column"
           gap="2"
@@ -170,29 +172,31 @@ export const TrackCard = ({ track, tracks, trackIndex }: TrackCardProps) => {
               })}
             />
           </Box>
-          <Flex direction="column">
-            <Link
-              size="2"
-              weight="medium"
-              style={css({
-                color: isPlaying ? "var(--accent-11)" : "var(--gray-12)",
-              })}
-            >
-              {track.title}
-            </Link>
-            <Link
-              size="1"
-              color="gray"
-              style={css({
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                maxWidth: "20ch",
-              })}
-            >
-              {profile?.name || abbreviateAddress({ address: track.creator })}
-            </Link>
-          </Flex>
+          {children || (
+            <Flex direction="column">
+              <Link
+                size="2"
+                weight="medium"
+                style={css({
+                  color: isPlaying ? "var(--accent-11)" : "var(--gray-12)",
+                })}
+              >
+                {track.title}
+              </Link>
+              <Link
+                size="1"
+                color="gray"
+                style={css({
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  maxWidth: "20ch",
+                })}
+              >
+                {profile?.name || abbreviateAddress({ address: track.creator })}
+              </Link>
+            </Flex>
+          )}
         </Flex>
       </li>
     </Box>

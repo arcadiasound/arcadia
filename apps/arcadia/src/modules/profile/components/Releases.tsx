@@ -1,11 +1,17 @@
 import { useGetUserProfile } from "@/hooks/appData";
-import { getTracks } from "@/lib/track/getTracks";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { getAlbumsByOwner } from "@/lib/track/getAlbumsByOwner";
+import { getTrack } from "@/lib/track/getTrack";
+import { getTracksByOwner } from "@/lib/track/getTracksByOwner";
 import { TrackCard } from "@/modules/track/TrackCard";
-import { abbreviateAddress } from "@/utils";
+import { css } from "@/styles/css";
+import { Album, Track, Tracklist } from "@/types";
+import { abbreviateAddress, compareArrays, formatReleaseDate, isAlbum } from "@/utils";
 import {
   Box,
-  Grid,
+  Flex,
   Heading,
+  IconButton,
   TabsContent,
   TabsList,
   TabsRoot,
@@ -13,7 +19,10 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueries, useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { MdPause, MdPlayArrow } from "react-icons/md";
+import { AlbumCard } from "./AlbumCard";
 
 const StyledTabsRoot = styled(TabsRoot, {
   ".rt-TabsList": {
@@ -50,16 +59,74 @@ interface ReleasesProps {
 }
 
 export const Releases = (props: ReleasesProps) => {
-  // update to query users releases
-  const { data: tracks } = useQuery({
-    queryKey: [`tracks`],
-    refetchOnWindowFocus: false,
-    queryFn: () => getTracks({ txids: undefined }),
-  });
+  const { playing, currentTrackId, tracklist } = useAudioPlayer();
 
-  const { data } = useGetUserProfile({ address: props.address });
+  const {
+    data: tracksData,
+    fetchNextPage: fetchNextTracksPage,
+    hasNextPage: hasMoreTracks,
+  } = useInfiniteQuery(
+    [`tracks-${props.address}`],
+    ({ pageParam }) => getTracksByOwner({ owner: props.address, cursor: pageParam }),
+    {
+      getNextPageParam: (lastPage) => lastPage.hasNextPage,
+      refetchOnWindowFocus: false,
+    }
+  );
 
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const {
+    data: albumsData,
+    fetchNextPage: fetchNextAlbumsPage,
+    hasNextPage: hasMoreAlbums,
+  } = useInfiniteQuery(
+    [`albums-${props.address}`],
+    ({ pageParam }) => getAlbumsByOwner({ owner: props.address, cursor: pageParam }),
+    {
+      getNextPageParam: (lastPage) => lastPage.hasNextPage,
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const combinedData = useMemo(() => {
+    // Flatten and combine the data from tracks and albums
+    const tracks = tracksData ? tracksData.pages.flatMap((page) => page.data) : [];
+    const albums = albumsData ? albumsData.pages.flatMap((page) => page.data) : [];
+    const combined = [...tracks, ...albums];
+
+    // Sort the combined array by releaseDate, considering undefined values
+    return combined.sort((a, b) => {
+      // Ensure releaseDate is treated as a number explicitly
+      const dateA = Number(a.releaseDate);
+      const dateB = Number(b.releaseDate);
+
+      if (a.releaseDate && b.releaseDate) {
+        // Both have releaseDate, sort by date
+        return dateA - dateB;
+      } else if (a.releaseDate) {
+        // Only a has a releaseDate, it goes first
+        return -1;
+      } else if (b.releaseDate) {
+        // Only b has a releaseDate, it goes first
+        return 1;
+      } else {
+        // Neither have a releaseDate, keep their current order
+        return 0;
+      }
+    });
+  }, [tracksData, albumsData]);
+
+  const singles = useMemo(
+    () => combinedData.filter((item) => item.releaseType === "single") as Track[],
+    [combinedData]
+  );
+  const albums = useMemo(
+    () => combinedData.filter((item) => item.releaseType === "album") as Album[],
+    [combinedData]
+  );
+
+  const { data: profileData } = useGetUserProfile({ address: props.address });
+
+  const profile = profileData?.profiles.length ? profileData.profiles[0] : undefined;
 
   return (
     <Box mt="5">
@@ -75,17 +142,168 @@ export const Releases = (props: ReleasesProps) => {
 
         <Box mt="3" pb="2">
           <TabsContent value="all">
-            <Grid mt="4" columns="6" gapX="2" gapY="7" width="auto" asChild>
+            <Flex mt="4" gap="7" asChild>
               <ul>
-                {tracks?.length &&
-                  tracks.map((track, idx) => (
-                    <TrackCard key={track.txid} track={track} tracks={tracks} trackIndex={idx} />
-                  ))}
+                {combinedData.map((data, idx) => (
+                  <>
+                    {data.releaseType === "album" ? (
+                      <>
+                        {albums.map((album, idx) => (
+                          <AlbumCard key={album.txid} album={album} albumIndex={idx}>
+                            <Flex direction="column">
+                              <Text data-album-card-title size="2" weight="medium">
+                                {album.title}
+                              </Text>
+                              <Flex gap="2">
+                                <Text
+                                  size="1"
+                                  color="gray"
+                                  style={css({
+                                    textTransform: "capitalize",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    maxWidth: "20ch",
+                                  })}
+                                >
+                                  {album.releaseType}
+                                </Text>
+                                {album.releaseDate && (
+                                  <Text size="1" color="gray">
+                                    • {formatReleaseDate(album.releaseDate)}
+                                  </Text>
+                                )}
+                              </Flex>
+                            </Flex>
+                          </AlbumCard>
+                        ))}
+                      </>
+                    ) : (
+                      <TrackCard track={data as Track} tracks={[data as Track]} trackIndex={0}>
+                        <Flex direction="column">
+                          <Text
+                            size="2"
+                            weight="medium"
+                            style={css({
+                              color:
+                                playing &&
+                                currentTrackId === data.txid &&
+                                compareArrays(singles, tracklist)
+                                  ? "var(--accent-11)"
+                                  : "var(--gray-12)",
+                            })}
+                          >
+                            {data.title}
+                          </Text>
+                          <Flex gap="2">
+                            <Text
+                              size="1"
+                              color="gray"
+                              style={css({
+                                textTransform: "capitalize",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                maxWidth: "20ch",
+                              })}
+                            >
+                              {data.releaseType}
+                            </Text>
+                            {data.releaseDate && (
+                              <Text size="1" color="gray">
+                                • {formatReleaseDate(data.releaseDate)}
+                              </Text>
+                            )}
+                          </Flex>
+                        </Flex>
+                      </TrackCard>
+                    )}
+                  </>
+                ))}
               </ul>
-            </Grid>
+            </Flex>
           </TabsContent>
-          <TabsContent value="singles">Singles</TabsContent>
-          <TabsContent value="albums">Albums</TabsContent>
+          <TabsContent value="singles">
+            <Flex mt="4" gap="7" asChild>
+              <ul>
+                {singles.map((track, idx) => (
+                  <TrackCard track={track as Track} tracks={singles} trackIndex={idx}>
+                    <Flex direction="column">
+                      <Text
+                        size="2"
+                        weight="medium"
+                        style={css({
+                          color:
+                            playing &&
+                            currentTrackId === track.txid &&
+                            compareArrays(singles, tracklist)
+                              ? "var(--accent-11)"
+                              : "var(--gray-12)",
+                        })}
+                      >
+                        {track.title}
+                      </Text>
+                      <Flex gap="2">
+                        <Text
+                          size="1"
+                          color="gray"
+                          style={css({
+                            textTransform: "capitalize",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            maxWidth: "20ch",
+                          })}
+                        >
+                          {track.releaseType}
+                        </Text>
+                        {track.releaseDate && (
+                          <Text size="1" color="gray">
+                            • {formatReleaseDate(track.releaseDate)}
+                          </Text>
+                        )}
+                      </Flex>
+                    </Flex>
+                  </TrackCard>
+                ))}
+              </ul>
+            </Flex>
+          </TabsContent>
+          <TabsContent value="albums">
+            <ul>
+              {albums.map((album, idx) => (
+                <>
+                  <AlbumCard key={album.txid} album={album} albumIndex={idx}>
+                    <Flex direction="column">
+                      <Text data-album-card-title size="2" weight="medium">
+                        {album.title}
+                      </Text>
+                      <Flex gap="2">
+                        <Text
+                          size="1"
+                          color="gray"
+                          style={css({
+                            textTransform: "capitalize",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            maxWidth: "20ch",
+                          })}
+                        >
+                          {album.releaseType}
+                        </Text>
+                        {album.releaseDate && (
+                          <Text size="1" color="gray">
+                            • {formatReleaseDate(album.releaseDate)}
+                          </Text>
+                        )}
+                      </Flex>
+                    </Flex>
+                  </AlbumCard>
+                </>
+              ))}
+            </ul>
+          </TabsContent>
         </Box>
       </StyledTabsRoot>
     </Box>

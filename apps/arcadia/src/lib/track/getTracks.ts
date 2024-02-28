@@ -19,6 +19,8 @@ export const getTracks = async (props: GetTracks): Promise<Track[]> => {
       },
     });
 
+    console.log("album tracks: ", { res });
+
     const tracks = res.transactions.edges
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .filter((edge) => edge.node.tags.find((x) => x.name === "Thumbnail"))

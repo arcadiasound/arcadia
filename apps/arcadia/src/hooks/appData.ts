@@ -12,7 +12,6 @@ export const useGetUserProfile = (props: GetUserProfileProps) =>
       !!localStorage.getItem("invalidate-profile-query") ? 1000 : 6000,
     queryFn: () => getProfile({ address: props.address }),
     onSuccess: (data) => {
-      console.log(data);
       localStorage.removeItem("invalidate-profile-query");
     },
   });
