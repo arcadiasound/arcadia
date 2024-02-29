@@ -1,5 +1,5 @@
 import { appConfig } from "@/config";
-import { useGetUserProfile } from "@/hooks/appData";
+import { useGetUserProfile, useIsUserMe } from "@/hooks/appData";
 import { css } from "@/styles/css";
 import { abbreviateAddress, gateway } from "@/utils";
 import {
@@ -20,13 +20,14 @@ import {
 import { styled } from "@stitches/react";
 import { useActiveAddress } from "arweave-wallet-kit";
 import BoringAvatar from "boring-avatars";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsCopy, BsPatchCheckFill } from "react-icons/bs";
 import { EditProfileDialog } from "./components/EditProfileDialog";
 import Avvvatars from "avvvatars-react";
 import { Releases } from "./components/Releases";
 import { Collection } from "./components/Collection";
 import { Likes } from "./components/Likes";
+import { useLocation } from "react-router-dom";
 
 const StyledAvatar = styled(Avatar);
 
@@ -52,18 +53,13 @@ const AlphaIconButton = styled(IconButton, {
 
 export const Profile = () => {
   const address = useActiveAddress();
-  const query = typeof window !== "undefined" ? window.location.search : "";
+  const location = useLocation();
+  const query = location.search;
   const urlParams = new URLSearchParams(query);
   const addressFromParams = urlParams.get("addr");
   const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
 
   const addr = addressFromParams || address;
-
-  const { data } = useGetUserProfile({ address: addr });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
-
-  const bannerUrl = gateway() + "/" + profile?.bannerId;
-  const avatarUrl = gateway() + "/" + profile?.avatarId;
 
   if (!addr) {
     // temp
@@ -73,6 +69,14 @@ export const Profile = () => {
       </Grid>
     );
   }
+
+  const isUserMe = useIsUserMe(addr);
+
+  const { data } = useGetUserProfile({ address: addr });
+  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+
+  const bannerUrl = gateway() + "/" + profile?.bannerId;
+  const avatarUrl = gateway() + "/" + profile?.avatarId;
 
   return (
     <Flex direction="column">
@@ -220,21 +224,23 @@ export const Profile = () => {
           </Flex>
         </Flex>
 
-        <EditProfileDialog address={addr} hasProfile={data?.hasProfile} profile={profile}>
-          <Button
-            variant="solid"
-            style={css({
-              position: "absolute",
-              bottom: "var(--space-3)",
-              right: "var(--space-3)",
-              backgroundColor: "var(--white-a3)",
-              color: "var(--white-a12)",
-              "&:hover": { backgroundColor: "var(--white-a4)" },
-            })}
-          >
-            Edit profile
-          </Button>
-        </EditProfileDialog>
+        {isUserMe && (
+          <EditProfileDialog address={addr} hasProfile={data?.hasProfile} profile={profile}>
+            <Button
+              variant="solid"
+              style={css({
+                position: "absolute",
+                bottom: "var(--space-3)",
+                right: "var(--space-3)",
+                backgroundColor: "var(--white-a3)",
+                color: "var(--white-a12)",
+                "&:hover": { backgroundColor: "var(--white-a4)" },
+              })}
+            >
+              Edit profile
+            </Button>
+          </EditProfileDialog>
+        )}
       </Box>
 
       <TabsRoot defaultValue="releases">

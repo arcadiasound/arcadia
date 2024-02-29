@@ -3,9 +3,10 @@ import CurveLowIcon from "@/assets/icons/CurveLowIcon";
 import CurveMediumIcon from "@/assets/icons/CurveMediumIcon";
 import VolumeIcon from "@/assets/icons/VolumeIcon";
 import { appConfig } from "@/config";
+import { useGetUserProfile } from "@/hooks/appData";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { css } from "@/styles/css";
-import { formatTime } from "@/utils";
+import { abbreviateAddress, formatTime } from "@/utils";
 import { Avatar, Box, Flex, Grid, IconButton, Link, Slider, Text } from "@radix-ui/themes";
 import { keyframes, styled } from "@stitches/react";
 import { useEffect, useRef, useState } from "react";
@@ -18,8 +19,9 @@ import {
   MdSkipNext,
   MdSkipPrevious,
 } from "react-icons/md";
+import { Link as RouterLink } from "react-router-dom";
 
-const ARTWORK_SIZE = 56;
+const ARTWORK_SIZE = 48;
 const OUTLINE_OFFSET = 1;
 const TRACK_ITEM_RADIUS = `max(var(--radius-1), var(--radius-4) * 0.5)`;
 
@@ -93,6 +95,9 @@ export const AudioPlayer = () => {
     typeof window !== "undefined" && "mediaSession" in window.navigator;
 
   const currentTrack = tracklist.length > 0 ? tracklist[currentTrackIndex] : null;
+
+  const { data } = useGetUserProfile({ address: currentTrack?.creator });
+  const profile = data?.profiles.length ? data.profiles[0] : undefined;
 
   // Do we need this? Can it be moved to hook?
   useEffect(() => {
@@ -252,8 +257,11 @@ export const AudioPlayer = () => {
                 overflow: "hidden",
                 maxWidth: "16ch",
               })}
+              asChild
             >
-              {currentTrack?.creator}
+              <RouterLink to={`/profile?addr=${currentTrack.creator}`}>
+                {profile?.name || abbreviateAddress({ address: currentTrack?.creator })}
+              </RouterLink>
             </Link>
           </Flex>
         )}

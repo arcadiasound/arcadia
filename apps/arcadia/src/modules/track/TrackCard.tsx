@@ -10,6 +10,7 @@ import { Track } from "@/types";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { abbreviateAddress, compareArrays } from "@/utils";
 import { useGetUserProfile } from "@/hooks/appData";
+import { Link as RouterLink } from "react-router-dom";
 
 const ActionsOverlay = styled(Flex, {
   width: "100%",
@@ -192,8 +193,11 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
                   overflow: "hidden",
                   maxWidth: "20ch",
                 })}
+                asChild
               >
-                {profile?.name || abbreviateAddress({ address: track.creator })}
+                <RouterLink to={`/profile?addr=${track.creator}`}>
+                  {profile?.name || abbreviateAddress({ address: track.creator })}
+                </RouterLink>
               </Link>
             </Flex>
           )}
