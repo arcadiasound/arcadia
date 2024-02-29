@@ -1,8 +1,9 @@
-import { Track } from "@/types";
 import { gateway } from "@/utils";
 import { TransactionEdge } from "arweave-graphql";
+import { arweave } from "../arweave";
+import { Album } from "@/types";
 
-export const setTrackInfo = (edge: TransactionEdge): Track => {
+export const setAlbumInfo = async (edge: TransactionEdge): Promise<Album> => {
   // casting as the filter in query func is/should be ensuring value exists
   const title = edge.node.tags.find((x) => x.name === "Title")?.value as string;
 
@@ -23,25 +24,34 @@ export const setTrackInfo = (edge: TransactionEdge): Track => {
   // casting as the filter in query func is/should be ensuring value exists
   const thumbnailId = edge.node.tags.find((x) => x.name === "Thumbnail")?.value as string;
   const artworkId = edge.node.tags.find((x) => x.name === "Artwork")?.value as string;
-
-  const thumbnailSrc = gateway() + "/" + thumbnailId;
-  const artworkSrc = gateway() + "/" + artworkId;
-  const audioSrc = gateway() + "/" + edge.node.id;
-  const txid = edge.node.id;
-  const cursor = edge.cursor;
   const releaseDate =
     Number(edge.node.tags.find((x) => x.name === "Release-Date")?.value) ||
     edge.node.block?.timestamp;
 
+  const thumbnailSrc = gateway() + "/" + thumbnailId;
+  const artworkSrc = gateway() + "/" + artworkId;
+  const txid = edge.node.id;
+  const cursor = edge.cursor;
+
+  let trackIds: string[] = [];
+
+  try {
+    const res = await arweave.api.get(txid);
+    trackIds = res.data.items;
+  } catch (error) {
+    console.error("An error occured getting album trackIds: " + error);
+    // throw new Error("An error occured getting album trackIds: " + error as any);
+  }
+
   return {
+    txid,
     title,
     creator,
-    audioSrc,
     thumbnailSrc,
     artworkSrc,
-    txid,
+    trackIds,
     releaseDate,
-    releaseType: "single",
+    releaseType: "album",
     cursor,
   };
 };

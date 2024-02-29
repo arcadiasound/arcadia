@@ -170,6 +170,10 @@ export type License = {
   currency: string | undefined;
 };
 
+export type ReleaseType = "single" | "album";
+
+export type TrackOrAlbum = Track | Album;
+
 export type Track = {
   title: string;
   creator: string;
@@ -177,6 +181,20 @@ export type Track = {
   thumbnailSrc: string;
   artworkSrc: string;
   txid: string;
+  releaseDate: number | undefined;
+  releaseType: ReleaseType;
+  cursor: string;
+};
+
+export type Album = {
+  txid: string;
+  title: string;
+  creator: string;
+  thumbnailSrc: string;
+  artworkSrc: string;
+  trackIds: string[];
+  releaseDate: number | undefined;
+  releaseType: ReleaseType;
   cursor: string;
 };
 
