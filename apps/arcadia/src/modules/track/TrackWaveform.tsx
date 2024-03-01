@@ -22,22 +22,11 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
   const [activeTopColor, setActiveTopColor] = useState<string | undefined>();
   const [idleBottomColor, setIdleBottomColor] = useState<string | undefined>();
   const [activeBottomColor, setActiveBottomColor] = useState<string | undefined>();
-  const [scrubbedValue, setScrubbedValue] = useState<number | undefined>(undefined);
+  const [scrubbedValue, setScrubbedValue] = useState<number | undefined>(0);
   const [scrubbing, setScrubbing] = useState<boolean>();
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const {
-    audioRef,
-    playing,
-    currentTrackId,
-    audioCtxRef,
-    setCurrentTrackId,
-    setCurrentTime,
-    setCurrentTrackIndex,
-    setTracklist,
-    currentTime,
-  } = useAudioPlayer();
+  const { audioRef, currentTrackId, audioCtxRef } = useAudioPlayer();
   const ws = useRef<WaveSurfer | null>(null);
-  const interactionCountRef = useRef(false);
 
   const isCurrentTrack = currentTrackId === props.track.txid;
 
@@ -104,26 +93,34 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
     }
   }, [audioData]);
 
-  const debounceSetCurrentTime = debounce((time) => {
-    if (!audioRef.current) return;
-
-    audioRef.current.currentTime = time;
-  }, 120);
+  useEffect(() => {
+    if (scrubbedValue) {
+      console.log({ scrubbedValue });
+    }
+  }, [scrubbedValue]);
 
   const handleInteraction = (e: number) => {
     if (!ws.current || !audioRef.current || !audioData) return;
 
     if (isCurrentTrack) {
-      // ws.current.seekTo(e / audioData.duration);
-      // audioRef.current.currentTime = Math.floor(e);
-
-      debounceSetCurrentTime(e);
-    } else {
-      setTracklist?.([props.track], 0);
-      setCurrentTrackId?.(props.track.txid);
-      setCurrentTrackIndex?.(0);
+      setScrubbedValue(e);
+      audioRef.current.currentTime = e;
     }
+
+    // if (isCurrentTrack) {
+    //   ws.current.seekTo(e / audioData.duration);
+    //   debounce(() => {
+    //     if (!ws.current || !audioRef.current) return;
+
+    //     audioRef.current.currentTime = e;
+    //   }, 300);
+    // } else {
+    //   setTracklist?.([props.track], 0);
+    //   setCurrentTrackId?.(props.track.txid);
+    //   setCurrentTrackIndex?.(0);
+    // }
   };
+
   const handleDragEnd = (e: number) => {
     if (!ws.current || !audioRef.current || !audioData?.duration) return;
 
@@ -139,8 +136,14 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
     if (!ws.current || !audioRef.current || !audioData?.duration) return;
     const currentTime = audioRef.current.currentTime;
 
+    console.log(scrubbedValue ? scrubbedValue / audioData.duration : 0);
+    console.log(currentTime / audioData.duration);
+
     if (isCurrentTrack) {
-      ws.current.seekTo(currentTime / audioData.duration);
+      ws.current.seekTo(
+        scrubbedValue ? scrubbedValue / audioData.duration : currentTime / audioData.duration
+      );
+      setScrubbedValue(0);
     }
   };
 
@@ -162,7 +165,7 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
     ws.current?.on("dragend", (e) => handleDragEnd(e));
 
     return () => audioRef.current?.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [ws.current, audioData, currentTrackId]);
+  }, [ws.current, audioData, currentTrackId, scrubbedValue]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
