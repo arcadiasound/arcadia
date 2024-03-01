@@ -13,9 +13,12 @@ import { Avatar, Box, Flex, Grid, Heading, IconButton, Link, Text } from "@radix
 import { getTrack } from "@/lib/track/getTrack";
 import { css } from "@/styles/css";
 import { abbreviateAddress, compareArrays, timeAgo } from "@/utils";
-import { MdPause, MdPlayArrow } from "react-icons/md";
+import { MdPause, MdPlayArrow, MdShare } from "react-icons/md";
 import { TrackWaveform } from "./TrackWaveform";
 import { appConfig } from "@/config";
+import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
+import { useState } from "react";
+import { ShareDialog } from "./components/ShareDialog";
 
 // const StyledTabsTrigger = styled(TabsTrigger, {
 //   br: "$1",
@@ -379,6 +382,32 @@ import { appConfig } from "@/config";
 
 // type TrackTab = "details" | "comments" | "activity" | "sponsors";
 
+const AlphaIconButton = styled(IconButton, {
+  color: "var(--white-a10)",
+
+  "& svg": {
+    width: 20,
+    height: 20,
+  },
+
+  "&:hover": {
+    backgroundColor: "var(--white-a4)",
+    color: "var(--white-a12)",
+  },
+
+  variants: {
+    liked: {
+      true: {
+        color: "var(--accent-9)",
+        "&:hover": {
+          backgroundColor: "var(--white-a4)",
+          color: "var(--accent-10)",
+        },
+      },
+    },
+  },
+});
+
 const StyledAvatar = styled(Avatar);
 
 const AVATAR_RADIUS = `max(var(--radius-3), var(--radius-4) * 0.8)`;
@@ -388,6 +417,7 @@ const BANNER_HEIGHT = 280;
 const VOUCHED_ICON_SIZE = 12;
 
 export const Track = () => {
+  const [liked, setLiked] = useState(false);
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
@@ -543,11 +573,27 @@ export const Track = () => {
                   </Link>
                 </Box>
               </Flex>
-              {track.releaseDate && (
+              <Flex p="3" align="center" gap="5" style={css({ alignSelf: "start" })}>
+                <AlphaIconButton
+                  onClick={() => setLiked(!liked)}
+                  liked={liked}
+                  size="3"
+                  variant="ghost"
+                  highContrast
+                >
+                  {liked ? <IoMdHeart /> : <IoMdHeartEmpty />}
+                </AlphaIconButton>
+                <ShareDialog track={track}>
+                  <AlphaIconButton size="3" variant="ghost" highContrast>
+                    <MdShare />
+                  </AlphaIconButton>
+                </ShareDialog>
+              </Flex>
+              {/* {track.releaseDate && (
                 <Text size="2" color="gray">
                   {timeAgo(track.releaseDate * 1000)}
                 </Text>
-              )}
+              )} */}
             </Flex>
             <Box mt="auto">
               <TrackWaveform track={track} src={track.audioSrc} height={80} />

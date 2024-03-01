@@ -28,13 +28,14 @@ const SHARE_BUTTON_VARIANT = "surface";
 
 interface ShareDialogProps {
   track: Track;
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<DialogOpenProps>>;
-  triggerRef: MutableRefObject<HTMLButtonElement | null>;
+  open?: boolean;
+  setOpen?: Dispatch<SetStateAction<DialogOpenProps>>;
+  triggerRef?: MutableRefObject<HTMLButtonElement | null>;
   children: React.ReactNode;
 }
 
 export const ShareDialog = (props: ShareDialogProps) => {
+  const [open, setOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const SHARE_TEXT_TWITTER = `Check out this track ${props.track.title} on @arcadia_sound \n \n`;
   const SHARE_TEXT = `Check out this track ${props.track.title} on Arcadia \n \n`;
@@ -54,9 +55,7 @@ export const ShareDialog = (props: ShareDialogProps) => {
       return;
     }
     try {
-      await navigator.clipboard.writeText(
-        `${origin}/#/track?tx=${props.track.txid}`
-      );
+      await navigator.clipboard.writeText(`${origin}/#/track?tx=${props.track.txid}`);
       toast.success("Link copied to clipboard", {
         style: css({ padding: "var(--space-3)", zIndex: "var(--z-toast)" }),
       });
@@ -72,17 +71,15 @@ export const ShareDialog = (props: ShareDialogProps) => {
 
   return (
     <DialogRoot
-      open={props.open}
+      open={props.open ? props.open : open}
       onOpenChange={(open) => {
-        props.setOpen({ open: open ? true : false, name: "share" });
-        props.triggerRef.current?.focus();
+        props.setOpen ? props.setOpen({ open: open ? true : false, name: "share" }) : setOpen(open);
+        props.triggerRef && props.triggerRef.current?.focus();
       }}
     >
       <DialogTrigger>{props.children}</DialogTrigger>
       <DialogContent style={css({ maxWidth: 500, position: "relative" })}>
-        <DialogTitle size={`${HEADING_SIZE}`}>
-          Share this song with the world
-        </DialogTitle>
+        <DialogTitle size={`${HEADING_SIZE}`}>Share this song with the world</DialogTitle>
 
         <DialogClose>
           <IconButton
