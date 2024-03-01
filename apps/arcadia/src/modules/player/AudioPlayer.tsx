@@ -245,8 +245,14 @@ export const AudioPlayer = () => {
         />
         {currentTrack && (
           <Flex direction="column">
-            <Link style={css({ color: "var(--gray-12)" })} size="1" weight="medium" color="gray">
-              {currentTrack.title}
+            <Link
+              style={css({ color: "var(--gray-12)" })}
+              size="1"
+              weight="medium"
+              color="gray"
+              asChild
+            >
+              <RouterLink to={`/track?id=${currentTrack.txid}`}>{currentTrack.title}</RouterLink>
             </Link>
             <Link
               size="1"
