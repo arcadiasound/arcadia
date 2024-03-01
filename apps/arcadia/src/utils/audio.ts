@@ -1,10 +1,7 @@
 import { Tracklist } from "@/types";
 import { shuffleArray } from ".";
 
-export const shuffleTracklist = (
-  tracklist: Tracklist,
-  currentTrackIndex: number
-): Tracklist => {
+export const shuffleTracklist = (tracklist: Tracklist, currentTrackIndex: number): Tracklist => {
   // Clone the tracklist array to avoid mutations
   const tracksToShuffle = [...tracklist];
   const currentTrack = tracksToShuffle.splice(currentTrackIndex, 1)[0];
@@ -22,10 +19,7 @@ interface FormatTime {
   };
 }
 
-export const formatDuration = ({
-  duration,
-  options = {},
-}: FormatTime): string => {
+export const formatDuration = ({ duration, options = {} }: FormatTime): string => {
   const { suffix } = options;
   const minutes: number = Math.floor(duration / 60) % 60;
   const seconds: number = Math.floor(duration % 60);
@@ -51,4 +45,35 @@ export const formatDuration = ({
   }
 
   return `${minutes}:${formattedSeconds}`;
+};
+
+export const calculateAudioPeaks = ({
+  decodedData,
+  channels = 2,
+  maxLength = 8000,
+  precision = 10_000,
+}: {
+  decodedData: AudioBuffer;
+  channels?: number;
+  maxLength?: number;
+  precision?: number;
+}): Array<number[]> => {
+  const maxChannels = Math.min(channels, decodedData.numberOfChannels);
+  const peaks: any = [];
+  for (let i = 0; i < maxChannels; i++) {
+    const channel = decodedData.getChannelData(i);
+    const data: any = [];
+    const sampleSize = Math.round(channel.length / maxLength);
+    for (let i = 0; i < maxLength; i++) {
+      const sample = channel.slice(i * sampleSize, (i + 1) * sampleSize);
+      let max = 0;
+      for (let x = 0; x < sample.length; x++) {
+        const n = sample[x];
+        if (Math.abs(n) > Math.abs(max)) max = n;
+      }
+      data.push(Math.round(max * precision) / precision);
+    }
+    peaks.push(data);
+  }
+  return peaks;
 };

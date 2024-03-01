@@ -1,0 +1,106 @@
+diff --git a/dist/renderer.js b/dist/renderer.js
+index 0a93f35622f5881846667750123847f0b67f6af9..b3477a121da8bc7194f1fccd3d8c7cb6893f9726 100644
+--- a/dist/renderer.js
++++ b/dist/renderer.js
+@@ -116,6 +116,7 @@ class Renderer extends EventEmitter {
+     }
+     initHtml() {
+         const div = document.createElement('div');
++        div.setAttribute('id', 'waveform-container');
+         const shadow = div.attachShadow({ mode: 'open' });
+         shadow.innerHTML = `
+       <style>
+@@ -265,49 +266,50 @@ class Renderer extends EventEmitter {
+         return gradient;
+     }
+     renderBarWaveform(channelData, options, ctx, vScale) {
+-        const topChannel = channelData[0];
+-        const bottomChannel = channelData[1] || channelData[0];
+-        const length = topChannel.length;
+-        const { width, height } = ctx.canvas;
+-        const halfHeight = height / 2;
+-        const pixelRatio = window.devicePixelRatio || 1;
+-        const barWidth = options.barWidth ? options.barWidth * pixelRatio : 1;
+-        const barGap = options.barGap ? options.barGap * pixelRatio : options.barWidth ? barWidth / 2 : 0;
+-        const barRadius = options.barRadius || 0;
+-        const barIndexScale = width / (barWidth + barGap) / length;
+-        const rectFn = barRadius && 'roundRect' in ctx ? 'roundRect' : 'rect';
+-        ctx.beginPath();
+-        let prevX = 0;
+-        let maxTop = 0;
+-        let maxBottom = 0;
+-        for (let i = 0; i <= length; i++) {
+-            const x = Math.round(i * barIndexScale);
+-            if (x > prevX) {
+-                const topBarHeight = Math.round(maxTop * halfHeight * vScale);
+-                const bottomBarHeight = Math.round(maxBottom * halfHeight * vScale);
+-                const barHeight = topBarHeight + bottomBarHeight || 1;
+-                // Vertical alignment
+-                let y = halfHeight - topBarHeight;
+-                if (options.barAlign === 'top') {
+-                    y = 0;
+-                }
+-                else if (options.barAlign === 'bottom') {
+-                    y = height - barHeight;
+-                }
+-                ctx[rectFn](prevX * (barWidth + barGap), y, barWidth, barHeight, barRadius);
+-                prevX = x;
+-                maxTop = 0;
+-                maxBottom = 0;
+-            }
+-            const magnitudeTop = Math.abs(topChannel[i] || 0);
+-            const magnitudeBottom = Math.abs(bottomChannel[i] || 0);
+-            if (magnitudeTop > maxTop)
+-                maxTop = magnitudeTop;
+-            if (magnitudeBottom > maxBottom)
+-                maxBottom = magnitudeBottom;
+-        }
+-        ctx.fill();
+-        ctx.closePath();
++        const topChannel = channelData[0]
++    const length = topChannel.length
++
++    const { width, height } = ctx.canvas
++    const halfHeight = height / 2
++    const pixelRatio = window.devicePixelRatio || 1
++
++    const barWidth = options.barWidth ? options.barWidth * pixelRatio : 1
++    const barGap = options.barGap ? options.barGap * pixelRatio : options.barWidth ? barWidth / 2 : 0
++    const barRadius = options.barRadius || 0
++    const barIndexScale = width / (barWidth + barGap) / length
++
++    const rectFn = barRadius && 'roundRect' in ctx ? 'roundRect' : 'rect'
++
++    ctx.beginPath()
++
++    let prevX = 0
++    let maxTop = 0
++    for (let i = 0; i <= length; i++) {
++    const x = Math.round(i * barIndexScale)
++
++    if (x > prevX) {
++    const topBarHeight = Math.round(maxTop * halfHeight * vScale)
++    const barHeight = topBarHeight || 1
++    const flippedBarHeight = barHeight * 0.5 // Half the height for the flipped waveform
++
++      // Original bar
++    let y = halfHeight - topBarHeight
++      ctx[rectFn](prevX * (barWidth + barGap), y, barWidth, barHeight, barRadius)
++
++      // Flipped bar
++      let flippedY = halfHeight + (halfHeight - y) - flippedBarHeight // Calculate Y position for flipped bar
++      ctx[rectFn](prevX * (barWidth + barGap), flippedY, barWidth, flippedBarHeight, barRadius)
++
++    prevX = x
++    maxTop = 0
++    }
++
++    const magnitudeTop = Math.abs(topChannel[i] || 0)
++    if (magnitudeTop > maxTop) maxTop = magnitudeTop
++    }
++
++    ctx.fill()
++    ctx.closePath()
+     }
+     renderLineWaveform(channelData, _options, ctx, vScale) {
+         const drawChannel = (index) => {

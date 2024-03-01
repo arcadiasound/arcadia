@@ -16,7 +16,7 @@ export const useGetUserProfile = (props: GetUserProfileProps) =>
     },
   });
 
-export const useIsUserMe = (address: string) => {
+export const useIsUserMe = (address: string | undefined) => {
   const activeAddress = useActiveAddress();
 
   return activeAddress && activeAddress === address ? true : false;

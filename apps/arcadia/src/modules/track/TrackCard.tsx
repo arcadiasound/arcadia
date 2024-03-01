@@ -181,8 +181,9 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
                 style={css({
                   color: isPlaying ? "var(--accent-11)" : "var(--gray-12)",
                 })}
+                asChild
               >
-                {track.title}
+                <RouterLink to={`/track?id=${track.txid}`}>{track.title}</RouterLink>
               </Link>
               <Link
                 size="1"

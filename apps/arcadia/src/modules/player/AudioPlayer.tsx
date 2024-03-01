@@ -182,6 +182,7 @@ export const AudioPlayer = () => {
 
   const handleTimeUpdate = () => {
     // check for current runs in useffect
+    console.log("player", audioRef.current?.currentTime);
     setCurrentTime(audioRef.current?.currentTime as number);
   };
 

@@ -1,5 +1,10 @@
 lockfileVersion: 5.4
 
+patchedDependencies:
+  wavesurfer.js@7.7.3:
+    hash: fkirkau3ihaqookicn6kxguy3a
+    path: patches/wavesurfer.js@7.7.3.patch
+
 importers:
 
   .:
@@ -38,7 +43,9 @@ importers:
       '@typescript-eslint/eslint-plugin': 5.59.0
       '@typescript-eslint/parser': 5.59.0
       '@vitejs/plugin-react': 4.0.0
+      '@wavesurfer/react': 1.0.4
       arbundles: 0.10.0
+      arcadia-wavesurfer: 7.7.4-2
       arconnect: 1.0.3
       arweave: 1.14.4
       arweave-graphql: 0.0.5
@@ -70,6 +77,7 @@ importers:
       warp-contracts: 1.4.25
       warp-contracts-plugin-deploy: 1.0.12
       warp-contracts-plugin-signature: 1.0.17
+      wavesurfer.js: 7.7.3
       zod: 3.22.4
     dependencies:
       '@ariakit/react': 0.3.5_biqbaboplfbrettd7655fr4n2y
@@ -91,7 +99,9 @@ importers:
       '@splidejs/react-splide': 0.7.12
       '@stitches/react': 1.2.8_react@18.2.0
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
+      '@wavesurfer/react': 1.0.4_v3qxa4toe5ncdxwmqp3hiyaz6i
       arbundles: 0.10.0_arweave@1.14.4
+      arcadia-wavesurfer: 7.7.4-2
       arconnect: 1.0.3
       arweave: 1.14.4
       arweave-graphql: 0.0.5
@@ -116,6 +126,7 @@ importers:
       warp-contracts: 1.4.25
       warp-contracts-plugin-deploy: 1.0.12_dky3imthwixygm635xwu77mdxm
       warp-contracts-plugin-signature: 1.0.17_warp-contracts@1.4.25
+      wavesurfer.js: 7.7.3_fkirkau3ihaqookicn6kxguy3a
       zod: 3.22.4
     devDependencies:
       '@types/lodash.debounce': 4.0.7
@@ -4442,6 +4453,16 @@ packages:
       '@wallet-standard/base': 1.0.1
     dev: false
 
+  /@wavesurfer/react/1.0.4_v3qxa4toe5ncdxwmqp3hiyaz6i:
+    resolution: {integrity: sha512-6WkXLhh0EaytyK1B6JqHZmzHQlBz+nbGH5x009tUH6nUIFFXq7zwkDEXqeZuWyVTKgjqcOQGOgavSZ7EbsS6lA==}
+    peerDependencies:
+      react: ^18.2.0
+      wavesurfer.js: ^7.6.3
+    dependencies:
+      react: 18.2.0
+      wavesurfer.js: 7.7.3_fkirkau3ihaqookicn6kxguy3a
+    dev: false
+
   /@weavery/clarity/0.1.5:
     resolution: {integrity: sha512-0ms2/sBx+uyW3EmXte5otIzNVAXpfJ3lBl6FS8JuLdWmPU6SxiAoGTMUT0N0SL3Ogiz2PZt6NV+mfApbSvYBaQ==}
     dev: false
@@ -4816,6 +4837,10 @@ packages:
       - debug
       - encoding
       - utf-8-validate
+    dev: false
+
+  /arcadia-wavesurfer/7.7.4-2:
+    resolution: {integrity: sha512-ZlrhCcUmkwDjgKf6XnrBWQyanNkHXagKsCx/3pD0c/V29l1db8t/peipY4uqU86oEqi/E/q84+pDcaqgLoVAqQ==}
     dev: false
 
   /archiver-utils/2.1.0:
@@ -10705,6 +10730,11 @@ packages:
       leb128: 0.0.4
       warp-wasm-json-toolkit: 1.0.2
     dev: false
+
+  /wavesurfer.js/7.7.3_fkirkau3ihaqookicn6kxguy3a:
+    resolution: {integrity: sha512-TC7cQb0RVggtNC+Dl05gcnhSFL5U+fww3ZYJUuqgfR+r9oY+bh/hChCipDFDjs5cWtuek3GEtsPXWa93a9XYxw==}
+    dev: false
+    patched: true
 
   /wcwidth/1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
