@@ -109,6 +109,7 @@ export const AudioPlayer = () => {
     // set gain node
     if (!gainRef.current) {
       gainRef.current = audioCtxRef.current.createGain();
+      setVolume(gainRef.current.gain.value);
     }
 
     // set media element source
@@ -130,15 +131,9 @@ export const AudioPlayer = () => {
   const handleValueChange = (e: number[]) => {
     if (!gainRef.current) return;
 
-    setVolume(e[0]);
+    setVolume(e[0] / 100);
     gainRef.current.gain.value = e[0] / 100;
   };
-
-  useEffect(() => {
-    if (volume && volume > 0) {
-      console.log(volume);
-    }
-  }, [volume]);
 
   const handleProgressChange = (e: number[]) => {
     if (!audioRef.current) return;
@@ -432,17 +427,17 @@ export const AudioPlayer = () => {
             >
               <CurveLowIcon
                 style={css({
-                  opacity: volume && volume > 0 ? 1 : 0,
+                  opacity: volume && volume * 100 > 0 ? 1 : 0,
                 })}
               />
               <CurveMediumIcon
                 style={css({
-                  opacity: volume && volume > 30 ? 1 : 0,
+                  opacity: volume && volume * 100 > 30 ? 1 : 0,
                 })}
               />
               <CurveHighIcon
                 style={css({
-                  opacity: volume && volume > 60 ? 1 : 0,
+                  opacity: volume && volume * 100 > 60 ? 1 : 0,
                 })}
               />
             </CurvesContainer>
@@ -453,7 +448,7 @@ export const AudioPlayer = () => {
             })}
           >
             <Slider
-              defaultValue={[50]}
+              value={volume ? [volume * 100] : [0]}
               max={100}
               step={progressStep}
               aria-label="Volume"
