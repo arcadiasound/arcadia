@@ -1,15 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { WavesurferProps, useWavesurfer } from "@wavesurfer/react";
+import { useEffect, useRef, useState } from "react";
 import { Box } from "@radix-ui/themes";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import WaveSurfer, { WaveSurferOptions } from "arcadia-wavesurfer";
+import WaveSurfer from "arcadia-wavesurfer";
 import { css } from "@/styles/css";
 import { Track } from "@/types";
-import { useTheme } from "next-themes";
 import { useQuery } from "@tanstack/react-query";
 import { getAudioData } from "@/lib/getAudioData";
-import { useDebounce } from "@/hooks/useDebounce";
-import debounce from "lodash.debounce";
 
 interface TrackWaveformProps {
   src: string;
@@ -22,12 +18,9 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
   const [activeTopColor, setActiveTopColor] = useState<string | undefined>();
   const [idleBottomColor, setIdleBottomColor] = useState<string | undefined>();
   const [activeBottomColor, setActiveBottomColor] = useState<string | undefined>();
-  const [scrubbedValue, setScrubbedValue] = useState<number | undefined>(0);
-  const [scrubbing, setScrubbing] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { audioRef, currentTrackId, audioCtxRef, currentTime, setCurrentTime } = useAudioPlayer();
   const ws = useRef<WaveSurfer | null>(null);
-  const interactionCounter = useRef(0);
 
   const isCurrentTrack = currentTrackId === props.track.txid;
 
@@ -100,21 +93,9 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
     const newTime = e * audioData.duration;
 
     if (isCurrentTrack) {
-      console.log("clicked!", newTime);
       audioRef.current.currentTime = newTime;
       setCurrentTime?.(newTime);
     }
-
-    // ws.current.seekTo(e / audioData.duration);
-  };
-
-  const handleDragStart = (e: number) => {
-    console.log("dragstart");
-    setScrubbing(true);
-  };
-
-  const handleDrag = (e: number) => {
-    setScrubbedValue(e);
   };
 
   const handleDragEnd = (e: number) => {
@@ -125,21 +106,15 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
     if (isCurrentTrack) {
       audioRef.current.currentTime = newTime;
       setCurrentTime?.(newTime);
-      console.log(newTime);
-      setScrubbing(false);
     }
   };
 
   useEffect(() => {
     ws.current?.on("click", (e) => handleInteraction(e));
-    ws.current?.on("dragstart", (e) => handleDragStart(e));
-    ws.current?.on("drag", (e) => handleDrag(e));
     ws.current?.on("dragend", (e) => handleDragEnd(e));
 
     return () => {
       ws.current?.on("click", (e) => handleInteraction(e));
-      ws.current?.on("dragstart", (e) => handleDragStart(e));
-      ws.current?.on("drag", (e) => handleDrag(e));
       ws.current?.on("dragend", (e) => handleDragEnd(e));
     };
   }, [ws.current, audioData, currentTrackId]);
@@ -147,8 +122,6 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
   useEffect(() => {
     if (!ws.current || !audioData?.duration) return;
     const seekToValue = currentTime / audioData.duration;
-
-    console.log({ currentTime });
 
     if (isCurrentTrack && currentTime >= 0) {
       ws.current.seekTo(seekToValue);
