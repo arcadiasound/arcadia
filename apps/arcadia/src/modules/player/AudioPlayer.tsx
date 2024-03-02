@@ -82,12 +82,13 @@ export const AudioPlayer = () => {
     handlePrevTrack,
     shuffle,
     loop,
+    currentTime,
+    setCurrentTime,
   } = useAudioPlayer();
   const [progressStep, setProgressStep] = useState<number>(0.01);
   const [scrubbedValue, setScrubbedValue] = useState<number | undefined>(undefined);
   const [scrubbing, setScrubbing] = useState<boolean>();
   const [duration, setDuration] = useState<number>();
-  const [currentTime, setCurrentTime] = useState<number>(0);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const [volume, setVolume] = useState(gainRef?.current?.gain.value);
 
@@ -151,7 +152,7 @@ export const AudioPlayer = () => {
 
     setScrubbing(false);
     audioRef.current.currentTime = e[0];
-    setCurrentTime(e[0]);
+    setCurrentTime?.(e[0]);
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -167,7 +168,7 @@ export const AudioPlayer = () => {
     const seconds = Math.floor(audioRef.current?.duration || 0);
     setDuration(seconds);
     const current = Math.floor(audioRef.current?.currentTime || 0);
-    setCurrentTime(current);
+    setCurrentTime?.(current);
   }, [audioRef?.current?.onloadeddata, audioRef?.current?.readyState]);
 
   // if ("mediaSession" in navigator) {
@@ -182,7 +183,7 @@ export const AudioPlayer = () => {
 
   const handleTimeUpdate = () => {
     // check for current runs in useffect
-    setCurrentTime(audioRef.current?.currentTime as number);
+    setCurrentTime?.(audioRef.current?.currentTime as number);
   };
 
   const handleLoadedData = () => {
