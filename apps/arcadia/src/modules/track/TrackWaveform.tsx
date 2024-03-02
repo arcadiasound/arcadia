@@ -23,10 +23,11 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
   const [idleBottomColor, setIdleBottomColor] = useState<string | undefined>();
   const [activeBottomColor, setActiveBottomColor] = useState<string | undefined>();
   const [scrubbedValue, setScrubbedValue] = useState<number | undefined>(0);
-  const [scrubbing, setScrubbing] = useState<boolean>();
+  const [scrubbing, setScrubbing] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const { audioRef, currentTrackId, audioCtxRef } = useAudioPlayer();
+  const { audioRef, currentTrackId, audioCtxRef, currentTime, setCurrentTime } = useAudioPlayer();
   const ws = useRef<WaveSurfer | null>(null);
+  const interactionCounter = useRef(0);
 
   const isCurrentTrack = currentTrackId === props.track.txid;
 
@@ -93,79 +94,66 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
     }
   }, [audioData]);
 
-  useEffect(() => {
-    if (scrubbedValue) {
-      console.log({ scrubbedValue });
-    }
-  }, [scrubbedValue]);
-
   const handleInteraction = (e: number) => {
     if (!ws.current || !audioRef.current || !audioData) return;
 
+    const newTime = e * audioData.duration;
+
     if (isCurrentTrack) {
-      setScrubbedValue(e);
-      audioRef.current.currentTime = e;
+      console.log("clicked!", newTime);
+      audioRef.current.currentTime = newTime;
+      setCurrentTime?.(newTime);
     }
 
-    // if (isCurrentTrack) {
-    //   ws.current.seekTo(e / audioData.duration);
-    //   debounce(() => {
-    //     if (!ws.current || !audioRef.current) return;
+    // ws.current.seekTo(e / audioData.duration);
+  };
 
-    //     audioRef.current.currentTime = e;
-    //   }, 300);
-    // } else {
-    //   setTracklist?.([props.track], 0);
-    //   setCurrentTrackId?.(props.track.txid);
-    //   setCurrentTrackIndex?.(0);
-    // }
+  const handleDragStart = (e: number) => {
+    console.log("dragstart");
+    setScrubbing(true);
+  };
+
+  const handleDrag = (e: number) => {
+    setScrubbedValue(e);
   };
 
   const handleDragEnd = (e: number) => {
-    if (!ws.current || !audioRef.current || !audioData?.duration) return;
+    if (!audioRef.current || !audioData?.duration) return;
 
-    setScrubbing(false);
-
-    if (isCurrentTrack) {
-      // console.log("drag ended", e);
-      audioRef.current.currentTime = e * audioData.duration;
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (!ws.current || !audioRef.current || !audioData?.duration) return;
-    const currentTime = audioRef.current.currentTime;
-
-    console.log(scrubbedValue ? scrubbedValue / audioData.duration : 0);
-    console.log(currentTime / audioData.duration);
+    const newTime = e * audioData.duration;
 
     if (isCurrentTrack) {
-      ws.current.seekTo(
-        scrubbedValue ? scrubbedValue / audioData.duration : currentTime / audioData.duration
-      );
-      setScrubbedValue(0);
+      audioRef.current.currentTime = newTime;
+      setCurrentTime?.(newTime);
+      console.log(newTime);
+      setScrubbing(false);
     }
   };
-
-  // useEffect(() => {
-  //   if (audioRef.current?.currentTime) {
-  //     console.log(audioRef.current?.currentTime);
-  //   }
-  // }, [audioRef.current?.currentTime]);
 
   useEffect(() => {
-    if (!isCurrentTrack && ws.current) {
-      ws.current.setTime(0);
-    }
-
-    audioRef.current?.addEventListener("timeupdate", handleTimeUpdate);
-
-    ws.current?.on("interaction", (e) => handleInteraction(e));
-
+    ws.current?.on("click", (e) => handleInteraction(e));
+    ws.current?.on("dragstart", (e) => handleDragStart(e));
+    ws.current?.on("drag", (e) => handleDrag(e));
     ws.current?.on("dragend", (e) => handleDragEnd(e));
 
-    return () => audioRef.current?.removeEventListener("timeupdate", handleTimeUpdate);
-  }, [ws.current, audioData, currentTrackId, scrubbedValue]);
+    return () => {
+      ws.current?.on("click", (e) => handleInteraction(e));
+      ws.current?.on("dragstart", (e) => handleDragStart(e));
+      ws.current?.on("drag", (e) => handleDrag(e));
+      ws.current?.on("dragend", (e) => handleDragEnd(e));
+    };
+  }, [ws.current, audioData, currentTrackId]);
+
+  useEffect(() => {
+    if (!ws.current || !audioData?.duration) return;
+    const seekToValue = currentTime / audioData.duration;
+
+    console.log({ currentTime });
+
+    if (currentTime >= 0) {
+      ws.current.seekTo(seekToValue);
+    }
+  }, [currentTime]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
