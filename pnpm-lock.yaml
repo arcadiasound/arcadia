@@ -1,10 +1,5 @@
 lockfileVersion: 5.4
 
-patchedDependencies:
-  wavesurfer.js@7.7.3:
-    hash: fkirkau3ihaqookicn6kxguy3a
-    path: patches/wavesurfer.js@7.7.3.patch
-
 importers:
 
   .:
@@ -25,6 +20,7 @@ importers:
       '@radix-ui/react-accordion': 1.1.2
       '@radix-ui/react-alert-dialog': 1.0.5
       '@radix-ui/react-avatar': 1.0.4
+      '@radix-ui/react-collapsible': 1.0.3
       '@radix-ui/react-dialog': 1.0.5
       '@radix-ui/react-dropdown-menu': 2.0.6
       '@radix-ui/react-form': 0.0.3
@@ -88,6 +84,7 @@ importers:
       '@radix-ui/react-accordion': 1.1.2_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-alert-dialog': 1.0.5_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-avatar': 1.0.4_fxtgt6bjwd6p4cwoordejim2zi
+      '@radix-ui/react-collapsible': 1.0.3_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-dialog': 1.0.5_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-dropdown-menu': 2.0.6_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-form': 0.0.3_fxtgt6bjwd6p4cwoordejim2zi
@@ -126,7 +123,7 @@ importers:
       warp-contracts: 1.4.25
       warp-contracts-plugin-deploy: 1.0.12_dky3imthwixygm635xwu77mdxm
       warp-contracts-plugin-signature: 1.0.17_warp-contracts@1.4.25
-      wavesurfer.js: 7.7.3_fkirkau3ihaqookicn6kxguy3a
+      wavesurfer.js: 7.7.3
       zod: 3.22.4
     devDependencies:
       '@types/lodash.debounce': 4.0.7
@@ -4460,7 +4457,7 @@ packages:
       wavesurfer.js: ^7.6.3
     dependencies:
       react: 18.2.0
-      wavesurfer.js: 7.7.3_fkirkau3ihaqookicn6kxguy3a
+      wavesurfer.js: 7.7.3
     dev: false
 
   /@weavery/clarity/0.1.5:
@@ -10731,10 +10728,9 @@ packages:
       warp-wasm-json-toolkit: 1.0.2
     dev: false
 
-  /wavesurfer.js/7.7.3_fkirkau3ihaqookicn6kxguy3a:
+  /wavesurfer.js/7.7.3:
     resolution: {integrity: sha512-TC7cQb0RVggtNC+Dl05gcnhSFL5U+fww3ZYJUuqgfR+r9oY+bh/hChCipDFDjs5cWtuek3GEtsPXWa93a9XYxw==}
     dev: false
-    patched: true
 
   /wcwidth/1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}

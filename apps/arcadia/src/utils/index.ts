@@ -46,7 +46,7 @@ export const gateway = () => {
 
 export const timestampToDate = (timestamp: number | undefined) => {
   if (!timestamp) return;
-  const date = new Date(1689598753 * 1000).toDateString();
+  const date = new Date(timestamp * 1000).toDateString();
   return date;
 };
 

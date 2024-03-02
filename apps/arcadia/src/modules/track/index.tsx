@@ -9,16 +9,39 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { styled } from "@stitches/react";
 import { useGetUserProfile, useIsUserMe } from "@/hooks/appData";
-import { Avatar, Box, Flex, Grid, Heading, IconButton, Link, Text } from "@radix-ui/themes";
+import {
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Heading,
+  IconButton,
+  Link,
+  Text,
+} from "@radix-ui/themes";
 import { getTrack } from "@/lib/track/getTrack";
 import { css } from "@/styles/css";
-import { abbreviateAddress, compareArrays, timeAgo } from "@/utils";
+import {
+  abbreviateAddress,
+  compareArrays,
+  formatReleaseDate,
+  gateway,
+  timeAgo,
+  timestampToDate,
+} from "@/utils";
 import { MdPause, MdPlayArrow, MdShare } from "react-icons/md";
 import { TrackWaveform } from "./TrackWaveform";
 import { appConfig } from "@/config";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { useState } from "react";
 import { ShareDialog } from "./components/ShareDialog";
+import Avvvatars from "avvvatars-react";
+import * as Collapsible from "@radix-ui/react-collapsible";
+import { RxClock } from "react-icons/rx";
+import { gql } from "@/lib/helpers/gql";
+import { arweave } from "@/lib/arweave";
 
 // const StyledTabsTrigger = styled(TabsTrigger, {
 //   br: "$1",
@@ -383,6 +406,7 @@ import { ShareDialog } from "./components/ShareDialog";
 // type TrackTab = "details" | "comments" | "activity" | "sponsors";
 
 const AlphaIconButton = styled(IconButton, {
+  backgroundColor: "transparent",
   color: "var(--white-a10)",
 
   "& svg": {
@@ -401,7 +425,7 @@ const AlphaIconButton = styled(IconButton, {
         color: "var(--accent-9)",
         "&:hover": {
           backgroundColor: "var(--white-a4)",
-          color: "var(--accent-10)",
+          color: "var(--accent-9)",
         },
       },
     },
@@ -410,14 +434,17 @@ const AlphaIconButton = styled(IconButton, {
 
 const StyledAvatar = styled(Avatar);
 
-const AVATAR_RADIUS = `max(var(--radius-3), var(--radius-4) * 0.8)`;
-const AVATAR_SIZE = 220;
+const ARTWORK_RADIUS = `max(var(--radius-3), var(--radius-4) * 0.8)`;
+const ARTWORK_SIZE = 220;
+const AVATAR_SIZE = 32;
 const OUTLINE_OFFSET = 2;
 const BANNER_HEIGHT = 280;
 const VOUCHED_ICON_SIZE = 12;
 
 export const Track = () => {
   const [liked, setLiked] = useState(false);
+  const [following, setFollowing] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
@@ -448,8 +475,47 @@ export const Track = () => {
     queryFn: () => getTrack({ txid: txidFromParams }),
   });
 
+  const { data: description } = useQuery({
+    queryKey: [`description-${txidFromParams}`],
+    refetchOnWindowFocus: false,
+    enabled: !!tracks,
+    queryFn: async () => {
+      console.log(track.owner);
+
+      const res = await gql({
+        variables: {
+          owners: [track.owner],
+          tags: [
+            {
+              name: "Content-Type",
+              values: ["text/plain"],
+            },
+            {
+              name: "Description-For",
+              values: [txidFromParams],
+            },
+          ],
+        },
+      });
+
+      console.log(res);
+
+      const data = res.transactions.edges.filter((edge) => Number(edge.node.data.size) < 3000);
+
+      const dataItem = data[0];
+
+      if (dataItem) {
+        const descriptionRes = await arweave.api.get(dataItem.node.id);
+        const data: string = await descriptionRes.data;
+
+        return data;
+      }
+    },
+  });
+
   const { data } = useGetUserProfile({ address: tracks ? tracks[0].creator : undefined });
   const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const avatarUrl = gateway() + "/" + profile?.avatarId;
 
   const isUserMe = useIsUserMe(tracks ? tracks[0].creator : undefined);
 
@@ -512,8 +578,8 @@ export const Track = () => {
             style={css({
               position: "absolute",
               inset: 0,
-              backdropFilter: "blur(4px)",
-              background: `var(--black-a6)`,
+              backdropFilter: "blur(1px)",
+              background: `var(--black-a8)`,
               zIndex: -1,
             })}
           />
@@ -521,10 +587,10 @@ export const Track = () => {
             src={artworkUrl}
             fallback={<Box />}
             style={css({
-              width: AVATAR_SIZE,
-              height: AVATAR_SIZE,
-              borderRadius: AVATAR_RADIUS,
-              outline: `${OUTLINE_OFFSET}px solid var(--gray-a3)`,
+              width: ARTWORK_SIZE,
+              height: ARTWORK_SIZE,
+              borderRadius: ARTWORK_RADIUS,
+              outline: `${OUTLINE_OFFSET}px solid var(--white-a3)`,
               outlineOffset: -OUTLINE_OFFSET,
               overflow: "hidden",
             })}
@@ -573,18 +639,24 @@ export const Track = () => {
                   </Link>
                 </Box>
               </Flex>
-              <Flex p="3" align="center" gap="5" style={css({ alignSelf: "start" })}>
-                <AlphaIconButton
-                  onClick={() => setLiked(!liked)}
-                  liked={liked}
-                  size="3"
-                  variant="ghost"
-                  highContrast
+              <Flex p="1" align="center" gap="3" style={css({ alignSelf: "start" })}>
+                <Button
+                  size="2"
+                  variant="solid"
+                  style={css({
+                    backgroundColor: "var(--white-a12)",
+                    color: "var(--black-a12)",
+                    "&:hover": { backgroundColor: "var(--white-a11)" },
+                    "&:active": { backgroundColor: "var(--white-a10)" },
+                  })}
                 >
+                  Buy
+                </Button>
+                <AlphaIconButton onClick={() => setLiked(!liked)} liked={liked} size="2">
                   {liked ? <IoMdHeart /> : <IoMdHeartEmpty />}
                 </AlphaIconButton>
                 <ShareDialog track={track}>
-                  <AlphaIconButton size="3" variant="ghost" highContrast>
+                  <AlphaIconButton size="2">
                     <MdShare />
                   </AlphaIconButton>
                 </ShareDialog>
@@ -601,6 +673,128 @@ export const Track = () => {
           </Flex>
         </Flex>
       </Box>
+      <Flex px="5">
+        <Flex gap="2" align="center">
+          <RouterLink to={`/profile?addr=${track.creator}`}>
+            <StyledAvatar
+              src={avatarUrl}
+              fallback={
+                <Avvvatars style="shape" value={track.creator} size={AVATAR_SIZE} radius={0} />
+              }
+              style={css({
+                width: AVATAR_SIZE,
+                height: AVATAR_SIZE,
+                outline: `${OUTLINE_OFFSET}px solid var(--white-a3)`,
+                outlineOffset: -OUTLINE_OFFSET,
+                overflow: "hidden",
+              })}
+              css={{
+                ".rt-AvatarFallback > div": {
+                  borderRadius: 0,
+                },
+              }}
+            />
+          </RouterLink>
+          <Flex direction="column">
+            <Link color="gray" highContrast size="2" weight="medium" asChild>
+              <RouterLink to={`/profile?addr=${track.creator}`}>
+                {profile?.name || abbreviateAddress({ address: track.creator })}
+              </RouterLink>
+            </Link>
+            <Text size="1" color="gray">
+              {following ? 420 : 419} followers
+            </Text>
+          </Flex>
+          <Button
+            ml="5"
+            size="1"
+            variant={following ? "outline" : "solid"}
+            color={following ? undefined : "gray"}
+            highContrast={following ? false : true}
+            onClick={() => setFollowing(!following)}
+          >
+            {following ? "Following" : "Follow"}
+          </Button>
+        </Flex>
+      </Flex>
+      <Grid mt="3" p="5" style={css({ gridTemplateColumns: "1fr 1fr" })} gap="3">
+        <Flex direction="column" gap="5">
+          {/* should create has selector to remove itself if has no children */}
+          <Flex align="center" gap="3" style={css({ color: "var(--gray-11)" })}>
+            {track.releaseDate && (
+              <Flex align="center" gap="1">
+                <RxClock />
+                <Text size="1">{timeAgo(track.releaseDate * 1000)}</Text>
+              </Flex>
+            )}
+            {track.topics && track.topics.length > 0 && (
+              <Flex gap="2" asChild>
+                <ul>
+                  {track.topics.map((topic) => (
+                    <li>
+                      <Badge color="gray">#{topic}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              </Flex>
+            )}
+          </Flex>
+          {description && (
+            <>
+              {description.length < 300 ? (
+                <Text
+                  size="2"
+                  color="gray"
+                  style={css({
+                    maxWidth: "64ch",
+                  })}
+                >
+                  {description}
+                </Text>
+              ) : (
+                <Collapsible.Root open={showMore} onOpenChange={setShowMore}>
+                  {!showMore && (
+                    <Text
+                      size="2"
+                      color="gray"
+                      style={css({
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        maxWidth: "64ch",
+                        lineHeight: "var(--line-height-3)",
+                      })}
+                    >
+                      {description}
+                    </Text>
+                  )}
+
+                  <Collapsible.Content>
+                    <Text
+                      size="2"
+                      color="gray"
+                      style={css({
+                        whiteSpace: "pre-wrap",
+                      })}
+                    >
+                      {description}
+                    </Text>
+                  </Collapsible.Content>
+                  <Collapsible.Trigger asChild>
+                    <Button mt="2" size="1" variant="soft" color="gray" highContrast>
+                      {showMore ? "Show less" : "Show more"}
+                    </Button>
+                  </Collapsible.Trigger>
+                </Collapsible.Root>
+              )}
+            </>
+          )}
+          <Heading as="h3" size="4" weight="medium">
+            Comments
+          </Heading>
+        </Flex>
+      </Grid>
     </Flex>
   );
 };

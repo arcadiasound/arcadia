@@ -17,8 +17,14 @@ export const setTrackInfo = (edge: TransactionEdge): Track => {
 
     creator = assetOwner;
   } catch (error) {
-    creator = edge.node.owner.address;
+    const creatorTag = edge.node.tags.find((x) => x.name === "Creator");
+    creator =
+      creatorTag?.value && creatorTag.value.length === 43
+        ? creatorTag.value
+        : edge.node.owner.address;
   }
+
+  const owner = edge.node.owner.address;
 
   // casting as the filter in query func is/should be ensuring value exists
   const thumbnailId = edge.node.tags.find((x) => x.name === "Thumbnail")?.value as string;
@@ -32,9 +38,11 @@ export const setTrackInfo = (edge: TransactionEdge): Track => {
   const releaseDate =
     Number(edge.node.tags.find((x) => x.name === "Release-Date")?.value) ||
     edge.node.block?.timestamp;
+  const topics = edge.node.tags.filter((tag) => tag.name.includes("Topic")).map((tag) => tag.value);
 
   return {
     title,
+    owner,
     creator,
     audioSrc,
     thumbnailSrc,
@@ -43,5 +51,6 @@ export const setTrackInfo = (edge: TransactionEdge): Track => {
     releaseDate,
     releaseType: "single",
     cursor,
+    topics,
   };
 };

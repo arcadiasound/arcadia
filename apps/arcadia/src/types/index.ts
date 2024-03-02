@@ -176,6 +176,7 @@ export type TrackOrAlbum = Track | Album;
 
 export type Track = {
   title: string;
+  owner: string;
   creator: string;
   audioSrc: string;
   thumbnailSrc: string;
@@ -184,6 +185,7 @@ export type Track = {
   releaseDate: number | undefined;
   releaseType: ReleaseType;
   cursor: string;
+  topics?: string[];
 };
 
 export type Album = {
