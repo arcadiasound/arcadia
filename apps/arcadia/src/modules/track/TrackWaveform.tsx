@@ -150,7 +150,7 @@ export const TrackWaveform = (props: TrackWaveformProps) => {
 
     console.log({ currentTime });
 
-    if (currentTime >= 0) {
+    if (isCurrentTrack && currentTime >= 0) {
       ws.current.seekTo(seekToValue);
     }
   }, [currentTime]);
