@@ -66,6 +66,7 @@ importers:
       react-dom: 18.2.0
       react-icons: 5.0.1
       react-router-dom: 6.11.2
+      react-zorm: 0.9.0
       sonner: 1.1.0
       typescript: 4.7.4
       vite: 4.3.9
@@ -118,6 +119,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-icons: 5.0.1_react@18.2.0
       react-router-dom: 6.11.2_biqbaboplfbrettd7655fr4n2y
+      react-zorm: 0.9.0_fuugi7lgtddhymbnz45nxiftzq
       sonner: 1.1.0_biqbaboplfbrettd7655fr4n2y
       vite-plugin-node-polyfills: 0.17.0_vite@4.3.9
       warp-contracts: 1.4.25
@@ -9383,6 +9385,18 @@ packages:
       invariant: 2.2.4
       react: 18.2.0
       tslib: 2.6.2
+    dev: false
+
+  /react-zorm/0.9.0_fuugi7lgtddhymbnz45nxiftzq:
+    resolution: {integrity: sha512-esuEiNUuj+JfI4Lz5o36KgT2JNN/NTNeO/70FghbRSBjCxRKeEtjO4KXP7SOMzbOa6rhOFNiP+goPXOUTLG/pw==}
+    peerDependencies:
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
+      zod: '>=3.0.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      zod: 3.22.4
     dev: false
 
   /react/18.2.0:
