@@ -9,15 +9,20 @@ import { styled } from "@stitches/react";
 import { appConfig } from "@/config";
 
 const AlphaIconButton = styled(IconButton, {
-  backgroundColor: "var(--white-a3)",
-  color: "var(--accent-9-contrast)",
+  backgroundColor: "var(--black-a5)",
+  color: "var(--white-a11)",
 
-  "&:hover": {
-    backgroundColor: "var(--white-a4)",
+  "&:hover:not(:disabled)": {
+    backgroundColor: "var(--black-a6)",
   },
 
   "&:active": {
-    backgroundColor: "var(--white-a5)",
+    backgroundColor: "var(--black-a7)",
+  },
+
+  "&:disabled": {
+    backgroundColor: "var(--black-a2)",
+    color: "var(--white-a9)",
   },
 });
 
