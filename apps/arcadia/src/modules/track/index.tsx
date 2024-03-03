@@ -19,6 +19,7 @@ import {
   Heading,
   IconButton,
   Link,
+  Separator,
   Text,
 } from "@radix-ui/themes";
 import { getTrack } from "@/lib/track/getTrack";
@@ -376,6 +377,7 @@ export const Track = () => {
           </Flex>
           {description && (
             <>
+              <Separator my="-2" style={css({ width: "100%" })} />
               {description.length < 300 ? (
                 <Text
                   size="2"
