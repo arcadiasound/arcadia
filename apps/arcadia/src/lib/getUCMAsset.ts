@@ -1,11 +1,9 @@
-import { appConfig } from "@/apps/arcadia/appConfig";
+import { appConfig } from "@/config";
 import { UCMAssetProps } from "@/types";
 
 export const getUCMAsset = async (assetId: string) => {
   try {
-    const res = await fetch(
-      `${appConfig.dreU}/contract?id=${assetId}&errorMessages=true`
-    );
+    const res = await fetch(`${appConfig.dreU}/contract?id=${assetId}&errorMessages=true`);
 
     if (!res.ok) {
       throw new Error(

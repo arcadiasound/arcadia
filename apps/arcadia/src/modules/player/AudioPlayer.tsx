@@ -82,12 +82,13 @@ export const AudioPlayer = () => {
     handlePrevTrack,
     shuffle,
     loop,
+    currentTime,
+    setCurrentTime,
   } = useAudioPlayer();
   const [progressStep, setProgressStep] = useState<number>(0.01);
   const [scrubbedValue, setScrubbedValue] = useState<number | undefined>(undefined);
   const [scrubbing, setScrubbing] = useState<boolean>();
   const [duration, setDuration] = useState<number>();
-  const [currentTime, setCurrentTime] = useState<number>(0);
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const [volume, setVolume] = useState(gainRef?.current?.gain.value);
 
@@ -108,6 +109,7 @@ export const AudioPlayer = () => {
     // set gain node
     if (!gainRef.current) {
       gainRef.current = audioCtxRef.current.createGain();
+      setVolume(gainRef.current.gain.value);
     }
 
     // set media element source
@@ -129,15 +131,9 @@ export const AudioPlayer = () => {
   const handleValueChange = (e: number[]) => {
     if (!gainRef.current) return;
 
-    setVolume(e[0]);
+    setVolume(e[0] / 100);
     gainRef.current.gain.value = e[0] / 100;
   };
-
-  useEffect(() => {
-    if (volume && volume > 0) {
-      console.log(volume);
-    }
-  }, [volume]);
 
   const handleProgressChange = (e: number[]) => {
     if (!audioRef.current) return;
@@ -151,7 +147,7 @@ export const AudioPlayer = () => {
 
     setScrubbing(false);
     audioRef.current.currentTime = e[0];
-    setCurrentTime(e[0]);
+    setCurrentTime?.(e[0]);
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -167,7 +163,7 @@ export const AudioPlayer = () => {
     const seconds = Math.floor(audioRef.current?.duration || 0);
     setDuration(seconds);
     const current = Math.floor(audioRef.current?.currentTime || 0);
-    setCurrentTime(current);
+    setCurrentTime?.(current);
   }, [audioRef?.current?.onloadeddata, audioRef?.current?.readyState]);
 
   // if ("mediaSession" in navigator) {
@@ -182,7 +178,7 @@ export const AudioPlayer = () => {
 
   const handleTimeUpdate = () => {
     // check for current runs in useffect
-    setCurrentTime(audioRef.current?.currentTime as number);
+    setCurrentTime?.(audioRef.current?.currentTime as number);
   };
 
   const handleLoadedData = () => {
@@ -245,8 +241,14 @@ export const AudioPlayer = () => {
         />
         {currentTrack && (
           <Flex direction="column">
-            <Link style={css({ color: "var(--gray-12)" })} size="1" weight="medium" color="gray">
-              {currentTrack.title}
+            <Link
+              style={css({ color: "var(--gray-12)" })}
+              size="1"
+              weight="medium"
+              color="gray"
+              asChild
+            >
+              <RouterLink to={`/track?id=${currentTrack.txid}`}>{currentTrack.title}</RouterLink>
             </Link>
             <Link
               size="1"
@@ -425,17 +427,17 @@ export const AudioPlayer = () => {
             >
               <CurveLowIcon
                 style={css({
-                  opacity: volume && volume > 0 ? 1 : 0,
+                  opacity: volume && volume * 100 > 0 ? 1 : 0,
                 })}
               />
               <CurveMediumIcon
                 style={css({
-                  opacity: volume && volume > 30 ? 1 : 0,
+                  opacity: volume && volume * 100 > 30 ? 1 : 0,
                 })}
               />
               <CurveHighIcon
                 style={css({
-                  opacity: volume && volume > 60 ? 1 : 0,
+                  opacity: volume && volume * 100 > 60 ? 1 : 0,
                 })}
               />
             </CurvesContainer>
@@ -446,7 +448,7 @@ export const AudioPlayer = () => {
             })}
           >
             <Slider
-              defaultValue={[50]}
+              value={volume ? [volume * 100] : [0]}
               max={100}
               step={progressStep}
               aria-label="Volume"

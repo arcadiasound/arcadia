@@ -113,3 +113,6 @@
   }
   
   
+  .rt-ScrollAreaViewport > div {
+    height: 100%
+  }

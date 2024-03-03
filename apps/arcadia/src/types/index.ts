@@ -156,7 +156,6 @@ export interface GQLQuery {
 export interface Comment {
   comment: string;
   sourceTx: string;
-  address: string | undefined;
 }
 
 export type License = {
@@ -170,12 +169,18 @@ export type License = {
   currency: string | undefined;
 };
 
+export interface TrackAssetOwner {
+  address: string;
+  ownershipAmount: number;
+}
+
 export type ReleaseType = "single" | "album";
 
 export type TrackOrAlbum = Track | Album;
 
 export type Track = {
   title: string;
+  owner: string;
   creator: string;
   audioSrc: string;
   thumbnailSrc: string;
@@ -184,6 +189,7 @@ export type Track = {
   releaseDate: number | undefined;
   releaseType: ReleaseType;
   cursor: string;
+  topics?: string[];
 };
 
 export type Album = {

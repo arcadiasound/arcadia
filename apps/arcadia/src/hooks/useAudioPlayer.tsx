@@ -34,6 +34,7 @@ type AudioPlayerActionType =
   | "SET_ORIGINAL_TRACKLIST"
   | "SET_CURRENT_TRACK_INDEX"
   | "SET_CURRENT_TRACK_ID"
+  | "SET_CURRENT_TIME"
   | "PLAYING"
   | "SHUFFLE"
   | "LOOP";
@@ -84,8 +85,8 @@ export const AudioPlayerContext = createContext<{
   setSeeking?: Dispatch<SetStateAction<boolean | undefined>>;
   setSeekedValue?: Dispatch<SetStateAction<number | undefined>>;
   duration?: number | undefined;
-  currentTime?: number;
-  setCurrentTime?: Dispatch<SetStateAction<number>>;
+  currentTime: number;
+  setCurrentTime?: (time: number) => void;
   handlePrevTrack?: (index?: number) => void;
   handleNextTrack?: (index?: number) => void;
   handleTrackEnd?: () => void;
@@ -101,6 +102,7 @@ export const AudioPlayerContext = createContext<{
   loop: false,
   currentTrackIndex: 0,
   currentTrackId: "",
+  currentTime: 0,
 });
 
 const audioPlayerReducer = (
@@ -140,6 +142,11 @@ const audioPlayerReducer = (
       return {
         ...state,
         currentTrackId: action.payload,
+      };
+    case "SET_CURRENT_TIME":
+      return {
+        ...state,
+        currentTime: action.payload,
       };
     case "PLAYING":
       return {
@@ -326,6 +333,10 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
     }
   };
 
+  const setCurrentTime = (time: number) => {
+    dispatch({ type: "SET_CURRENT_TIME", payload: time });
+  };
+
   return (
     <AudioPlayerContext.Provider
       value={{
@@ -343,6 +354,8 @@ const AudioPlayerProvider = ({ children }: AudioPlayerProviderProps) => {
         loop: state.loop,
         currentTrackIndex: state.currentTrackIndex,
         currentTrackId: state.currentTrackId,
+        currentTime: state.currentTime,
+        setCurrentTime,
         setCurrentTrackIndex,
         setCurrentTrackId,
         handleNextTrack,

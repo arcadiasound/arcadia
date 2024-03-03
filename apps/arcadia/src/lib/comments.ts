@@ -2,7 +2,7 @@ import { arweave } from "./arweave";
 import arweaveGql, { GetTransactionsQueryVariables } from "arweave-graphql";
 import { appConfig } from "../config";
 import { Comment } from "../types";
-import { getProfile } from "./getProfile";
+import { gql } from "./helpers/gql";
 
 export const writeComment = async ({ comment, sourceTx }: Comment) => {
   try {
@@ -11,7 +11,7 @@ export const writeComment = async ({ comment, sourceTx }: Comment) => {
     });
     savedTx.addTag("Content-Type", "text/plain");
     savedTx.addTag("Data-Protocol", "Comment");
-    savedTx.addTag("App-Name", "Arcadia");
+    savedTx.addTag("DApp-Name", "arcadia-v2");
     savedTx.addTag("Type", "comment");
     savedTx.addTag("Published", Date.now().toString());
     savedTx.addTag("Data-Source", sourceTx);
@@ -29,11 +29,7 @@ interface CommentQueryParams {
   limit?: number;
 }
 
-export const getComments = async ({
-  sourceTx,
-  cursor,
-  limit,
-}: CommentQueryParams) => {
+export const getComments = async ({ sourceTx, cursor, limit }: CommentQueryParams) => {
   if (!sourceTx) {
     throw new Error("No source transaction ID found");
   }
@@ -53,36 +49,30 @@ export const getComments = async ({
   }
 
   try {
-    const metaRes = await arweaveGql(
-      `${appConfig.defaultGateway}/graphql`
-    ).getTransactions({
-      ...query,
+    const metaRes = await gql({
+      variables: query,
     });
 
     const metadata = metaRes.transactions.edges
-      .filter((edge) => Number(edge.node.data.size) < 320)
-      .filter(
-        (edge) => edge.node.tags.find((x) => x.name === "Published")?.value
-      )
+      .filter((edge) => Number(edge.node.data.size) < 180)
       .map(async (edge) => {
-        const owner = edge.node.owner.address;
+        const author = edge.node.owner.address;
         const txid = edge.node.id;
-        const published = edge.node.tags.find(
-          (x) => x.name === "Published"
-        )?.value;
+        const published =
+          Number(edge.node.tags.find((x) => x.name === "Published")?.value) ||
+          edge.node.block?.timestamp;
         // const account = await getAccount(owner);
         const cursor = edge.cursor;
-        const comment = await arweave.api
+        const data = await arweave.api
           .get(txid)
           .then((res) => res.data)
           .catch((error) => console.error(error));
 
         return {
-          owner,
+          author,
           txid,
           published,
-          //   account,
-          comment,
+          data,
           cursor,
         };
       });

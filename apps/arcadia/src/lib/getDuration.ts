@@ -1,12 +1,16 @@
-import { appConfig } from "@/apps/arcadia/appConfig";
 import { Track } from "@/types";
-import { arweave } from "./arweave";
+import { gateway } from "@/utils";
 
 export const getDuration = async (id: string) => {
   try {
-    const response = await fetch(`${appConfig.defaultGateway}/${id}`);
+    const url = gateway() + "/" + id;
+    const res = await fetch(url);
 
-    const buffer = await response.arrayBuffer();
+    if (!res.ok) {
+      throw new Error("Error fetching audio data with status: " + res.status);
+    }
+
+    const buffer = await res.arrayBuffer();
 
     const audioContext = new window.AudioContext();
 
@@ -27,10 +31,7 @@ export const getTotalDuration = async (tracklist: Track[]) => {
       tracklist.map(async (track) => await getDuration(track.txid))
     );
 
-    const totalDuration = durations.reduce(
-      (acc, duration) => acc + duration,
-      0
-    );
+    const totalDuration = durations.reduce((acc, duration) => acc + duration, 0);
 
     return totalDuration;
   } catch (error) {

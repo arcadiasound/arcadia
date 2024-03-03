@@ -1,5 +1,10 @@
+import { useGetUserProfile } from "@/hooks/appData";
+import { useAudioPlayer } from "@/hooks/useAudioPlayer";
+import { getAudioData } from "@/lib/getAudioData";
 import { css } from "@/styles/css";
 import { DialogOpenProps, Track } from "@/types";
+import { abbreviateAddress } from "@/utils";
+import { formatDuration } from "@/utils/audio";
 import {
   Box,
   DialogClose,
@@ -12,6 +17,7 @@ import {
   Text,
   VisuallyHidden,
 } from "@radix-ui/themes";
+import { useQuery } from "@tanstack/react-query";
 import { Dispatch, MutableRefObject, SetStateAction, useState } from "react";
 import { BsCopy, BsTelegram, BsTwitterX, BsWhatsapp } from "react-icons/bs";
 import { MdLink } from "react-icons/md";
@@ -28,18 +34,32 @@ const SHARE_BUTTON_VARIANT = "surface";
 
 interface ShareDialogProps {
   track: Track;
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<DialogOpenProps>>;
-  triggerRef: MutableRefObject<HTMLButtonElement | null>;
+  open?: boolean;
+  setOpen?: Dispatch<SetStateAction<DialogOpenProps>>;
+  triggerRef?: MutableRefObject<HTMLButtonElement | null>;
   children: React.ReactNode;
 }
 
 export const ShareDialog = (props: ShareDialogProps) => {
+  const [open, setOpen] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const { audioCtxRef } = useAudioPlayer();
   const SHARE_TEXT_TWITTER = `Check out this track ${props.track.title} on @arcadia_sound \n \n`;
   const SHARE_TEXT = `Check out this track ${props.track.title} on Arcadia \n \n`;
   const origin = window.location.origin;
   const SHARE_URL = `${origin}/#/track?tx=${props.track.txid}`;
+
+  const { data } = useGetUserProfile({ address: props.track.creator });
+  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+
+  const { data: audioData } = useQuery({
+    queryKey: [`audioData-${props.track.txid}`],
+    queryFn: () => {
+      if (!audioCtxRef.current) return;
+
+      return getAudioData({ txid: props.track.txid, audioContext: audioCtxRef.current });
+    },
+  });
 
   const twitterUrl = `${TWITTER_WEB_INTENT_URL}?url=${encodeURIComponent(
     SHARE_URL
@@ -54,9 +74,7 @@ export const ShareDialog = (props: ShareDialogProps) => {
       return;
     }
     try {
-      await navigator.clipboard.writeText(
-        `${origin}/#/track?tx=${props.track.txid}`
-      );
+      await navigator.clipboard.writeText(`${origin}/#/track?tx=${props.track.txid}`);
       toast.success("Link copied to clipboard", {
         style: css({ padding: "var(--space-3)", zIndex: "var(--z-toast)" }),
       });
@@ -72,17 +90,15 @@ export const ShareDialog = (props: ShareDialogProps) => {
 
   return (
     <DialogRoot
-      open={props.open}
+      open={props.open ? props.open : open}
       onOpenChange={(open) => {
-        props.setOpen({ open: open ? true : false, name: "share" });
-        props.triggerRef.current?.focus();
+        props.setOpen ? props.setOpen({ open: open ? true : false, name: "share" }) : setOpen(open);
+        props.triggerRef && props.triggerRef.current?.focus();
       }}
     >
       <DialogTrigger>{props.children}</DialogTrigger>
       <DialogContent style={css({ maxWidth: 500, position: "relative" })}>
-        <DialogTitle size={`${HEADING_SIZE}`}>
-          Share this song with the world
-        </DialogTitle>
+        <DialogTitle size={`${HEADING_SIZE}`}>Share this song with the world</DialogTitle>
 
         <DialogClose>
           <IconButton
@@ -132,6 +148,7 @@ export const ShareDialog = (props: ShareDialogProps) => {
             <Box>
               <Text weight="medium">{props.track.title}</Text>
               <Text
+                size="2"
                 color="gray"
                 style={css({
                   textOverflow: "ellipsis",
@@ -141,10 +158,12 @@ export const ShareDialog = (props: ShareDialogProps) => {
                   display: "block",
                 })}
               >
-                {props.track.creator}
+                {profile?.name || abbreviateAddress({ address: props.track.creator })}
               </Text>
             </Box>
-            <Text size="1">2:36</Text>
+            {audioData?.duration && (
+              <Text size="1">{formatDuration({ duration: audioData.duration })}</Text>
+            )}
           </Flex>
         </Flex>
 
