@@ -1,9 +1,3 @@
-import {
-  // ProfileOwnershipProps,
-  // ProfileWithOwnership,
-  SaleOrder,
-  Track as TrackType,
-} from "@/types";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
@@ -38,6 +32,10 @@ import { gql } from "@/lib/helpers/gql";
 import { arweave } from "@/lib/arweave";
 import { useActiveAddress } from "arweave-wallet-kit";
 import { TrackComments } from "./TrackComments";
+import { OwnersChart } from "./components/OwnersChart";
+import { getOwners } from "@/lib/track/getOwners";
+
+const ASSET_TEST_TX = "pORcqZ_b-HEqv7Xjz0i1QzA3q5OpkCI1bX2ZcFMF6DI";
 
 const AlphaIconButton = styled(IconButton, {
   backgroundColor: "transparent",
@@ -145,6 +143,11 @@ export const Track = () => {
         return data;
       }
     },
+  });
+
+  const { data: owners } = useQuery({
+    queryKey: [`trackOwners-${txidFromParams}`],
+    queryFn: () => getOwners(ASSET_TEST_TX),
   });
 
   const { data } = useGetUserProfile({ address: tracks ? tracks[0].creator : undefined });
@@ -428,7 +431,7 @@ export const Track = () => {
               )}
             </>
           )}
-          {/* <TrackComments track={track} /> */}
+          {owners && owners.length > 0 && <OwnersChart owners={owners} />}
         </Flex>
         <TrackComments track={track} />
       </Grid>

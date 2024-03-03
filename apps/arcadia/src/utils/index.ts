@@ -13,6 +13,10 @@ interface AbbreviateAddress {
 }
 
 export const abbreviateAddress = ({ address, options = {} }: AbbreviateAddress) => {
+  if (address && address.length !== 43) {
+    return address;
+  }
+
   const { startChars = 5, endChars = 4, noOfEllipsis = 2 } = options;
 
   const dot = ".";

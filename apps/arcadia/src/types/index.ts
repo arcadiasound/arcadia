@@ -169,6 +169,11 @@ export type License = {
   currency: string | undefined;
 };
 
+export interface TrackAssetOwner {
+  address: string;
+  ownershipAmount: number;
+}
+
 export type ReleaseType = "single" | "album";
 
 export type TrackOrAlbum = Track | Album;
