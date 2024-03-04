@@ -8,6 +8,7 @@ import { AppHeader } from "./modules/layout/AppHeader";
 import { Sidebar } from "./modules/layout/Sidebar";
 import { Profile } from "./modules/profile";
 import { Track } from "./modules/track";
+import { Library } from "./modules/library";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/track" element={<Track />} />
+                <Route path="/library" element={<Library />} />
               </Routes>
             </ScrollArea>
           </Grid>
