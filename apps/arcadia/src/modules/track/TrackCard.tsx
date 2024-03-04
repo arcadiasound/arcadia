@@ -11,6 +11,8 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { abbreviateAddress, compareArrays } from "@/utils";
 import { useGetUserProfile } from "@/hooks/appData";
 import { Link as RouterLink } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { saveTrack } from "@/lib/library/likedTracks";
 
 const ActionsOverlay = styled(Flex, {
   width: "100%",
@@ -93,6 +95,17 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
 
   const isPlaying = playing && currentTrackId === track.txid && compareArrays(tracks, tracklist);
 
+  const like = useMutation({
+    // mutationKey: [`liked-${track.txid}`],
+    mutationFn: saveTrack,
+    onSuccess: (data) => {
+      console.log("success!", data);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
   const handleClick = () => {
     handlePlayPause?.();
 
@@ -144,7 +157,10 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
               </IconButton>
               <Flex align="center" gap="3">
                 <AlphaIconButton
-                  onClick={() => setLiked(!liked)}
+                  onClick={() => {
+                    setLiked(!liked);
+                    // like.mutate({ txid: track.txid })
+                  }}
                   liked={liked}
                   size="2"
                   variant="ghost"
