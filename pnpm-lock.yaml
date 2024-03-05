@@ -16,7 +16,7 @@ importers:
       '@css-hooks/react': 1.6.0
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4
-      '@permaweb/aoconnect': 0.0.43
+      '@permaweb/aoconnect': 0.0.44
       '@permaweb/stampjs': 0.6.0
       '@radix-ui/react-accordion': 1.1.2
       '@radix-ui/react-alert-dialog': 1.0.5
@@ -89,7 +89,7 @@ importers:
       '@css-hooks/react': 1.6.0_@types+react@18.0.27
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4_arweave@1.14.4
-      '@permaweb/aoconnect': 0.0.43
+      '@permaweb/aoconnect': 0.0.44
       '@permaweb/stampjs': 0.6.0
       '@radix-ui/react-accordion': 1.1.2_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-alert-dialog': 1.0.5_fxtgt6bjwd6p4cwoordejim2zi
@@ -2727,14 +2727,15 @@ packages:
       ramda: 0.29.1
     dev: false
 
-  /@permaweb/aoconnect/0.0.43:
-    resolution: {integrity: sha512-nGPhJw8i6HxTHEg2yU12S7dvU3OwPZ7tF7Od4tRZgefbbgVM+LmIJbqvsX6GW4gjl1zYbcOZGymo78BfXabyTQ==}
+  /@permaweb/aoconnect/0.0.44:
+    resolution: {integrity: sha512-VEcx72LXXMt+3oTlFsf2ZtaSIWPjUDBEdz93d5NaSVHUjhBnavBXKM2c/nmOuXA5QHEnIhBX2UO8wPpF1Uhocw==}
     engines: {node: '>=18'}
     dependencies:
       '@permaweb/ao-scheduler-utils': 0.0.10
       buffer: 6.0.3
       debug: 4.3.4
       hyper-async: 1.1.2
+      mnemonist: 0.39.8
       ramda: 0.29.1
       warp-arbundles: 1.0.4
       zod: 3.22.4
@@ -8864,6 +8865,12 @@ packages:
     hasBin: true
     dev: false
 
+  /mnemonist/0.39.8:
+    resolution: {integrity: sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==}
+    dependencies:
+      obliterator: 2.0.4
+    dev: false
+
   /module-error/1.0.2:
     resolution: {integrity: sha512-0yuvsqSCv8LbaOKhnsQ/T5JhyFlCYLPXK3U2sgV10zoKQwzs/MyfuQUOZQ1V/6OCOJsK/TRgNVrPuPDqtdMFtA==}
     engines: {node: '>=10'}
@@ -9199,6 +9206,10 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.22.4
     dev: true
+
+  /obliterator/2.0.4:
+    resolution: {integrity: sha512-lgHwxlxV1qIg1Eap7LgIeoBWIMFibOjbrYPIPJZcI1mmGAI2m3lNYpK12Y+GBdPQ0U1hRwSord7GIaawz962qQ==}
+    dev: false
 
   /on-finished/2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}

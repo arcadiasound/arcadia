@@ -130,3 +130,12 @@ export const compareArrays = (a, b) =>
   a.length === b.length && a.every((element, index) => element === b[index]);
 
 export const compareArrayLengths = (a, b) => a.length === b.length;
+
+export const getProcessId = (type: string) => sessionStorage.getItem(type);
+
+export interface SetProcessId {
+  type: string;
+  id: string;
+}
+
+export const saveProcessId = ({ type, id }: SetProcessId) => sessionStorage.setItem(type, id);

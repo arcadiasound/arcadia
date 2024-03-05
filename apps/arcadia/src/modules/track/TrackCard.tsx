@@ -3,16 +3,18 @@ import { Box, Flex, IconButton, Link, Text } from "@radix-ui/themes";
 import { MdPause, MdPlayArrow } from "react-icons/md";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { styled } from "@stitches/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActionsDropdown } from "./components/ActionsDropdown";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { Track } from "@/types";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { abbreviateAddress, compareArrays } from "@/utils";
-import { useGetUserProfile } from "@/hooks/appData";
+import { useGetProcessId, useGetUserProfile } from "@/hooks/appData";
 import { Link as RouterLink } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import { saveTrack } from "@/lib/library/likedTracks";
+import { UseQueryResult, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getLikedTracksIds, getTrackProcess, saveTrack } from "@/lib/library/likedTracks";
+import { useActiveAddress } from "arweave-wallet-kit";
+import { toast } from "sonner";
 
 const ActionsOverlay = styled(Flex, {
   width: "100%",
@@ -78,7 +80,7 @@ interface TrackCardProps {
 
 export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProps) => {
   const [actionsDropdownOpen, setActionsDropdownOpen] = useState(false);
-  const [liked, setLiked] = useState(false);
+  // const [liked, setLiked] = useState(false);
   const {
     playing,
     togglePlaying,
@@ -89,17 +91,31 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
     handlePlayPause,
     tracklist,
   } = useAudioPlayer();
+  const queryClient = useQueryClient();
+  const address = useActiveAddress();
 
   const { data } = useGetUserProfile({ address: track.creator });
   const profile = data?.profiles.length ? data.profiles[0] : undefined;
 
   const isPlaying = playing && currentTrackId === track.txid && compareArrays(tracks, tracklist);
 
+  const { id: processId } = useGetProcessId(address);
+
+  const { data: likedTrackTxs, isSuccess: likedTrackTxsSuccess } = useQuery({
+    queryKey: [`likedTracksTxs`, address],
+    queryFn: async () => getLikedTracksIds(processId),
+    enabled: !!processId,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => console.log(data),
+    onError: (error) => console.error(error),
+  });
+
   const like = useMutation({
-    // mutationKey: [`liked-${track.txid}`],
     mutationFn: saveTrack,
     onSuccess: (data) => {
       console.log("success!", data);
+      queryClient.invalidateQueries([`likedTracksTxs`]);
+      toast.success("Added to liked tracks");
     },
     onError: (error) => {
       console.error(error);
@@ -119,6 +135,8 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
       }
     }
   };
+
+  const liked = likedTrackTxs?.includes(track.txid) || like.isSuccess;
 
   return (
     <Box
@@ -157,9 +175,13 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
               </IconButton>
               <Flex align="center" gap="3">
                 <AlphaIconButton
+                  disabled={!processId}
                   onClick={() => {
-                    setLiked(!liked);
-                    // like.mutate({ txid: track.txid })
+                    like.mutate({
+                      txid: track.txid,
+                      processId: processId,
+                      owner: address,
+                    });
                   }}
                   liked={liked}
                   size="2"
