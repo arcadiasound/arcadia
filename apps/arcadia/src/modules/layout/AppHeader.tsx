@@ -32,10 +32,6 @@ export const AppHeader = () => {
   const location = useLocation();
   const address = useActiveAddress();
 
-  useEffect(() => {
-    console.log(location);
-  }, [location]);
-
   return (
     <Flex
       style={css({
