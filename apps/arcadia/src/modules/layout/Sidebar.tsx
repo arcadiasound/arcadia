@@ -6,6 +6,8 @@ import { RiSearchLine, RiSearchFill } from "react-icons/ri";
 import { appConfig } from "@/config";
 import { styled } from "@stitches/react";
 import { Link as HashLink, useLocation } from "react-router-dom";
+import { MdLibraryMusic, MdOutlineLibraryMusic } from "react-icons/md";
+import { useActiveAddress } from "arweave-wallet-kit";
 
 const StyledList = styled("ul", {
   "& svg": {
@@ -47,6 +49,7 @@ const NavItem = (props: NavItemProps) => (
 
 export const Sidebar = () => {
   const { pathname } = useLocation();
+  const address = useActiveAddress();
 
   return (
     <Box
@@ -95,6 +98,12 @@ export const Sidebar = () => {
                   {pathname === "/search" ? <RiSearchFill /> : <RiSearchLine />}
                   Search
                 </NavItem>
+                {address && (
+                  <NavItem path="/library" active={pathname === "/library"}>
+                    {pathname === "/library" ? <MdLibraryMusic /> : <MdOutlineLibraryMusic />}
+                    Library
+                  </NavItem>
+                )}
               </StyledList>
             </nav>
           </Flex>

@@ -20,7 +20,7 @@ export const appConfig = {
     streamableAudio: ["audio/mp3", "audio/ogg", "audio/aac", "audio/x-m4a"],
   },
   ao: {
-    SCHEDULER: "T9UhH6kyesadPlAkH-4WT8znbmz_b6Nnlvu1vDtZGB4",
-    MODULE: "FXNqc3uftQc78gvKHGJjHKhjTklEdk0zP3sp9TEJNyc",
+    SCHEDULER: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
+    MODULE: "9afQ1PLf2mrshqCTZEzzJTR2gWaC9zNPnYgYEqg1Pt4",
   },
 };

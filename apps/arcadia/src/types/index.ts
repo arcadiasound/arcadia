@@ -1,4 +1,4 @@
-import { GetTransactionsQueryVariables } from "arweave-graphql";
+import { GetTransactionsQueryVariables, Tag } from "arweave-graphql";
 
 export interface DialogOpenProps {
   // name is for if we have multiple dialogs inside dropdown
@@ -233,3 +233,29 @@ export type Env = {
   gateway?: string;
   // maybe add some cache options here
 };
+
+// Interfaces for aoconnect
+export interface SpawnProcessParams {
+  moduleTxId?: string;
+  scheduler?: string;
+  tags?: Tag[];
+}
+
+export interface SendMessageParams {
+  processId: string;
+  action: string;
+  data?: string;
+  tags?: Tag[];
+}
+
+export interface MessageResult {
+  Messages: any[]; // Replace 'any' with the specific message type from aoconnect
+  Spawns: any[]; // Replace 'any' with the specific spawn type from aoconnect
+  Output: string;
+  Error?: string;
+}
+
+export interface ReadResultParams {
+  messageId: string;
+  processId: string;
+}

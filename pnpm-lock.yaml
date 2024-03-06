@@ -16,6 +16,7 @@ importers:
       '@css-hooks/react': 1.6.0
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4
+      '@permaweb/aoconnect': 0.0.44
       '@permaweb/stampjs': 0.6.0
       '@radix-ui/react-accordion': 1.1.2
       '@radix-ui/react-alert-dialog': 1.0.5
@@ -88,6 +89,7 @@ importers:
       '@css-hooks/react': 1.6.0_@types+react@18.0.27
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4_arweave@1.14.4
+      '@permaweb/aoconnect': 0.0.44
       '@permaweb/stampjs': 0.6.0
       '@radix-ui/react-accordion': 1.1.2_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-alert-dialog': 1.0.5_fxtgt6bjwd6p4cwoordejim2zi
@@ -2716,6 +2718,30 @@ packages:
       rimraf: 3.0.2
     dev: false
     optional: true
+
+  /@permaweb/ao-scheduler-utils/0.0.10:
+    resolution: {integrity: sha512-PuPx7b+m3VLoxIE0/Xu5d0bxkQPeWULug6V1QQ/lIIOl+NdAT7QvQC9mHLi1E08BVQh9oZToATg51l7rRF0Bhg==}
+    engines: {node: '>=18'}
+    dependencies:
+      lru-cache: 10.2.0
+      ramda: 0.29.1
+    dev: false
+
+  /@permaweb/aoconnect/0.0.44:
+    resolution: {integrity: sha512-VEcx72LXXMt+3oTlFsf2ZtaSIWPjUDBEdz93d5NaSVHUjhBnavBXKM2c/nmOuXA5QHEnIhBX2UO8wPpF1Uhocw==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@permaweb/ao-scheduler-utils': 0.0.10
+      buffer: 6.0.3
+      debug: 4.3.4
+      hyper-async: 1.1.2
+      mnemonist: 0.39.8
+      ramda: 0.29.1
+      warp-arbundles: 1.0.4
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@permaweb/stampjs/0.6.0:
     resolution: {integrity: sha512-SoOGGFbALtFAx4kOPawt9s2rzhSQOSiHCOlnzTI+jdwrugMhig52CuiAefjJdrfLdKgKaX37S7Xfd7tQPabY1Q==}
@@ -7778,6 +7804,10 @@ packages:
     resolution: {integrity: sha512-un3ZAcNQGI7RzaWGZzQDH47HETM4Wrj6z6E4TId8Yeq9w5ZKUVB1nrT2jwFheTUjEmqcgTjXDc959jum+ai1kQ==}
     dev: false
 
+  /hyper-async/1.1.2:
+    resolution: {integrity: sha512-cnpOgKa+5FZOaccTtjduac1FrZuSc38/ftCp3vYJdUMt+7c+uvGDKLDK4MTNK8D3aFjIeveVrPcSgUPvzZLopg==}
+    dev: false
+
   /iconv-lite/0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
     engines: {node: '>=0.10.0'}
@@ -8570,6 +8600,11 @@ packages:
     dependencies:
       js-tokens: 4.0.0
 
+  /lru-cache/10.2.0:
+    resolution: {integrity: sha512-2bIM8x+VAf6JT4bKAljS1qUWgMsqZRPGJS6FSahIMPVvctcNhyVp7AJu7quxOW9jwkryBReKZY5tY5JYv2n/7Q==}
+    engines: {node: 14 || >=16.14}
+    dev: false
+
   /lru-cache/5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
     dependencies:
@@ -8828,6 +8863,12 @@ packages:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
     hasBin: true
+    dev: false
+
+  /mnemonist/0.39.8:
+    resolution: {integrity: sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==}
+    dependencies:
+      obliterator: 2.0.4
     dev: false
 
   /module-error/1.0.2:
@@ -9165,6 +9206,10 @@ packages:
       define-properties: 1.2.1
       es-abstract: 1.22.4
     dev: true
+
+  /obliterator/2.0.4:
+    resolution: {integrity: sha512-lgHwxlxV1qIg1Eap7LgIeoBWIMFibOjbrYPIPJZcI1mmGAI2m3lNYpK12Y+GBdPQ0U1hRwSord7GIaawz962qQ==}
+    dev: false
 
   /on-finished/2.4.1:
     resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
