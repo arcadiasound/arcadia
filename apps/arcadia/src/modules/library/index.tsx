@@ -13,28 +13,41 @@ import {
   TabsTrigger,
   Text,
 } from "@radix-ui/themes";
-import { useQuery } from "@tanstack/react-query";
-import { getLikedTracksIds, getTrackProcess } from "@/lib/library/likedTracks";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createTracksProcess, getLikedTracksIds } from "@/lib/library/likedTracks";
 import { getTracks } from "@/lib/track/getTracks";
-import { TrackCard } from "../track/TrackCard";
 import { css } from "@/styles/css";
-import { IoMdHeart, IoMdPodium } from "react-icons/io";
+import { IoMdHeart } from "react-icons/io";
 import { Link as RouterLink } from "react-router-dom";
 import { useGetProcessId } from "@/hooks/appData";
+import { saveProcessId } from "@/utils";
+import { TrackItem } from "../track/TrackItem";
 
-type CurrentTab = "liked-songs" | "liked-albums" | "playlists";
+const BANNER_HEIGHT = 200;
+
+type CurrentTab = "liked-tracks" | "liked-albums" | "playlists";
 
 export const Library = () => {
-  const [currentTab, setCurrentTab] = useState<CurrentTab>("liked-songs");
+  const [currentTab, setCurrentTab] = useState<CurrentTab>("liked-tracks");
   const address = useActiveAddress();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { id: processId, exists: processExists } = useGetProcessId(address);
+
+  const createProcess = useMutation({
+    mutationFn: createTracksProcess,
+    onSuccess: (data) => {
+      saveProcessId({ type: `likedTracks-${address}`, id: data || "" });
+      queryClient.invalidateQueries([`likedTracksProcess`, address]);
+    },
+    onError: (error) => console.error(error),
+  });
 
   const { data: likedTrackTxs, isSuccess: likedTrackTxsSuccess } = useQuery({
     queryKey: [`likedTracksTxs`, address],
     queryFn: async () => getLikedTracksIds(processId),
-    enabled: currentTab === "liked-songs" && !!processId,
+    enabled: currentTab === "liked-tracks" && !!processId,
     refetchOnWindowFocus: false,
     onSuccess: (data) => console.log(data),
     onError: (error) => console.error(error),
@@ -43,13 +56,28 @@ export const Library = () => {
   const { data: likedTracks } = useQuery({
     queryKey: [`likedTracks`, address],
     queryFn: () => {
-      if (!likedTrackTxs?.length) return;
+      if (!likedTrackTxs?.length) return [];
 
       return getTracks({ txids: likedTrackTxs });
     },
-    enabled: likedTrackTxsSuccess,
+    enabled: currentTab === "liked-tracks",
     refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      console.log("likedTracks: ", data);
+    },
   });
+
+  useEffect(() => {
+    if (likedTrackTxs) {
+      console.log({ likedTrackTxs });
+    }
+  }, [likedTrackTxs]);
+
+  useEffect(() => {
+    if (likedTracks) {
+      console.log({ likedTracks });
+    }
+  }, [likedTracks]);
 
   useEffect(() => {
     if (!address) {
@@ -62,30 +90,66 @@ export const Library = () => {
       {address ? (
         <Flex direction="column" height="100%" position="relative">
           <TabsRoot
-            defaultValue="liked-songs"
+            defaultValue="liked-tracks"
             onValueChange={(e) => setCurrentTab(e as CurrentTab)}
-            style={css({ height: "100%" })}
           >
             <TabsList>
-              <TabsTrigger value="liked-songs">Liked songs</TabsTrigger>
+              <TabsTrigger value="liked-tracks">Liked tracks</TabsTrigger>
               <TabsTrigger value="liked-albums">Liked albums </TabsTrigger>
               <TabsTrigger value="playlists">Playlists</TabsTrigger>
             </TabsList>
 
-            <Box pb="2" style={css({ height: "100%" })}>
-              <TabsContent
-                value="liked-songs"
-                style={css({ height: "100%", padding: "var(--space-3)" })}
-              >
+            <Box>
+              <TabsContent value="liked-tracks">
                 {processExists && (
                   <>
                     {likedTracks && likedTracks.length > 0 ? (
                       <>
-                        <Heading as="h2">Liked tracks</Heading>
+                        <Box
+                          style={css({
+                            width: "100%",
+                            height: BANNER_HEIGHT,
+                            position: "relative",
+                          })}
+                        >
+                          <Box
+                            position="absolute"
+                            inset="0"
+                            style={css({ backgroundColor: "var(--gray-3)" })}
+                          />
+                          <Box
+                            style={css({
+                              position: "absolute",
+                              inset: 0,
+                              background: `linear-gradient(
+                                to top,
+                                var(--black-a9) 0%,
+                                var(--black-a3) 50%,
+                                var(--black-a1) 65%,
+                                var(--black-a1) 75.5%,
+                                var(--black-a1) 82.85%,
+                                var(--black-a1) 88%,
+                                var(--black-a1) 100%
+                                  )`,
+                            })}
+                          />
+                          <Heading
+                            as="h2"
+                            size="8"
+                            weight="medium"
+                            style={css({
+                              position: "absolute",
+                              left: "var(--space-3)",
+                              bottom: "var(--space-3)",
+                            })}
+                          >
+                            Liked tracks
+                          </Heading>
+                        </Box>
                         <Grid p="3" gap="2" asChild>
                           <ul>
                             {likedTracks.map((track, idx) => (
-                              <TrackCard
+                              <TrackItem
                                 key={track.txid}
                                 track={track}
                                 tracks={likedTracks}
@@ -96,7 +160,7 @@ export const Library = () => {
                         </Grid>
                       </>
                     ) : (
-                      <Grid mt="-7" style={css({ placeItems: "center", height: "100%" })}>
+                      <Grid position="relative" style={css({ placeItems: "center", top: "30dvh" })}>
                         <Flex direction="column" gap="3" style={css({ textAlign: "center" })}>
                           <Heading as="h3" weight="medium" align="center">
                             Tracks you save will appear here
@@ -121,26 +185,33 @@ export const Library = () => {
                   </>
                 )}
                 {!processExists && (
-                  <Grid mt="-7" style={css({ placeItems: "center", height: "100%" })}>
+                  <Grid position="relative" style={css({ placeItems: "center", top: "30dvh" })}>
                     <Flex direction="column" gap="3" style={css({ textAlign: "center" })}>
                       <Heading as="h3" weight="medium" align="center">
                         Complete profile to unlock
                       </Heading>
                       <Text>To start saving tracks, you need to first complete set up.</Text>
-                      <Button mt="5" style={css({ alignSelf: "center" })}>
-                        Go to settings
+                      <Button
+                        onClick={() => createProcess.mutate({ owner: address })}
+                        mt="5"
+                        style={css({ alignSelf: "center" })}
+                      >
+                        {createProcess.isLoading ? "Activating..." : "Activate"}
                       </Button>
+                      {/* <Button mt="5" style={css({ alignSelf: "center" })}>
+                        Go to settings
+                      </Button> */}
                     </Flex>
                   </Grid>
                 )}
               </TabsContent>
 
               <TabsContent value="liked-albums">
-                <Text>Liked albums</Text>
+                <Text>Coming soon.</Text>
               </TabsContent>
 
               <TabsContent value="playlists">
-                <Text>Playlists</Text>
+                <Text>Coming soon.</Text>
               </TabsContent>
             </Box>
           </TabsRoot>

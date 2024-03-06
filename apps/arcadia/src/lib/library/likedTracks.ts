@@ -1,9 +1,8 @@
-import { appConfig } from "@/config";
-import { readMessageResult, sendMessage, spawnProcess } from "../ao";
-import { dryrun, results } from "@permaweb/aoconnect";
+import { sendMessage, spawnProcess } from "../ao";
+import { dryrun } from "@permaweb/aoconnect";
 import { gql } from "../helpers/gql";
 import { trackProcessTemplate } from "./processes/trackTemplate";
-import { MessageResult } from "@/types";
+import { sleep } from "@/utils";
 
 export const saveTrack = async ({
   txid,
@@ -26,6 +25,48 @@ export const saveTrack = async ({
     const messageId = await sendMessage({
       processId,
       action: "Add",
+      data: txid,
+      tags: [
+        {
+          name: "Data-Source",
+          value: txid,
+        },
+        {
+          name: "Playlist-ID",
+          value: processId,
+        },
+      ],
+    });
+
+    // const results = await readMessageResult({ messageId, processId });
+    // return results;
+    return messageId;
+  } catch (error: any) {
+    throw new Error(error);
+  }
+};
+
+export const removeTrack = async ({
+  txid,
+  processId,
+  owner,
+}: {
+  txid: string;
+  processId: string | undefined;
+  owner: string | undefined;
+}) => {
+  if (!owner) {
+    throw new Error("Owner address is required.");
+  }
+
+  if (!processId) {
+    throw new Error("Process ID is required.");
+  }
+
+  try {
+    const messageId = await sendMessage({
+      processId,
+      action: "Remove",
       data: txid,
       tags: [
         {
@@ -74,61 +115,21 @@ export const getLikedTracksIds = async (processId: string) => {
 };
 
 //  make this generic func that accepts tags and data
-export const createTracksProcess = async (owner: string) => {
-  try {
-    const processId = await spawnProcess({
-      tags: [
-        {
-          name: "Name",
-          value: "Playlist-Test1",
-        },
-        {
-          name: "Playlist-Type",
-          value: "Tracks",
-        },
-        {
-          name: "DApp-Name",
-          value: "arcadia-v2",
-        },
-      ],
-    });
+export const createTracksProcess = async ({ owner }: { owner: string }) => {
+  const maxRetries = 5;
+  let attempts = 0;
 
-    const intialized = await gql({
-      variables: {
-        owners: [owner],
+  while (attempts < maxRetries) {
+    try {
+      const processId = await spawnProcess({
         tags: [
           {
-            name: "Data-Protocol",
-            values: ["ao"],
+            name: "Name",
+            value: "Playlist-Test1",
           },
           {
-            name: "Type",
-            values: ["Message"],
-          },
-          {
-            name: "Action",
-            values: ["Eval"],
-          },
-          {
-            name: "Eval-Intent",
-            values: ["Init"],
-          },
-        ],
-      },
-    }).then((res) => res.transactions.edges.length > 0);
-
-    if (intialized) {
-      return processId;
-    } else {
-      // init
-      await sendMessage({
-        processId: processId,
-        action: "Eval",
-        data: trackProcessTemplate,
-        tags: [
-          {
-            name: "Eval-Intent",
-            value: "Init",
+            name: "Playlist-Type",
+            value: "Tracks",
           },
           {
             name: "DApp-Name",
@@ -137,10 +138,63 @@ export const createTracksProcess = async (owner: string) => {
         ],
       });
 
-      return processId;
+      const intialized = await gql({
+        variables: {
+          owners: [owner],
+          tags: [
+            {
+              name: "Data-Protocol",
+              values: ["ao"],
+            },
+            {
+              name: "Type",
+              values: ["Message"],
+            },
+            {
+              name: "Action",
+              values: ["Eval"],
+            },
+            {
+              name: "Eval-Intent",
+              values: ["Init"],
+            },
+          ],
+        },
+      }).then((res) => res.transactions.edges.length > 0);
+
+      if (intialized) {
+        return processId;
+      } else {
+        await sleep(2000);
+
+        // init
+        await sendMessage({
+          processId: processId,
+          action: "Eval",
+          data: trackProcessTemplate,
+          tags: [
+            {
+              name: "Eval-Intent",
+              value: "Init",
+            },
+            {
+              name: "DApp-Name",
+              value: "arcadia-v2",
+            },
+          ],
+        });
+
+        return processId;
+      }
+    } catch (error) {
+      attempts += 1;
+      console.error(`Attempt ${attempts} failed: ${error}`);
+      if (attempts >= maxRetries) {
+        throw new Error(`Failed after ${maxRetries} attempts: ${error}`);
+      }
+      // wait for 1 sec before retrying
+      await sleep(1000);
     }
-  } catch (error: any) {
-    throw new Error(error);
   }
 };
 

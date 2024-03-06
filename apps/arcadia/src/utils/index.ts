@@ -139,3 +139,7 @@ export interface SetProcessId {
 }
 
 export const saveProcessId = ({ type, id }: SetProcessId) => sessionStorage.setItem(type, id);
+
+export const sleep = (milliseconds) => {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+};

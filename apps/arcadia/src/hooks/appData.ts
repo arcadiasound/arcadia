@@ -26,40 +26,34 @@ export const useIsUserMe = (address: string | undefined) => {
 
 export const useGetProcessId = (address: string | undefined) => {
   const id = getProcessId(`likedTracks-${address}`);
-  if (id) {
-    return {
-      id,
-      exists: true,
-    };
-  } else {
-    const res = useQuery({
-      queryKey: [`likedTracksProcess`, address],
-      queryFn: async () => {
-        if (!address) return;
 
-        const res = await getTrackProcess(address);
+  const res = useQuery({
+    queryKey: [`likedTracksProcess`, address],
+    queryFn: async () => {
+      if (!address) return;
 
-        if (res && res.length) {
-          return res;
-        } else {
-          return [];
-        }
-      },
-      enabled: !!address,
-      refetchOnWindowFocus: false,
-      onSuccess: (data) => {
-        if (data && data.length) {
-          saveProcessId({ type: "likedTracks", id: data ? data[0].node.id : "" });
-        }
-      },
-      onError: (error) => console.error(error),
-    });
+      const res = await getTrackProcess(address);
 
-    const id = res.data && res.data.length > 0 ? res.data[0].node.id : "";
+      if (res && res.length) {
+        return res;
+      } else {
+        return [];
+      }
+    },
+    enabled: !!address,
+    refetchOnWindowFocus: false,
+    onSuccess: (data) => {
+      if (data && data.length) {
+        saveProcessId({ type: "likedTracks", id: data ? data[0].node.id : "" });
+      }
+    },
+    onError: (error) => console.error(error),
+  });
 
-    return {
-      id,
-      exists: res.isSuccess && res.data && res.data.length === 0 ? false : true,
-    };
-  }
+  const resId = res.data && res.data.length > 0 ? res.data[0].node.id : "";
+
+  return {
+    id: id || resId,
+    exists: !id && res.isSuccess && res.data && res.data.length === 0 ? false : true,
+  };
 };
