@@ -168,7 +168,7 @@ export const Track = () => {
   const handleClick = () => {
     handlePlayPause?.();
 
-    if (currentTrackId === track.txid && compareArrays(tracks, tracklist)) {
+    if (currentTrackId === track.txid) {
       togglePlaying?.();
     } else {
       setTracklist?.([track], 0);
