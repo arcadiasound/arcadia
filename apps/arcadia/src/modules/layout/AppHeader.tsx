@@ -62,7 +62,7 @@ export const AppHeader = () => {
             <RxChevronRight />
           </AlphaIconButton>
         </Flex>
-        {connected ? (
+        {connected && address ? (
           <HeaderDropdown address={address} />
         ) : (
           // we still check in case of unlikely scenario that we are connected but no active address
