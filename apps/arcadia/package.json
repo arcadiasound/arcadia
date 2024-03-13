@@ -35,7 +35,6 @@
     "@splidejs/react-splide": "0.7.12",
     "@stitches/react": "1.2.8",
     "@tanstack/react-query": "4.28.0",
-    "@uidotdev/usehooks": "2.4.1",
     "@visx/gradient": "3.3.0",
     "@visx/group": "3.3.0",
     "@visx/mock-data": "3.3.0",
