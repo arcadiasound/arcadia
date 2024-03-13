@@ -40,6 +40,7 @@ importers:
       '@types/react-dom': 18.0.10
       '@typescript-eslint/eslint-plugin': 5.59.0
       '@typescript-eslint/parser': 5.59.0
+      '@uidotdev/usehooks': 2.4.1
       '@visx/gradient': 3.3.0
       '@visx/group': 3.3.0
       '@visx/mock-data': 3.3.0
@@ -107,6 +108,7 @@ importers:
       '@splidejs/react-splide': 0.7.12
       '@stitches/react': 1.2.8_react@18.2.0
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
+      '@uidotdev/usehooks': 2.4.1_biqbaboplfbrettd7655fr4n2y
       '@visx/gradient': 3.3.0_react@18.2.0
       '@visx/group': 3.3.0_react@18.2.0
       '@visx/mock-data': 3.3.0
@@ -4571,6 +4573,17 @@ packages:
       '@typescript-eslint/types': 5.59.0
       eslint-visitor-keys: 3.4.3
     dev: true
+
+  /@uidotdev/usehooks/2.4.1_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-1I+RwWyS+kdv3Mv0Vmc+p0dPYH0DTRAo04HLyXReYBL9AeseDWUJyi4THuksBJcu9F0Pih69Ak150VDnqbVnXg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
 
   /@visx/curve/3.3.0:
     resolution: {integrity: sha512-G1l1rzGWwIs8ka3mBhO/gj8uYK6XdU/3bwRSoiZ+MockMahQFPog0bUkuVgPwwzPSJfsA/E5u53Y/DNesnHQxg==}

@@ -1,5 +1,5 @@
 import { Home } from "./modules/home";
-import { Flex, Grid, ScrollArea } from "@radix-ui/themes";
+import { Flex, Grid, ScrollArea, useThemeContext } from "@radix-ui/themes";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { appConfig } from "@/config";
 import { css } from "./styles/css";
@@ -9,8 +9,41 @@ import { Sidebar } from "./modules/layout/Sidebar";
 import { Profile } from "./modules/profile";
 import { Track } from "./modules/track";
 import { Library } from "./modules/library";
+import { useEffect } from "react";
 
 function App() {
+  const { accentColor, grayColor, radius, scaling, panelBackground } = useThemeContext();
+
+  useEffect(() => {
+    if (accentColor) {
+      localStorage.setItem("rt-accentColor", accentColor);
+    }
+  }, [accentColor]);
+
+  useEffect(() => {
+    if (grayColor) {
+      localStorage.setItem("rt-grayColor", grayColor);
+    }
+  }, [grayColor]);
+
+  useEffect(() => {
+    if (radius) {
+      localStorage.setItem("rt-radius", radius);
+    }
+  }, [radius]);
+
+  useEffect(() => {
+    if (panelBackground) {
+      localStorage.setItem("rt-panelBackground", panelBackground);
+    }
+  }, [panelBackground]);
+
+  useEffect(() => {
+    if (scaling) {
+      localStorage.setItem("rt-scaling", scaling);
+    }
+  }, [scaling]);
+
   return (
     <HashRouter>
       <Flex
