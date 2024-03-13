@@ -8,8 +8,9 @@ import { Toaster } from "sonner";
 import { Theme, ThemeOptions, ThemePanel } from "@radix-ui/themes";
 import { ArweaveWalletKit } from "arweave-wallet-kit";
 import App from "./App";
-import { hooks } from "./styles/css";
+import { css, hooks } from "./styles/css";
 import { ThemeProvider } from "next-themes";
+import { appConfig } from "./config";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +43,18 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
               ],
             }}
           >
-            <Toaster position="bottom-center" />
+            <Toaster
+              position="bottom-center"
+              toastOptions={{
+                style: css({
+                  left: "40%",
+                  padding: "var(--space-3)",
+                  width: "max-content",
+                  borderRadius: "max(var(--radius-2), var(--radius-full))",
+                  bottom: appConfig.playerMaxHeight,
+                }),
+              }}
+            />
             <App />
           </ArweaveWalletKit>
           <ThemePanel defaultOpen={false} />

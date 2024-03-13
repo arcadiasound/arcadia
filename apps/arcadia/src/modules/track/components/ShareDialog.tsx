@@ -75,16 +75,12 @@ export const ShareDialog = (props: ShareDialogProps) => {
     }
     try {
       await navigator.clipboard.writeText(`${origin}/#/track?tx=${props.track.txid}`);
-      toast.success("Link copied to clipboard", {
-        style: css({ padding: "var(--space-3)", zIndex: "var(--z-toast)" }),
-      });
+      toast.success("Link copied to clipboard");
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to copy link to clipboard", {
-        style: css({ padding: "var(--space-3)" }),
-      });
+      toast.error("Failed to copy link to clipboard");
     }
   };
 
