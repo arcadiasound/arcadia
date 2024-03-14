@@ -1,4 +1,3 @@
-import { appConfig } from "@/config";
 import { useGetUserProfile } from "@/hooks/appData";
 import { css } from "@/styles/css";
 import {
@@ -14,13 +13,15 @@ import {
 } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
 import { useConnection } from "arweave-wallet-kit";
-import { Link, useLocation } from "react-router-dom";
-import { BsPersonBoundingBox, BsPlugFill, BsQuestionCircleFill } from "react-icons/bs";
+import { Link } from "react-router-dom";
+import { BsCheck, BsCopy, BsPlugFill, BsQuestionCircleFill } from "react-icons/bs";
 import Avvvatars from "avvvatars-react";
-import { gateway } from "@/utils";
+import { abbreviateAddress, gateway } from "@/utils";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { IoMdSettings } from "react-icons/io";
 
 const StyledAvatar = styled(Avatar);
-const AVATAR_SIZE = 24;
+const AVATAR_SIZE = 28;
 const AVATAR_RADIUS = `max(var(--radius-1), var(--radius-full) * 0.8)`;
 
 const StyledDropdownMenuItem = styled(DropdownMenuItem, {
@@ -29,13 +30,13 @@ const StyledDropdownMenuItem = styled(DropdownMenuItem, {
 });
 
 interface HeaderDropdownProps {
-  address: string | undefined;
+  address: string;
 }
 
 export const HeaderDropdown = (props: HeaderDropdownProps) => {
-  const { pathname } = useLocation();
   const { disconnect } = useConnection();
   const { data } = useGetUserProfile({ address: props.address });
+  const { copyToClipboard, isCopied } = useCopyToClipboard();
 
   if (!props.address) {
     return null;
@@ -54,6 +55,12 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
             fallback={
               <Avvvatars style="shape" value={props.address} size={AVATAR_SIZE} radius={0} />
             }
+            style={css({
+              width: AVATAR_SIZE,
+              height: AVATAR_SIZE,
+              borderRadius: AVATAR_RADIUS,
+              overflow: "hidden",
+            })}
             css={{
               borderRadius: AVATAR_RADIUS,
               overflow: "hidden",
@@ -64,62 +71,73 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
           />
         </IconButton>
       </DropdownMenuTrigger>
-      <DropdownMenuContent sideOffset={4}>
-        <Flex p="1" pr="7" align="center" gap="2">
-          <StyledAvatar
-            size="1"
-            src={avatarUrl}
-            fallback={
-              <Avvvatars style="shape" value={props.address} size={AVATAR_SIZE} radius={0} />
-            }
-            css={{
-              borderRadius: AVATAR_RADIUS,
-              overflow: "hidden",
-              ".rt-AvatarFallback > div": {
-                borderRadius: 0,
-              },
-            }}
-          />
-          <Flex direction="column">
-            <Text
+      <DropdownMenuContent sideOffset={4} loop style={css({ minWidth: 200 })}>
+        <StyledDropdownMenuItem
+          css={{
+            cursor: "pointer",
+            height: "max-content",
+            paddingBlock: "var(--space-2)",
+            marginBlockEnd: "var(--space-1)",
+            "&[data-highlighted]": {
+              backgroundColor: "var(--gray-4)",
+              color: "var(--gray-12)",
+            },
+          }}
+          asChild
+        >
+          <Link to={"/profile"} state={{ prevPage: location.pathname }}>
+            <StyledAvatar
               size="2"
-              weight="medium"
+              src={avatarUrl}
+              fallback={
+                <Avvvatars style="shape" value={props.address} size={AVATAR_SIZE} radius={0} />
+              }
               style={css({
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
+                width: AVATAR_SIZE,
+                height: AVATAR_SIZE,
+                borderRadius: AVATAR_RADIUS,
                 overflow: "hidden",
-                maxWidth: "16ch",
               })}
-            >
-              {profile?.name || props.address}
-            </Text>
-            {profile?.name && (
+              css={{
+                ".rt-AvatarFallback > div": {
+                  borderRadius: 0,
+                },
+              }}
+            />
+            <Flex direction="column">
               <Text
-                size="1"
-                color="gray"
+                size="3"
+                weight="medium"
                 style={css({
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
-                  maxWidth: "16ch",
+                  maxWidth: "15ch",
                 })}
               >
-                {props.address}
+                {profile?.name || abbreviateAddress({ address: props.address })}
               </Text>
-            )}
-          </Flex>
-        </Flex>
-        <DropdownMenuSeparator style={css({ marginInline: 0 })} />
-        <StyledDropdownMenuItem asChild>
-          <Link to={"/profile"} state={{ prevPage: location.pathname }}>
-            <BsPersonBoundingBox />
-            Profile
+            </Flex>
           </Link>
+        </StyledDropdownMenuItem>
+        <StyledDropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            copyToClipboard(props.address);
+          }}
+        >
+          {isCopied ? <BsCheck /> : <BsCopy />}
+          {isCopied ? "Copied!" : "Copy Address"}
+        </StyledDropdownMenuItem>
+        <StyledDropdownMenuItem>
+          <IoMdSettings />
+          Settings
         </StyledDropdownMenuItem>
         <StyledDropdownMenuItem>
           <BsQuestionCircleFill />
           Help
         </StyledDropdownMenuItem>
+        <DropdownMenuSeparator style={css({ marginInline: 0 })} />
         <StyledDropdownMenuItem onSelect={disconnect}>
           <BsPlugFill />
           Disconnect
