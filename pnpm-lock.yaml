@@ -17,7 +17,7 @@ importers:
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4
       '@permaweb/aoconnect': 0.0.44
-      '@permaweb/stampjs': 0.6.0
+      '@permaweb/stampjs': 0.7.1
       '@radix-ui/react-accordion': 1.1.2
       '@radix-ui/react-alert-dialog': 1.0.5
       '@radix-ui/react-avatar': 1.0.4
@@ -40,7 +40,6 @@ importers:
       '@types/react-dom': 18.0.10
       '@typescript-eslint/eslint-plugin': 5.59.0
       '@typescript-eslint/parser': 5.59.0
-      '@uidotdev/usehooks': 2.4.1
       '@visx/gradient': 3.3.0
       '@visx/group': 3.3.0
       '@visx/mock-data': 3.3.0
@@ -56,6 +55,7 @@ importers:
       arweave-graphql: 0.0.5
       arweave-wallet-kit: 1.0.3
       avvvatars-react: 0.4.2
+      bignumber.js: 9.1.2
       boring-avatars: 1.10.1
       buffer: 6.0.3
       chart.js: 4.4.0
@@ -91,7 +91,7 @@ importers:
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4_arweave@1.14.4
       '@permaweb/aoconnect': 0.0.44
-      '@permaweb/stampjs': 0.6.0
+      '@permaweb/stampjs': 0.7.1
       '@radix-ui/react-accordion': 1.1.2_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-alert-dialog': 1.0.5_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-avatar': 1.0.4_fxtgt6bjwd6p4cwoordejim2zi
@@ -108,7 +108,6 @@ importers:
       '@splidejs/react-splide': 0.7.12
       '@stitches/react': 1.2.8_react@18.2.0
       '@tanstack/react-query': 4.28.0_biqbaboplfbrettd7655fr4n2y
-      '@uidotdev/usehooks': 2.4.1_biqbaboplfbrettd7655fr4n2y
       '@visx/gradient': 3.3.0_react@18.2.0
       '@visx/group': 3.3.0_react@18.2.0
       '@visx/mock-data': 3.3.0
@@ -123,6 +122,7 @@ importers:
       arweave-graphql: 0.0.5
       arweave-wallet-kit: 1.0.3_xrxvbtylmve4l2tr3vmmqgfp7q
       avvvatars-react: 0.4.2_biqbaboplfbrettd7655fr4n2y
+      bignumber.js: 9.1.2
       boring-avatars: 1.10.1
       buffer: 6.0.3
       chart.js: 4.4.0
@@ -2745,8 +2745,8 @@ packages:
       - supports-color
     dev: false
 
-  /@permaweb/stampjs/0.6.0:
-    resolution: {integrity: sha512-SoOGGFbALtFAx4kOPawt9s2rzhSQOSiHCOlnzTI+jdwrugMhig52CuiAefjJdrfLdKgKaX37S7Xfd7tQPabY1Q==}
+  /@permaweb/stampjs/0.7.1:
+    resolution: {integrity: sha512-8YRIveUmGjOn/j0KLVZ0vtW+xJ5rudsjxk0PLLwp7gQzGOhIJefV5puD5FV8HQS/9Cm9sXSPhYORFVDN/p48qw==}
     dependencies:
       ar-gql: 1.2.8
       ramda: 0.29.1
@@ -4573,17 +4573,6 @@ packages:
       '@typescript-eslint/types': 5.59.0
       eslint-visitor-keys: 3.4.3
     dev: true
-
-  /@uidotdev/usehooks/2.4.1_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-1I+RwWyS+kdv3Mv0Vmc+p0dPYH0DTRAo04HLyXReYBL9AeseDWUJyi4THuksBJcu9F0Pih69Ak150VDnqbVnXg==}
-    engines: {node: '>=16'}
-    peerDependencies:
-      react: '>=18.0.0'
-      react-dom: '>=18.0.0'
-    dependencies:
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-    dev: false
 
   /@visx/curve/3.3.0:
     resolution: {integrity: sha512-G1l1rzGWwIs8ka3mBhO/gj8uYK6XdU/3bwRSoiZ+MockMahQFPog0bUkuVgPwwzPSJfsA/E5u53Y/DNesnHQxg==}

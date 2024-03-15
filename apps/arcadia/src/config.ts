@@ -23,4 +23,7 @@ export const appConfig = {
     SCHEDULER: "_GQ33BkPtZrqxA84vM8Zk-N2aO0toNNu_C-l-rawrBA",
     MODULE: "9afQ1PLf2mrshqCTZEzzJTR2gWaC9zNPnYgYEqg1Pt4",
   },
+  links: {
+    discord: "https://discord.gg/kBZeUwBebJ",
+  },
 };

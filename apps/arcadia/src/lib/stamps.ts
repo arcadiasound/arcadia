@@ -36,17 +36,13 @@ export const superStamp = async (
   tags: { name: string; value: string }[]
 ) => (await stamps()).stamp(txid, qty, tags);
 
-export const getStampCount = async (txid: string) =>
-  (await stamps()).count(txid);
+export const getStampCount = async (txid: string) => (await stamps()).count(txid);
 
-export const getStampCounts = async (txids: string[]) =>
-  (await stamps()).counts(txids);
+export const getStampCounts = async (txids: string[]) => (await stamps()).counts(txids);
 
-export const hasStamped = async (txids: string[]) =>
-  (await stamps()).hasStamped(txids);
+export const hasStamped = async (txids: string[]) => (await stamps()).hasStamped(txids);
 
 export const hasStampedTx = async (txid: string, address: string) =>
   await userStampedTx(txid, address);
 
-export const balance = async (address: string) =>
-  (await stamps()).balance(address);
+export const stampsBalance = async (address: string) => (await stamps()).balance(address);
