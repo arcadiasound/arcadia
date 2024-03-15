@@ -10,6 +10,7 @@ import { Profile } from "./modules/profile";
 import { Track } from "./modules/track";
 import { Library } from "./modules/library";
 import { useEffect } from "react";
+import { Settings } from "./modules/settings";
 
 function App() {
   const { accentColor, grayColor, radius, scaling, panelBackground } = useThemeContext();
@@ -68,6 +69,7 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/track" element={<Track />} />
                 <Route path="/library" element={<Library />} />
+                <Route path="/settings" element={<Settings />} />
               </Routes>
             </ScrollArea>
           </Grid>
