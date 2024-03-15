@@ -1,11 +1,10 @@
-import { appConfig } from "@/apps/arcadia/appConfig";
+import { appConfig } from "@/config";
 import { UCMAssetProps } from "@/types";
+import BigNumber from "bignumber.js";
 
 export const getUBalance = async (address: string) => {
   try {
-    const res = await fetch(
-      `${appConfig.dreU}/contract?id=${appConfig.U}&errorMessages=true`
-    );
+    const res = await fetch(`${appConfig.dreU}/contract?id=${appConfig.U}&errorMessages=true`);
 
     if (!res.ok) {
       throw new Error(
@@ -13,17 +12,17 @@ export const getUBalance = async (address: string) => {
       );
     }
 
-    const data: UCMAssetProps & { state: { divisibility: number } } =
-      await res.json();
+    const data: UCMAssetProps & { state: { divisibility: number } } = await res.json();
     const state = data.state;
 
     if (state.balances.hasOwnProperty(address)) {
-      return state.balances[address] / state.divisibility;
+      return new BigNumber(state.balances[address] / state.divisibility);
     } else {
       return 0;
     }
   } catch (error) {
-    console.error(error);
-    throw new Error("Error occurred getting U balance");
+    console.error("Error occurred getting U balance", error);
+    return 0;
+    // throw new Error("Error occurred getting U balance");
   }
 };

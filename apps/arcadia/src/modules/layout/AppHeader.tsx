@@ -43,7 +43,7 @@ export const AppHeader = () => {
       p="4"
       asChild
     >
-      <header style={css({ backgroundColor: connected ? "var(--accent-9)" : "var(--gray-2)" })}>
+      <header style={css({ backgroundColor: connected ? "var(--gray-2)" : "var(--gray-2)" })}>
         <Flex gap="2">
           <AlphaIconButton
             disabled={!location.state?.prevPage}
@@ -62,7 +62,7 @@ export const AppHeader = () => {
             <RxChevronRight />
           </AlphaIconButton>
         </Flex>
-        {connected ? (
+        {connected && address ? (
           <HeaderDropdown address={address} />
         ) : (
           // we still check in case of unlikely scenario that we are connected but no active address

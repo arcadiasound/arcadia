@@ -1,4 +1,3 @@
-import { css } from "@/styles/css";
 import { DialogOpenProps, Track } from "@/types";
 import {
   DropdownMenuContent,
@@ -7,11 +6,11 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
-import { Dispatch, SetStateAction, forwardRef, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import { MdLink, MdPlaylistAdd, MdPlaylistPlay, MdShare } from "react-icons/md";
 import { toast } from "sonner";
 import { ShareDialog } from "./ShareDialog";
-import { appConfig } from "@/config";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 
 const StyledDropdownMenuItem = styled(DropdownMenuItem, {
   justifyContent: "start",
@@ -30,32 +29,9 @@ export const ActionsDropdown = (props: ActionsDropdownProps) => {
     open: false,
   });
   const dropdownTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const { copyToClipboard, isCopied } = useCopyToClipboard();
 
-  const handleCopy = async () => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    try {
-      const origin = window.location.origin;
-      await navigator.clipboard.writeText(`${origin}/track?tx=${props.track.txid}`);
-      toast.success("Link copied to clipboard", {
-        style: css({
-          padding: "var(--space-3)",
-          borderRadius: "max(var(--radius-2), var(--radius-full))",
-          bottom: appConfig.playerMaxHeight,
-        }),
-      });
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to copy link to clipboard", {
-        style: css({
-          padding: "var(--space-3)",
-          borderRadius: "max(var(--radius-2), var(--radius-full))",
-          bottom: appConfig.playerMaxHeight,
-        }),
-      });
-    }
-  };
+  const origin = window.location.origin;
 
   return (
     <DropdownMenuRoot open={props.open} onOpenChange={(open) => props.setOpen(open ? true : false)}>
@@ -72,7 +48,12 @@ export const ActionsDropdown = (props: ActionsDropdownProps) => {
             Share
           </StyledDropdownMenuItem>
         </ShareDialog>
-        <StyledDropdownMenuItem onSelect={handleCopy}>
+        <StyledDropdownMenuItem
+          onSelect={async () => {
+            await copyToClipboard(`${origin}/track?tx=${props.track.txid}`);
+            toast.success("Link copied to clipboard");
+          }}
+        >
           <MdLink />
           Copy link
         </StyledDropdownMenuItem>

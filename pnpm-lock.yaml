@@ -17,7 +17,7 @@ importers:
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4
       '@permaweb/aoconnect': 0.0.44
-      '@permaweb/stampjs': 0.6.0
+      '@permaweb/stampjs': 0.7.1
       '@radix-ui/react-accordion': 1.1.2
       '@radix-ui/react-alert-dialog': 1.0.5
       '@radix-ui/react-avatar': 1.0.4
@@ -55,6 +55,7 @@ importers:
       arweave-graphql: 0.0.5
       arweave-wallet-kit: 1.0.3
       avvvatars-react: 0.4.2
+      bignumber.js: 9.1.2
       boring-avatars: 1.10.1
       buffer: 6.0.3
       chart.js: 4.4.0
@@ -90,7 +91,7 @@ importers:
       '@css-hooks/recommended': 1.6.0
       '@irys/sdk': 0.0.4_arweave@1.14.4
       '@permaweb/aoconnect': 0.0.44
-      '@permaweb/stampjs': 0.6.0
+      '@permaweb/stampjs': 0.7.1
       '@radix-ui/react-accordion': 1.1.2_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-alert-dialog': 1.0.5_fxtgt6bjwd6p4cwoordejim2zi
       '@radix-ui/react-avatar': 1.0.4_fxtgt6bjwd6p4cwoordejim2zi
@@ -121,6 +122,7 @@ importers:
       arweave-graphql: 0.0.5
       arweave-wallet-kit: 1.0.3_xrxvbtylmve4l2tr3vmmqgfp7q
       avvvatars-react: 0.4.2_biqbaboplfbrettd7655fr4n2y
+      bignumber.js: 9.1.2
       boring-avatars: 1.10.1
       buffer: 6.0.3
       chart.js: 4.4.0
@@ -2743,8 +2745,8 @@ packages:
       - supports-color
     dev: false
 
-  /@permaweb/stampjs/0.6.0:
-    resolution: {integrity: sha512-SoOGGFbALtFAx4kOPawt9s2rzhSQOSiHCOlnzTI+jdwrugMhig52CuiAefjJdrfLdKgKaX37S7Xfd7tQPabY1Q==}
+  /@permaweb/stampjs/0.7.1:
+    resolution: {integrity: sha512-8YRIveUmGjOn/j0KLVZ0vtW+xJ5rudsjxk0PLLwp7gQzGOhIJefV5puD5FV8HQS/9Cm9sXSPhYORFVDN/p48qw==}
     dependencies:
       ar-gql: 1.2.8
       ramda: 0.29.1
