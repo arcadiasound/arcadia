@@ -210,7 +210,7 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
             </SelectContent>
           </SelectRoot>
         </StyledDropdownMenuItem>
-        <StyledDropdownMenuItem asChild style={css({ cursor: "pointer" })}>
+        {/* <StyledDropdownMenuItem asChild style={css({ cursor: "pointer" })}>
           <RouterLink to={"/settings"}>
             <IoMdSettings />
             Settings
@@ -222,7 +222,7 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
             Help
           </a>
         </StyledDropdownMenuItem>
-        <DropdownMenuSeparator style={css({ marginInline: 0 })} />
+        <DropdownMenuSeparator style={css({ marginInline: 0 })} /> */}
         <StyledDropdownMenuItem
           onSelect={(e) => {
             e.preventDefault();
