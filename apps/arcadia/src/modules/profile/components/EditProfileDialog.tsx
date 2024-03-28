@@ -5,10 +5,8 @@ import {
   DialogRoot,
   DialogContent,
   DialogTitle,
-  DialogDescription,
   DialogClose,
   DialogTrigger,
-  Separator,
   IconButton,
   Flex,
   Box,
@@ -25,8 +23,7 @@ import {
   ScrollArea,
   Inset,
 } from "@radix-ui/themes";
-import { RxCamera, RxCheckCircled, RxCross2, RxExclamationTriangle } from "react-icons/rx";
-import BoringAvatar from "boring-avatars";
+import { RxCross2, RxExclamationTriangle } from "react-icons/rx";
 import { styled } from "@stitches/react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { z, ZodError } from "zod";
@@ -238,15 +235,12 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
     },
   });
 
-  const createText = isSubmitting ? "Creating" : "Create";
-  const updateText = isSubmitting ? "Updating" : "Update";
-
   return (
     <DialogRoot open={open} onOpenChange={setOpen}>
       <DialogTrigger>{props.children}</DialogTrigger>
       <DialogContent
         style={css({ position: "relative", minHeight: 400, maxWidth: 500, overflow: "hidden" })}
-        // a11y - bcoz not using description
+        // a11y - bcos not using description
         aria-describedby={undefined}
       >
         <DialogTitle>Edit Profile</DialogTitle>
