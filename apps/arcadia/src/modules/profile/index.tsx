@@ -1,9 +1,7 @@
-import { appConfig } from "@/config";
 import { useGetUserProfile, useIsUserMe } from "@/hooks/appData";
 import { css } from "@/styles/css";
 import { abbreviateAddress, gateway } from "@/utils";
 import {
-  AspectRatio,
   Avatar,
   Box,
   Button,
@@ -19,8 +17,6 @@ import {
 } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
 import { useActiveAddress } from "arweave-wallet-kit";
-import BoringAvatar from "boring-avatars";
-import { useEffect, useState } from "react";
 import { BsCopy, BsPatchCheckFill } from "react-icons/bs";
 import { EditProfileDialog } from "./components/EditProfileDialog";
 import Avvvatars from "avvvatars-react";
@@ -52,16 +48,15 @@ const AlphaIconButton = styled(IconButton, {
 });
 
 export const Profile = () => {
-  const address = useActiveAddress();
+  const connectedAddress = useActiveAddress();
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
-  const addressFromParams = urlParams.get("addr");
-  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
+  const addressFromParams = urlParams.get("address");
 
-  const addr = addressFromParams || address;
+  const address = addressFromParams || connectedAddress;
 
-  if (!addr) {
+  if (!address) {
     // temp
     return (
       <Grid>
@@ -70,13 +65,12 @@ export const Profile = () => {
     );
   }
 
-  const isUserMe = useIsUserMe(addr);
+  const isUserMe = useIsUserMe(address);
 
-  const { data } = useGetUserProfile({ address: addr });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address });
 
-  const bannerUrl = gateway() + "/" + profile?.bannerId;
-  const avatarUrl = gateway() + "/" + profile?.avatarId;
+  const bannerUrl = gateway() + "/" + profile?.banner;
+  const avatarUrl = gateway() + "/" + profile?.avatar;
 
   return (
     <Flex direction="column">
@@ -132,7 +126,7 @@ export const Profile = () => {
         >
           <StyledAvatar
             src={avatarUrl}
-            fallback={<Avvvatars style="shape" value={addr} size={AVATAR_SIZE} radius={0} />}
+            fallback={<Avvvatars style="shape" value={address} size={AVATAR_SIZE} radius={0} />}
             style={css({
               width: AVATAR_SIZE,
               height: AVATAR_SIZE,
@@ -184,7 +178,7 @@ export const Profile = () => {
                   lineHeight: 1.15,
                 })}
               >
-                {profile?.name || abbreviateAddress({ address: addr })}
+                {profile?.name || abbreviateAddress({ address: address })}
               </Text>
             </Flex>
             {profile?.name && (
@@ -214,7 +208,7 @@ export const Profile = () => {
                     maxWidth: "20ch",
                   })}
                 >
-                  {abbreviateAddress({ address: addr })}
+                  {abbreviateAddress({ address: address })}
                 </Text>
                 <AlphaIconButton size="1" color="gray" variant="ghost">
                   <BsCopy />
@@ -225,7 +219,11 @@ export const Profile = () => {
         </Flex>
 
         {isUserMe && (
-          <EditProfileDialog address={addr} hasProfile={data?.hasProfile} profile={profile}>
+          <EditProfileDialog
+            address={address}
+            // hasProfile={data?.hasProfile}
+            profile={profile}
+          >
             <Button
               variant="solid"
               style={css({
@@ -252,15 +250,15 @@ export const Profile = () => {
 
         <Box px="4" pt="3" pb="2">
           <TabsContent value="releases">
-            <Releases address={addr} />
+            <Releases address={address} />
           </TabsContent>
 
           <TabsContent value="collection">
-            <Collection address={addr} />
+            <Collection address={address} />
           </TabsContent>
 
           <TabsContent value="likes">
-            <Likes address={addr} />
+            <Likes address={address} />
           </TabsContent>
         </Box>
       </TabsRoot>

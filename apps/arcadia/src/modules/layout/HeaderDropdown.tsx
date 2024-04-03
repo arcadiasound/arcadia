@@ -19,17 +19,15 @@ import {
 import { styled } from "@stitches/react";
 import { useConnection } from "arweave-wallet-kit";
 import { Link as RouterLink } from "react-router-dom";
-import { BsCheck, BsCopy, BsPlugFill, BsQuestionCircleFill } from "react-icons/bs";
+import { BsCheck, BsCopy, BsPlugFill } from "react-icons/bs";
 import Avvvatars from "avvvatars-react";
 import { abbreviateAddress, gateway } from "@/utils";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
-import { IoMdSettings } from "react-icons/io";
 import { useQuery } from "@tanstack/react-query";
 import { getArBalance } from "@/lib/user/getArBalance";
 import { useState } from "react";
 import { useTheme } from "next-themes";
 import { getUBalance } from "@/lib/user/getUBalance";
-import { appConfig } from "@/config";
 import { MdDarkMode } from "react-icons/md";
 import { stampsBalance } from "@/lib/stamps";
 import BigNumber from "bignumber.js";
@@ -53,17 +51,18 @@ interface HeaderDropdownProps {
 
 export const HeaderDropdown = (props: HeaderDropdownProps) => {
   const { disconnect } = useConnection();
-  const { data } = useGetUserProfile({ address: props.address });
   const { copyToClipboard, isCopied } = useCopyToClipboard();
   const { theme, setTheme } = useTheme();
   const [token, setToken] = useState<Token>("ar");
+  const { address } = props;
+
+  const { data: profile } = useGetUserProfile({ address });
 
   if (!props.address) {
     return null;
   }
 
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
-  const avatarUrl = gateway() + "/" + profile?.avatarId;
+  const avatarUrl = gateway() + "/" + profile?.avatar;
 
   const { data: arBalance } = useQuery({
     queryKey: ["arBalance", props.address],

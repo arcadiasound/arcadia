@@ -75,9 +75,8 @@ export const TrackComments = (props: TrackCommentsProps) => {
     refetchInterval: 5000,
   });
 
-  const { data: userMeData } = useGetUserProfile({ address: connectedAddress });
-  const userMe = userMeData?.profiles.length ? userMeData.profiles[0] : undefined;
-  const userMeAvatarUrl = gateway() + "/" + userMe?.avatarId;
+  const { data: userMe } = useGetUserProfile({ address: connectedAddress });
+  const userMeAvatarUrl = gateway() + "/" + userMe?.avatar;
 
   return (
     <Flex
@@ -159,8 +158,9 @@ interface CommentItemProps {
 const CommentItem = (props: CommentItemProps) => {
   const [liked, setLiked] = useState(false);
   const { data } = useGetUserProfile({ address: props.comment.author });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
-  const avatarUrl = gateway() + "/" + profile?.avatarId;
+  const { data: profile } = useGetUserProfile({ address: props.comment.author });
+
+  const avatarUrl = gateway() + "/" + profile?.avatar;
 
   return (
     <Flex gap="2" width="100%" align="center" asChild>

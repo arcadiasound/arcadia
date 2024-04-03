@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLikedTracksIds, removeTrack, saveTrack } from "@/lib/library/likedTracks";
 import { useActiveAddress } from "arweave-wallet-kit";
 import { toast } from "sonner";
+import { getProfileProcess } from "@/lib/user/profile";
 
 const ActionsOverlay = styled(Flex, {
   width: "100%",
@@ -93,17 +94,20 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
   const queryClient = useQueryClient();
   const address = useActiveAddress();
 
-  const { data } = useGetUserProfile({ address: track.creator });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address: track.creator });
 
   const isPlaying = playing && currentTrackId === track.txid && compareArrays(tracks, tracklist);
 
-  const { id: processId } = useGetProcessId(address);
+  const { data: trackProcess } = useGetProcessId(address);
 
   const { data: likedTrackTxs } = useQuery({
     queryKey: [`likedTracksTxs`, address],
-    queryFn: async () => getLikedTracksIds(processId),
-    enabled: !!processId,
+    queryFn: async () => {
+      if (!trackProcess?.id) return;
+
+      return getLikedTracksIds(trackProcess.id);
+    },
+    enabled: !!trackProcess?.id,
     refetchOnWindowFocus: false,
     onSuccess: (data) => console.log(data),
     onError: (error) => console.error(error),
@@ -184,17 +188,17 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
               </IconButton>
               <Flex align="center" gap="3">
                 <AlphaIconButton
-                  disabled={!processId}
+                  disabled={!trackProcess?.id}
                   onClick={() =>
                     liked
                       ? unlike.mutate({
                           txid: track.txid,
-                          processId,
+                          processId: trackProcess?.id,
                           owner: address,
                         })
                       : like.mutate({
                           txid: track.txid,
-                          processId,
+                          processId: trackProcess?.id,
                           owner: address,
                         })
                   }

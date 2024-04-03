@@ -49,8 +49,7 @@ export const ShareDialog = (props: ShareDialogProps) => {
   const origin = window.location.origin;
   const SHARE_URL = `${origin}/#/track?tx=${props.track.txid}`;
 
-  const { data } = useGetUserProfile({ address: props.track.creator });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address: props.track.creator });
 
   const { data: audioData } = useQuery({
     queryKey: [`audioData-${props.track.txid}`],

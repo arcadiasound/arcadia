@@ -15,6 +15,7 @@ importers:
       '@ariakit/react': 0.3.5
       '@css-hooks/react': 1.6.0
       '@css-hooks/recommended': 1.6.0
+      '@hookform/resolvers': 3.3.2
       '@irys/sdk': 0.0.4
       '@permaweb/aoconnect': 0.0.44
       '@permaweb/stampjs': 0.7.1
@@ -76,6 +77,7 @@ importers:
       react-hook-form: 7.47.0
       react-icons: 5.0.1
       react-router-dom: 6.11.2
+      react-zorm: 0.9.0
       sonner: 1.1.0
       typescript: 4.7.4
       vite: 4.3.9
@@ -89,6 +91,7 @@ importers:
       '@ariakit/react': 0.3.5_biqbaboplfbrettd7655fr4n2y
       '@css-hooks/react': 1.6.0_@types+react@18.0.27
       '@css-hooks/recommended': 1.6.0
+      '@hookform/resolvers': 3.3.2_react-hook-form@7.47.0
       '@irys/sdk': 0.0.4_arweave@1.14.4
       '@permaweb/aoconnect': 0.0.44
       '@permaweb/stampjs': 0.7.1
@@ -138,6 +141,7 @@ importers:
       react-hook-form: 7.47.0_react@18.2.0
       react-icons: 5.0.1_react@18.2.0
       react-router-dom: 6.11.2_biqbaboplfbrettd7655fr4n2y
+      react-zorm: 0.9.0_fuugi7lgtddhymbnz45nxiftzq
       sonner: 1.1.0_biqbaboplfbrettd7655fr4n2y
       vite-plugin-node-polyfills: 0.17.0_vite@4.3.9
       warp-contracts: 1.4.25
@@ -2230,6 +2234,14 @@ packages:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
       graphql: 16.8.1
+    dev: false
+
+  /@hookform/resolvers/3.3.2_react-hook-form@7.47.0:
+    resolution: {integrity: sha512-Tw+GGPnBp+5DOsSg4ek3LCPgkBOuOgS5DsDV7qsWNH9LZc433kgsWICjlsh2J9p04H2K66hsXPPb9qn9ILdUtA==}
+    peerDependencies:
+      react-hook-form: ^7.0.0
+    dependencies:
+      react-hook-form: 7.47.0_react@18.2.0
     dev: false
 
   /@humanwhocodes/config-array/0.11.14:
@@ -9749,6 +9761,18 @@ packages:
       tslib: 2.6.2
     dev: false
 
+  /react-zorm/0.9.0_fuugi7lgtddhymbnz45nxiftzq:
+    resolution: {integrity: sha512-esuEiNUuj+JfI4Lz5o36KgT2JNN/NTNeO/70FghbRSBjCxRKeEtjO4KXP7SOMzbOa6rhOFNiP+goPXOUTLG/pw==}
+    peerDependencies:
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
+      zod: '>=3.0.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      zod: 3.22.4
+    dev: false
+
   /react/18.2.0:
     resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
     engines: {node: '>=0.10.0'}
@@ -9792,6 +9816,7 @@ packages:
 
   /reflect-metadata/0.2.1:
     resolution: {integrity: sha512-i5lLI6iw9AU3Uu4szRNPPEkomnkjRTaVt9hy/bn5g/oSzekBSMeLZblcjP74AW0vBabqERLLIrz+gR8QYR54Tw==}
+    deprecated: This version has a critical bug in fallback handling. Please upgrade to reflect-metadata@0.2.2 or newer.
     requiresBuild: true
     dev: false
     optional: true

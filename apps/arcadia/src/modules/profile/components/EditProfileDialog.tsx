@@ -1,6 +1,5 @@
-import { appConfig } from "@/config";
 import { css } from "@/styles/css";
-import { Profile } from "@/types";
+import { ProfileInfo } from "@/types";
 import {
   DialogRoot,
   DialogContent,
@@ -25,16 +24,16 @@ import {
 } from "@radix-ui/themes";
 import { RxCross2, RxExclamationTriangle } from "react-icons/rx";
 import { styled } from "@stitches/react";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { z, ZodError } from "zod";
 import { BsCamera } from "react-icons/bs";
 import * as Form from "@radix-ui/react-form";
 import { gateway } from "@/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { setProfile } from "@/lib/profile/setProfile";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "sonner";
 import Avvvatars from "avvvatars-react";
+import { createProfileProcess, getProfileProcess, updateProfile } from "@/lib/user/profile";
 
 const StyledAvatar = styled(Avatar);
 
@@ -70,16 +69,6 @@ const AlphaIconButton = styled(IconButton, {
   },
 });
 
-const userProfile = z.object({
-  name: z.string().min(3),
-  handle: z.string(),
-  bio: z.string(),
-  avatar: z.custom<File>(),
-  banner: z.custom<File>(),
-});
-
-type UserProfile = z.infer<typeof userProfile>;
-
 const HiddenInput = styled(TextField.Input, {
   width: 0.1,
   height: 0.1,
@@ -109,10 +98,20 @@ const BannerContainer = Box;
 const AvatarContainer = Box;
 const AVATAR_SIZE = 96;
 
+const userProfile = z.object({
+  name: z.string().min(3),
+  handle: z.string(),
+  bio: z.string().max(150).optional(),
+  avatar: z.custom<File>().optional(),
+  banner: z.custom<File>().optional(),
+});
+
+type UserProfile = z.infer<typeof userProfile>;
+
 interface EditProfileDialogProps {
   address: string;
-  hasProfile: boolean | undefined;
-  profile: Profile | undefined;
+  // hasProfile: boolean | undefined;
+  profile: ProfileInfo | undefined;
   children: React.ReactNode;
 }
 
@@ -122,19 +121,23 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
   const [localBannerUrl, setLocalBannerUrl] = useState<string>();
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
-  const [formErrors, setFormErrors] = useState<UserProfile | {}>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState<UserProfile>({
+    name: props.profile?.name || "",
+    handle: props.profile?.handle || "",
+    bio: props.profile?.bio || "",
+  });
+  const [formErrors, setFormErrors] = useState<UserProfile | {}>({});
   const queryClient = useQueryClient();
-  const [name, setName] = useState(props.profile?.name || "");
-  const [handle, setHandle] = useState(props.profile?.handle || "");
-  const [bio, setBio] = useState(props.profile?.bio || "");
 
-  useEffect(() => {
-    console.log(props.profile);
-  }, []);
+  const { data: processRes } = useQuery({
+    queryKey: [`profileProcess`, props.address],
+    queryFn: () => getProfileProcess(props.address),
+    enabled: !!props.address,
+  });
 
-  const bannerUrl = gateway() + "/" + props.profile?.bannerId;
-  const avatarUrl = gateway() + "/" + props.profile?.avatarId;
+  const bannerUrl = gateway() + "/" + props.profile?.banner;
+  const avatarUrl = gateway() + "/" + props.profile?.avatar;
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>, type: "avatar" | "banner") => {
     const fileObj = e.target.files && e.target.files[0];
@@ -160,31 +163,41 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
     };
   };
 
-  useEffect(() => {
-    if (bannerUrl) {
-      console.log(bannerUrl);
-    }
-  }, [bannerUrl]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData);
 
     try {
-      const res = userProfile.parse(data);
+      setIsSubmitting(true);
+
+      const values = userProfile.parse(data);
       // Reset errors if successful
       setFormErrors({});
 
-      console.log(res);
-
-      profileMutation.mutate({
-        values: res,
-        profile: props.profile,
-        address: props.address,
-      });
+      if (processRes?.length) {
+        const processId = processRes[0].node.id;
+        profileMutation.mutate({
+          processId,
+          values,
+          profile: props.profile,
+        });
+      } else {
+        await createProfileProcess({ owner: props.address })
+          .then((processId) => {
+            console.log({ processId });
+            profileMutation.mutate({
+              processId,
+              values,
+              profile: props.profile,
+            });
+          })
+          .catch((error) => {
+            throw new Error(error);
+          });
+      }
     } catch (error) {
+      setIsSubmitting(false);
       if (error instanceof ZodError) {
         // Map Zod errors to form fields
         const newErrors = error.issues.reduce((acc, currentIssue) => {
@@ -201,37 +214,58 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
 
   const debounceSuccess = useDebounce(() => {
     setIsSubmitting(false);
-    localStorage.setItem("invalidate-profile-query", `profile-${props.address}`);
-    queryClient.invalidateQueries({ queryKey: [`profile-${props.address}`] });
+    // reset();
+    queryClient.invalidateQueries({ queryKey: ["profile", { owner: props.address }] });
     setLocalAvatarUrl("");
     setLocalBannerUrl("");
-    toast.success("Profile updated", {
-      style: css({
-        padding: "var(--space-3)",
-        borderRadius: "max(var(--radius-2), var(--radius-full))",
-        bottom: appConfig.playerMaxHeight,
-      }),
-    });
+    toast.success("Profile updated");
     setOpen(false);
-  }, 750);
+  }, 500);
 
   const profileMutation = useMutation({
-    mutationFn: setProfile,
-    onSuccess: (data) => debounceSuccess(),
-    onError: (error: any) => {
+    mutationFn: updateProfile,
+    // set context state optimistically
+    onMutate: async (newProfile) => {
+      // prevent overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: ["profile", props.address] });
+
+      // snapshot prev value
+      const prevProfile = queryClient.getQueryData<ProfileInfo>(["profile", props.address]);
+
+      // optimistically update
+      queryClient.setQueryData(["profile", props.address], {
+        ...prevProfile,
+        ...newProfile.profile,
+      });
+
+      // return ctx obj with snapshot
+      return { prevProfile };
+    },
+    onSuccess: (data) => {
+      // debounceSuccess();
+      queryClient.invalidateQueries({ queryKey: ["profile", { owner: props.address }] });
+      setLocalAvatarUrl("");
+      setLocalBannerUrl("");
+      toast.success("Profile updated");
+      setOpen(false);
+    },
+    onError: (error: any, newTodo, ctx: any) => {
       document.body.style.pointerEvents = "none";
+      console.error(error);
+
+      if (ctx) {
+        queryClient.setQueryData(["profile", props.address], ctx.previousTodos);
+      }
+    },
+    onSettled: () => {
       setIsSubmitting(false);
-      // setAvatarUrl("");
-      // setBannerUrl("");
-      // toast.error(
-      //   `An error occured ${
-      //     profile?.hasProfile ? "updating" : "creating"
-      //   } your profile. `,
-      //   {
-      //     description: "Please try again.",
-      //   }
-      // );
-      // onClose();
+
+      queryClient.invalidateQueries({
+        queryKey: ["profile", props.address],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["process", props.address, { type: "profile" }],
+      });
     },
   });
 
@@ -405,17 +439,19 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
                           </Text>
                         </Form.Label>
                       </Flex>
-                      <Form.Control asChild>
+                      <Form.Control minLength={2} asChild>
                         <TextField.Input
                           name="name"
                           type="text"
                           maxLength={20}
-                          value={name || props.profile?.name}
-                          onChange={(e) => setName(e.target.value)}
+                          minLength={2}
+                          value={form.name || props.profile?.name}
+                          onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                           placeholder="Add your name"
                           autoComplete="off"
                           variant="soft"
                           color="gray"
+                          required
                         />
                       </Form.Control>
                     </Form.Field>
@@ -430,8 +466,8 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
                         name="handle"
                         type="text"
                         maxLength={20}
-                        value={handle || props.profile?.handle}
-                        onChange={(e) => setHandle(e.target.value)}
+                        value={form.handle || props.profile?.handle}
+                        onChange={(e) => setForm((prev) => ({ ...prev, handle: e.target.value }))}
                         placeholder="Add your handle"
                         variant="soft"
                         color="gray"
@@ -445,8 +481,8 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
                     <TextArea
                       name="bio"
                       maxLength={160}
-                      value={bio || props.profile?.bio}
-                      onChange={(e) => setBio(e.target.value)}
+                      value={form.bio || props.profile?.bio}
+                      onChange={(e) => setForm((prev) => ({ ...prev, bio: e.target.value }))}
                       placeholder="About me..."
                       variant="soft"
                       color="gray"
@@ -463,8 +499,7 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
                     <RxExclamationTriangle />
                   </CalloutIcon>
                   <CalloutText size="1">
-                    An error occurred trying to {props.hasProfile ? "update" : "create"} your
-                    profile. Please try again or{" "}
+                    An error occurred trying to update your profile. Please try again or{" "}
                     <Link href="https://discord.gg/kBZeUwBebJ">contact support</Link>.
                   </CalloutText>
                 </CalloutRoot>
@@ -475,10 +510,10 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button disabled={isSubmitting} type="submit">
+                <Button disabled={profileMutation.isLoading} type="submit">
                   {/* {props.hasProfile ? updateText : createText} Profile */}
                   {/* {isSubmitting && "..."} */}
-                  {isSubmitting ? "Saving..." : "Save"}
+                  {profileMutation.isLoading ? "Saving..." : "Save"}
                 </Button>
               </Flex>
             </Box>

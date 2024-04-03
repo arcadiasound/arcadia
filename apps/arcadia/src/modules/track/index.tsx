@@ -150,9 +150,11 @@ export const Track = () => {
     queryFn: () => getOwners(ASSET_TEST_TX),
   });
 
-  const { data } = useGetUserProfile({ address: tracks ? tracks[0].creator : undefined });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
-  const avatarUrl = gateway() + "/" + profile?.avatarId;
+  const { data: profile } = useGetUserProfile({
+    address: tracks?.length ? tracks[0].creator : undefined,
+  });
+
+  const avatarUrl = gateway() + "/" + profile?.avatar;
 
   const isUserMe = useIsUserMe(tracks ? tracks[0].creator : undefined);
 
