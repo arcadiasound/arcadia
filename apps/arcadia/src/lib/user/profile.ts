@@ -1,7 +1,6 @@
 import { sleep } from "@/utils";
 import { readMessageResult, sendMessage, spawnProcess } from "../ao";
 import { gql } from "../helpers/gql";
-import { gql as gqlNoTags } from "../helpers";
 import { profileProcessTemplate } from "./processes/profileTemplate";
 import { dryrun } from "@permaweb/aoconnect";
 import { ProfileInfo, SetProfile } from "@/types";
@@ -218,7 +217,7 @@ export const getProfileProcess = async (owner: string | undefined) => {
       throw new Error("No owner address found");
     }
     // gqlNoTags is temp
-    const profileProcessRes = await gqlNoTags({
+    const profileProcessRes = await gql({
       variables: {
         owners: [owner],
         tags: [
