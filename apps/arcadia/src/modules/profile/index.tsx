@@ -17,13 +17,17 @@ import {
 } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
 import { useActiveAddress } from "arweave-wallet-kit";
-import { BsCopy, BsPatchCheckFill } from "react-icons/bs";
+import { BsCheck, BsCopy, BsPatchCheckFill } from "react-icons/bs";
 import { EditProfileDialog } from "./components/EditProfileDialog";
 import Avvvatars from "avvvatars-react";
 import { Releases } from "./components/Releases";
 import { Collection } from "./components/Collection";
 import { Likes } from "./components/Likes";
 import { useLocation } from "react-router-dom";
+import { RxDotFilled } from "react-icons/rx";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { useQuery } from "@tanstack/react-query";
+import { getProfileProcess } from "@/lib/user/profile";
 
 const StyledAvatar = styled(Avatar);
 
@@ -52,7 +56,8 @@ export const Profile = () => {
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
-  const addressFromParams = urlParams.get("address");
+  const addressFromParams = urlParams.get("addr");
+  const { copyToClipboard, isCopied } = useCopyToClipboard();
 
   const address = addressFromParams || connectedAddress;
 
@@ -69,8 +74,16 @@ export const Profile = () => {
 
   const { data: profile } = useGetUserProfile({ address });
 
-  const bannerUrl = gateway() + "/" + profile?.banner;
-  const avatarUrl = gateway() + "/" + profile?.avatar;
+  const { data: profileProcess, isSuccess: profileProcessSuccess } = useQuery({
+    queryKey: ["process", address, { type: "profile" }],
+    queryFn: () => getProfileProcess(address),
+    enabled: !!address,
+  });
+
+  const noProfile = profileProcessSuccess && !profileProcess?.length;
+
+  const bannerUrl = profile ? gateway() + "/" + profile.Info?.banner : undefined;
+  const avatarUrl = profile ? gateway() + "/" + profile.Info?.avatar : undefined;
 
   return (
     <Flex direction="column">
@@ -118,10 +131,11 @@ export const Profile = () => {
           gap="3"
           mx="4"
           pb="4"
-          align="end"
+          align="center"
           style={css({
             position: "absolute",
             inset: 0,
+            alignSelf: "end",
           })}
         >
           <StyledAvatar
@@ -178,10 +192,10 @@ export const Profile = () => {
                   lineHeight: 1.15,
                 })}
               >
-                {profile?.name || abbreviateAddress({ address: address })}
+                {profile?.Info?.name || abbreviateAddress({ address: address })}
               </Text>
             </Flex>
-            {profile?.name && (
+            {profile && (
               <Flex
                 align="center"
                 gap="2"
@@ -191,54 +205,99 @@ export const Profile = () => {
                   color: "var(--white-a10)",
                 })}
               >
-                {profile?.handle && (
+                {profile.Info?.handle && (
                   <>
                     <Text size="2">
-                      {profile.handle.startsWith("@") ? profile.handle : `@${profile.handle}`}
+                      {profile.Info.handle.startsWith("@")
+                        ? profile.Info.handle
+                        : `@${profile.Info.handle}`}
                     </Text>
-                    <Separator orientation="vertical" />
+                    <RxDotFilled style={css({ color: "var(--white-a8)" })} />
                   </>
                 )}
-                <Text
-                  size="2"
-                  style={css({
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    maxWidth: "20ch",
-                  })}
-                >
-                  {abbreviateAddress({ address: address })}
-                </Text>
-                <AlphaIconButton size="1" color="gray" variant="ghost">
-                  <BsCopy />
-                </AlphaIconButton>
+                {profile.Info?.name && (
+                  <>
+                    <Text
+                      size="2"
+                      style={css({
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        maxWidth: "20ch",
+                      })}
+                    >
+                      {abbreviateAddress({ address: address })}
+                    </Text>
+                    <AlphaIconButton
+                      onClick={() => copyToClipboard(address)}
+                      size="1"
+                      color="gray"
+                      variant="ghost"
+                    >
+                      {isCopied ? <BsCheck /> : <BsCopy />}
+                    </AlphaIconButton>
+                    <RxDotFilled style={css({ color: "var(--white-a8)" })} />
+                  </>
+                )}
+                <Flex align="center" gap="3" style={css({ color: "var(--white-a10)" })}>
+                  <Text as="p" size="2">
+                    <Text weight="medium" style={css({ color: "var(--white-a12)" })}>
+                      {profile ? profile.Followers?.length : 0}
+                    </Text>{" "}
+                    Followers
+                  </Text>
+                  <Text as="p" size="2">
+                    <Text weight="medium" style={css({ color: "var(--white-a12)" })}>
+                      {profile ? profile.Following?.length : 0}
+                    </Text>{" "}
+                    Following
+                  </Text>
+                </Flex>
               </Flex>
             )}
           </Flex>
         </Flex>
 
-        {isUserMe && (
-          <EditProfileDialog
-            address={address}
-            // hasProfile={data?.hasProfile}
-            profile={profile}
-          >
+        <Flex
+          style={css({
+            position: "absolute",
+            bottom: "var(--space-3)",
+            right: "var(--space-3)",
+            height: "max-content",
+          })}
+          align="center"
+          gap="3"
+        >
+          {isUserMe ? (
+            <EditProfileDialog
+              address={address}
+              noProfile={noProfile}
+              profile={profile ? profile.Info : undefined}
+            >
+              <Button
+                variant="solid"
+                style={css({
+                  backgroundColor: "var(--white-a3)",
+                  color: "var(--white-a12)",
+                  "&:hover": { backgroundColor: "var(--white-a4)" },
+                })}
+              >
+                {noProfile ? "Create" : "Edit"} profile
+              </Button>
+            </EditProfileDialog>
+          ) : profile ? (
             <Button
               variant="solid"
               style={css({
-                position: "absolute",
-                bottom: "var(--space-3)",
-                right: "var(--space-3)",
-                backgroundColor: "var(--white-a3)",
-                color: "var(--white-a12)",
-                "&:hover": { backgroundColor: "var(--white-a4)" },
+                backgroundColor: "var(--white-a12)",
+                color: "var(--black-a12)",
+                "&:hover": { backgroundColor: "var(--white-a11)" },
               })}
             >
-              Edit profile
+              Follow
             </Button>
-          </EditProfileDialog>
-        )}
+          ) : null}
+        </Flex>
       </Box>
 
       <TabsRoot defaultValue="releases">

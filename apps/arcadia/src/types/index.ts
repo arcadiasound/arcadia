@@ -18,6 +18,13 @@ export interface SetProfile {
   banner?: File | undefined;
 }
 
+export interface AOProfile {
+  Owner: string;
+  Info: ProfileInfo | undefined;
+  Followers: string[];
+  Following: string[];
+}
+
 //temp
 export interface ProfileInfo {
   name: string | undefined;

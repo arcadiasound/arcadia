@@ -3,10 +3,10 @@ import { readMessageResult, sendMessage, spawnProcess } from "../ao";
 import { gql } from "../helpers/gql";
 import { profileProcessTemplate } from "./processes/profileTemplate";
 import { dryrun } from "@permaweb/aoconnect";
-import { ProfileInfo, SetProfile } from "@/types";
+import { AOProfile, ProfileInfo, SetProfile } from "@/types";
 import { uploadFile } from "../irys";
 
-const PROFILE_NAME = "Profile-Test3";
+const PROFILE_NAME = "Profile-Test8";
 
 export const updateProfile = async ({
   profile,
@@ -105,6 +105,7 @@ export const updateProfile = async ({
 };
 
 export const getProfile = async ({ processId }: { processId: string }) => {
+  console.log({ processId });
   try {
     const result = await dryrun({
       process: processId,
@@ -123,36 +124,57 @@ export const getProfile = async ({ processId }: { processId: string }) => {
       throw new Error(message.Error);
     }
 
-    const data: ProfileInfo = JSON.parse(message.Data);
-    console.log({ data });
+    const data: AOProfile = JSON.parse(message.Data);
+    // console.log({ data });
     return data;
   } catch (error: any) {
-    throw new Error(error);
+    console.error(error);
+
+    const emptyProfile: AOProfile = {
+      Owner: "",
+      Followers: [],
+      Following: [],
+      Info: {
+        name: "",
+        handle: "",
+        bio: "",
+        avatar: "",
+        banner: "",
+      },
+    };
+
+    return emptyProfile;
+    // throw new Error(error);
   }
 };
 
 export const createProfileProcess = async ({ owner }: { owner: string }) => {
   const maxRetries = 5;
   let attempts = 0;
+  let processId = "";
 
   while (attempts < maxRetries) {
     try {
-      const processId = await spawnProcess({
-        tags: [
-          {
-            name: "Name",
-            value: PROFILE_NAME,
-          },
-          {
-            name: "DApp-Name",
-            value: "arcadia-v2",
-          },
-        ],
-      });
+      // Only create a new process if processId is not already set
+      if (!processId) {
+        processId = await spawnProcess({
+          tags: [
+            {
+              name: "Name",
+              value: PROFILE_NAME,
+            },
+            {
+              name: "DApp-Name",
+              value: "arcadia-v2",
+            },
+          ],
+        });
+      }
 
       const intialized = await gql({
         variables: {
           owners: [owner],
+          recipients: [processId],
           tags: [
             {
               name: "Data-Protocol",
@@ -166,7 +188,6 @@ export const createProfileProcess = async ({ owner }: { owner: string }) => {
               name: "Action",
               values: ["Eval"],
             },
-            // remove below tag?
             {
               name: "Ctx",
               values: ["Init"],
@@ -180,22 +201,8 @@ export const createProfileProcess = async ({ owner }: { owner: string }) => {
       } else {
         await sleep(2000);
 
-        // init
-        await sendMessage({
-          processId: processId,
-          action: "Eval",
-          data: profileProcessTemplate,
-          tags: [
-            {
-              name: "Ctx",
-              value: "Init",
-            },
-            {
-              name: "DApp-Name",
-              value: "arcadia-v2",
-            },
-          ],
-        });
+        const messageId = await initializeProfileProcess(processId);
+        console.log(messageId);
 
         return processId;
       }
@@ -242,5 +249,31 @@ export const getProfileProcess = async (owner: string | undefined) => {
     return profileProcess;
   } catch (error) {
     console.error(error);
+  }
+};
+
+export const initializeProfileProcess = async (processId: string) => {
+  try {
+    const messageId = await sendMessage({
+      processId: processId,
+      action: "Eval",
+      data: profileProcessTemplate,
+      tags: [
+        {
+          name: "Ctx",
+          value: "Init",
+        },
+        {
+          name: "DApp-Name",
+          value: "arcadia-v2",
+        },
+      ],
+    });
+
+    /* future work - we can now use this messageId to do smth like run a fetch and match the associated data with our template to verify it as a valid profile */
+
+    return messageId;
+  } catch (error: any) {
+    throw new Error(error);
   }
 };

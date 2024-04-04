@@ -28,7 +28,7 @@ import { ChangeEvent, useRef, useState } from "react";
 import { z, ZodError } from "zod";
 import { BsCamera } from "react-icons/bs";
 import * as Form from "@radix-ui/react-form";
-import { gateway } from "@/utils";
+import { gateway, sleep } from "@/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "sonner";
@@ -110,7 +110,7 @@ type UserProfile = z.infer<typeof userProfile>;
 
 interface EditProfileDialogProps {
   address: string;
-  // hasProfile: boolean | undefined;
+  noProfile: boolean;
   profile: ProfileInfo | undefined;
   children: React.ReactNode;
 }
@@ -183,18 +183,21 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
           profile: props.profile,
         });
       } else {
-        await createProfileProcess({ owner: props.address })
-          .then((processId) => {
-            console.log({ processId });
+        try {
+          const processId = await createProfileProcess({ owner: props.address });
+
+          if (processId) {
             profileMutation.mutate({
               processId,
               values,
               profile: props.profile,
             });
-          })
-          .catch((error) => {
-            throw new Error(error);
-          });
+          } else {
+            throw new Error("No process ID found");
+          }
+        } catch (error: any) {
+          throw new Error(error);
+        }
       }
     } catch (error) {
       setIsSubmitting(false);
@@ -211,16 +214,6 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
       }
     }
   };
-
-  const debounceSuccess = useDebounce(() => {
-    setIsSubmitting(false);
-    // reset();
-    queryClient.invalidateQueries({ queryKey: ["profile", { owner: props.address }] });
-    setLocalAvatarUrl("");
-    setLocalBannerUrl("");
-    toast.success("Profile updated");
-    setOpen(false);
-  }, 500);
 
   const profileMutation = useMutation({
     mutationFn: updateProfile,
@@ -268,6 +261,9 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
       });
     },
   });
+
+  const submittingText = props.noProfile ? "Creating" : "Saving";
+  const submitText = props.noProfile ? "Create" : "Save";
 
   return (
     <DialogRoot open={open} onOpenChange={setOpen}>
@@ -510,10 +506,8 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button disabled={profileMutation.isLoading} type="submit">
-                  {/* {props.hasProfile ? updateText : createText} Profile */}
-                  {/* {isSubmitting && "..."} */}
-                  {profileMutation.isLoading ? "Saving..." : "Save"}
+                <Button disabled={isSubmitting || !form.name || !form.handle} type="submit">
+                  {isSubmitting ? submittingText : submitText}
                 </Button>
               </Flex>
             </Box>
