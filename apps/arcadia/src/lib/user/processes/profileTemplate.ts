@@ -22,15 +22,6 @@ local function isOwner(Sender)
   return Sender == Owner or ao.id
 end
 
--- Utility function to check if a user is following another user
-local function isFollowing(followee)
-  return State.Following[followee] ~= nil
-end
-
-local function isFollowed(follower)
-  return State.Followers[follower] ~= nil
-end
-
 -- Handler to update profile information
 Handlers.add(
   "update",
@@ -70,70 +61,61 @@ Handlers.add(
 Handlers.utils.hasMatchingTag("Action", "Follow"),
 function (msg)
     local Data = msg.Data
-    local Receiver = msg.Target
     local Sender = msg.From
 
-    -- If the sender is the owner of the process and the Data field is missing, it's an invalid request
-    if Sender == Receiver and not Data then
-      ao.send({
-        Target = Sender,
-        Action = 'Follow-Error',
-        ["Message-Id"] = msg.Id,
-        Error = "Missing target user to follow",
-        Data = "Missing target user to follow"
-      })
-      return
-      end
-    
-    -- If the sender is not the owner of the process, add the sender as a follower
-    if Sender ~= Receiver then
-      local FollowerID = Sender
-      if not isFollowed(FollowerID) then
-          if not utils.includes(FollowerID, State.Followers) then
-            table.insert(State.Followers, FollowerID)
-          end
-          Handlers.utils.reply("Added follower " .. FollowerID)(msg)
-      else
-          ao.send({
-            Target = Sender,
-            Action = 'Follow-Error',
-            ["Message-Id"] = msg.Id,
-            Error = FollowerID .. " is already a follower",
-            Data = FollowerID .. " is already a follower"
-          })
-      end
-      return -- Return early to prevent further processing
+    -- Handle case where user is wanting to follow another user/process
+    if Sender == Owner then
+      if not Data then
+        ao.send({
+          Target = ao.id,
+          Action = 'Follow-Error',
+          ["Message-Id"] = msg.Id,
+          Error = "Missing target user to follow",
+          Data = "Missing target user to follow"
+        })
       end
 
-    -- If the sender is the owner of the process and the Data field is present, the process is trying to follow another user
-    -- Prevent following oneself
-    if Receiver == Data then
-      ao.send({
-        Target = Sender,
-        Action = 'Follow-Error',
-        ["Message-Id"] = msg.Id,
-        Error = "You cannot follow yourself",
-        Data = "You cannot follow yourself"
-      })
-      return
+      if Data == ao.id then
+        ao.send({
+          Target = ao.id,
+          Action = 'Follow-Error',
+          ["Message-Id"] = msg.Id,
+          Error = "You cannot follow yourself",
+          Data = "You cannot follow yourself"
+        })
       end
-      -- Check if the current process is already following the target user
-      if not isFollowing(Data) then
-      if not utils.includes(Data, State.Following) then
+
+      if utils.includes(Data, State.Following) then
+        ao.send({
+          Target = Sender,
+          Action = 'Follow-Error',
+          ["Message-Id"] = msg.Id,
+          Error = "You are already following " .. Data,
+          Data = "You are already following " .. Data
+        })
+      else
         table.insert(State.Following, Data)
+  
+        -- Send a message to the target user's process to add the current process as a follower
+        ao.send({Target = Data, Action = "Follow"})
+        Handlers.utils.reply("You are now following " .. Data)(msg)
       end
-
-      -- Send a message to the target user's process to add the current process as a follower
-      ao.send({Target = Data, Action = "Follow", Data = "You are now following " .. Data})
+    else 
+      -- If sender is not Owner, add them as a follower 
+      local FollowerID = Sender
+      if utils.includes(FollowerID, State.Followers) then
+        ao.send({
+          Target = Sender,
+          Action = 'Follow-Error',
+          ["Message-Id"] = msg.Id,
+          Error = FollowerID .. " is already a follower",
+          Data = FollowerID .. " is already a follower"
+        })
       else
-      ao.send({
-        Target = Sender,
-        Action = 'Follow-Error',
-        ["Message-Id"] = msg.Id,
-        Error = "You are already following " .. Data,
-        Data = "You are already following " .. Data
-      })
+        table.insert(State.Followers, FollowerID)
+        Handlers.utils.reply("Added follower " .. FollowerID)(msg)
       end
+    end
 end
 )
 
@@ -143,31 +125,58 @@ Handlers.add(
 Handlers.utils.hasMatchingTag("Action", "Unfollow"),
 function (msg)
     local Data = msg.Data
-    local Receiver = msg.Target
     local Sender = msg.From
 
-    -- If the sender is the owner of the process and the Data field is missing, it's an invalid request
-    if Sender == Receiver and not Data then
-    ao.send({
-      Target = Sender,
-      Action = 'Unfollow-Error',
-      ["Message-Id"] = msg.Id,
-      Error = "Missing target user to unfollow",
-      Data = "Missing target user to unfollow"
-    })
-    return
-    end
+    -- Handle case where user is wanting to follow another user/process
+    if Sender == Owner then
+      if not Data then
+        ao.send({
+          Target = ao.id,
+          Action = 'Unfollow-Error',
+          ["Message-Id"] = msg.Id,
+          Error = "Missing target user to unfollow",
+          Data = "Missing target user to unfollow"
+        })
+      end
 
-    -- If the sender is not the owner of the process, remove the sender from the Followers list
-    if Sender ~= Receiver then
-    local FollowerID = Sender -- The process ID of the user who wants to unfollow
-    if isFollowed(FollowerID) then
-        State.Followers = utils.filter(
-          function (val) return val ~= FollowerID end,
-          State.Followers
+      if Data == ao.id then
+        ao.send({
+          Target = ao.id,
+          Action = 'Follow-Error',
+          ["Message-Id"] = msg.Id,
+          Error = "You cannot unfollow yourself",
+          Data = "You cannot unfollow yourself"
+        })
+      end
+      
+      if utils.includes(Data, State.Following) then
+        State.Following = utils.filter(
+          function (val) return val ~= Data end,
+          State.Following
         )
-        Handlers.utils.reply("Removed follower " .. FollowerID)(msg)
-    else
+    
+        -- Send a message to the target user's process to remove the current process from their Followers list
+        ao.send({Target = Data, Action = "Unfollow"})
+        Handlers.utils.reply("You have stopped following " .. Data)(msg)
+      else
+        ao.send({
+          Target = ao.id,
+          Action = 'Unfollow-Error',
+          ["Message-Id"] = msg.Id,
+          Error = "You are not following " .. Data,
+          Data = "You are not following " .. Data
+        })
+      end
+    else 
+      -- The process ID of the user who wants to unfollow
+      local FollowerID = Sender
+      if utils.includes(FollowerID, State.Followers) then
+          State.Followers = utils.filter(
+            function (val) return val ~= FollowerID end,
+            State.Followers
+          )
+          Handlers.utils.reply("Removed follower " .. FollowerID)(msg)
+      else
         ao.send({
           Target = Sender,
           Action = 'Unfollow-Error',
@@ -175,28 +184,7 @@ function (msg)
           Error = FollowerID .. " is not a follower",
           Data = FollowerID .. " is not a follower"
         })
-    end
-    return 
-    end
-
-    -- If the sender is the owner of the process and the Data field is present, the process is trying to unfollow another user
-    -- Check if the current process is actually following the target user
-    if isFollowing(Data) then
-    State.Following = utils.filter(
-      function (val) return val ~= Data end,
-      State.Following
-    )
-
-    -- Send a message to the target user's process to remove the current process from their Followers list
-    ao.send({Target = Data, Action = "Unfollow", Data = "You have stopped following " .. Data})
-    else
-    ao.send({
-      Target = Sender,
-      Action = 'Unfollow-Error',
-      ["Message-Id"] = msg.Id,
-      Error = "You are not following " .. Data,
-      Data = "You are not following " .. Data
-    })
+      end
     end
 end
 )

@@ -25,9 +25,9 @@ export const useGetUserProfile = (props: UserProfileProps) => {
 
       return getProfile({ processId: processId });
     },
-    onSuccess: (data) => {
-      console.log("profile: ", { data });
-    },
+    // onSuccess: (data) => {
+    //   console.log("profile: ", { data });
+    // },
     // refetchInterval: 5000,
   });
 };

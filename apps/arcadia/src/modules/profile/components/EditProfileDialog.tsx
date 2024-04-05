@@ -247,7 +247,7 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
       console.error(error);
 
       if (ctx) {
-        queryClient.setQueryData(["profile", props.address], ctx.previousTodos);
+        queryClient.setQueryData(["profile", props.address], ctx.prevProfile);
       }
     },
     onSettled: () => {
@@ -507,7 +507,7 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
                   </Button>
                 </DialogClose>
                 <Button disabled={isSubmitting || !form.name || !form.handle} type="submit">
-                  {isSubmitting ? submittingText : submitText}
+                  {isSubmitting ? `${submittingText}...` : submitText}
                 </Button>
               </Flex>
             </Box>

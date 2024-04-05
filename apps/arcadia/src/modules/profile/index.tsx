@@ -26,8 +26,11 @@ import { Likes } from "./components/Likes";
 import { useLocation } from "react-router-dom";
 import { RxDotFilled } from "react-icons/rx";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfileProcess } from "@/lib/user/profile";
+import { followUser, unfollowUser } from "@/lib/user/follow";
+import { AOProfile, ProfileInfo } from "@/types";
+import { useState } from "react";
 
 const StyledAvatar = styled(Avatar);
 
@@ -58,6 +61,8 @@ export const Profile = () => {
   const urlParams = new URLSearchParams(query);
   const addressFromParams = urlParams.get("addr");
   const { copyToClipboard, isCopied } = useCopyToClipboard();
+  const queryClient = useQueryClient();
+  const [followingText, setFollowingText] = useState<"Following" | "Unfollow">("Following");
 
   const address = addressFromParams || connectedAddress;
 
@@ -80,7 +85,92 @@ export const Profile = () => {
     enabled: !!address,
   });
 
+  const { data: profileMeProcess, isSuccess: profileMeProcessSuccess } = useQuery({
+    queryKey: ["process", connectedAddress, { type: "profile" }],
+    queryFn: () => getProfileProcess(connectedAddress),
+    enabled: !!connectedAddress && !isUserMe,
+  });
+
+  const noProfileMe = profileMeProcessSuccess && !profileMeProcess?.length;
   const noProfile = profileProcessSuccess && !profileProcess?.length;
+
+  const followMutation = useMutation({
+    mutationFn: followUser,
+    onMutate: async (data) => {
+      // prevent overwriting optimistic update
+      await queryClient.cancelQueries({
+        queryKey: ["profile", address],
+      });
+
+      // snapshot prev value
+      const prevProfile = queryClient.getQueryData<AOProfile>(["profile", address]);
+
+      // optimistically update
+      queryClient.setQueryData<AOProfile>(["profile", address], (oldProfile) => {
+        return {
+          Owner: oldProfile?.Owner || address,
+          Info: oldProfile?.Info || { name: "", handle: "", bio: "", avatar: "", banner: "" },
+          Followers: oldProfile?.Followers ? [...oldProfile.Followers, data.sender] : [data.sender],
+          Following: oldProfile?.Following || [],
+        };
+      });
+
+      // return ctx obj with snapshot
+      return { prevProfile };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile", address],
+      });
+    },
+    onError: (error, data, ctx: any) => {
+      queryClient.setQueryData(["profile", address], ctx.prevProfile);
+    },
+  });
+
+  const unfollowMutation = useMutation({
+    mutationFn: unfollowUser,
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({
+        queryKey: ["profile", address],
+      });
+
+      const prevProfile = queryClient.getQueryData<AOProfile>(["profile", address]);
+
+      queryClient.setQueryData<AOProfile>(["profile", address], (oldProfile) => {
+        return {
+          Owner: oldProfile?.Owner || address,
+          Info: oldProfile?.Info || { name: "", handle: "", bio: "", avatar: "", banner: "" },
+          Followers: oldProfile?.Followers?.filter((follower) => follower !== data.sender) || [],
+          Following: oldProfile?.Following || [],
+        };
+      });
+
+      return { prevProfile };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile", address],
+      });
+    },
+    onError: (error, data, ctx: any) => {
+      queryClient.setQueryData(["profile", address], ctx.prevProfile);
+    },
+  });
+
+  const isFollowing = () => {
+    if (isUserMe) return false;
+    if (!profile?.Followers) return false;
+    if (!connectedAddress) return false;
+
+    const processId = profileMeProcess?.[0].node.id;
+
+    if (processId && profile.Followers.includes(processId)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   const bannerUrl = profile ? gateway() + "/" + profile.Info?.banner : undefined;
   const avatarUrl = profile ? gateway() + "/" + profile.Info?.avatar : undefined;
@@ -287,14 +377,40 @@ export const Profile = () => {
             </EditProfileDialog>
           ) : profile ? (
             <Button
-              variant="solid"
+              disabled={noProfileMe}
+              onClick={() => {
+                if (!profileProcess?.length) return;
+                if (!profileMeProcess?.length) return;
+
+                const sender = profileMeProcess[0].node.id;
+                const target = profileProcess[0].node.id;
+
+                console.log("sender: ", sender);
+                console.log("target: ", target);
+
+                if (isFollowing()) {
+                  console.log("unfollow...");
+                  unfollowMutation.mutate({ sender, target });
+                } else {
+                  console.log("following...");
+                  followMutation.mutate({ sender, target });
+                }
+              }}
+              onMouseOver={() => setFollowingText("Unfollow")}
+              onMouseLeave={() => setFollowingText("Following")}
+              variant={isFollowing() ? "outline" : "solid"}
+              color="gray"
               style={css({
-                backgroundColor: "var(--white-a12)",
-                color: "var(--black-a12)",
-                "&:hover": { backgroundColor: "var(--white-a11)" },
+                width: 86,
+                backgroundColor: isFollowing() ? "transparent" : "var(--white-a12)",
+                color: isFollowing() ? "var(--white-a12)" : "var(--black-a12)",
+                boxShadow: isFollowing() ? "0 0 0 1px var(--white-a7)" : "none",
+                "&:hover": {
+                  backgroundColor: isFollowing() ? "var(--white-a4)" : "var(--white-a11)",
+                },
               })}
             >
-              Follow
+              {isFollowing() ? followingText : "Follow"}
             </Button>
           ) : null}
         </Flex>

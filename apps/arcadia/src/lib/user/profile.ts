@@ -6,7 +6,7 @@ import { dryrun } from "@permaweb/aoconnect";
 import { AOProfile, ProfileInfo, SetProfile } from "@/types";
 import { uploadFile } from "../irys";
 
-const PROFILE_NAME = "Profile-Test8";
+const PROFILE_NAME = "Profile-Test10";
 
 export const updateProfile = async ({
   profile,
