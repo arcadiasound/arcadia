@@ -97,8 +97,7 @@ export const AudioPlayer = () => {
 
   const currentTrack = tracklist.length > 0 ? tracklist[currentTrackIndex] : null;
 
-  const { data } = useGetUserProfile({ address: currentTrack?.creator });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address: currentTrack?.creator });
 
   // Do we need this? Can it be moved to hook?
   useEffect(() => {
@@ -262,7 +261,7 @@ export const AudioPlayer = () => {
               asChild
             >
               <RouterLink to={`/profile?addr=${currentTrack.creator}`}>
-                {profile?.name || abbreviateAddress({ address: currentTrack?.creator })}
+                {profile?.Info?.name || abbreviateAddress({ address: currentTrack?.creator })}
               </RouterLink>
             </Link>
           </Flex>
