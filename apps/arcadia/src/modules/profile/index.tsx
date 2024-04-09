@@ -31,6 +31,7 @@ import { getProfileProcess } from "@/lib/user/profile";
 import { followUser, unfollowUser } from "@/lib/user/follow";
 import { AOProfile, ProfileInfo } from "@/types";
 import { useState } from "react";
+import { FollowerDialog } from "./components/FollowerDialog";
 
 const StyledAvatar = styled(Avatar);
 
@@ -52,6 +53,19 @@ const AlphaIconButton = styled(IconButton, {
   "&:hover": {
     color: "var(--white-a12)",
   },
+});
+
+const AlphaButton = styled(Button, {
+  color: "var(--white-a11)",
+
+  "&:hover": {
+    background: "var(--white-a2)",
+    color: "var(--white-a12)",
+  },
+});
+
+const StyledSeparator = styled(Separator, {
+  "--separator-size": "40px",
 });
 
 export const Profile = () => {
@@ -163,7 +177,8 @@ export const Profile = () => {
     if (!profile?.Followers) return false;
     if (!connectedAddress) return false;
 
-    const processId = profileMeProcess?.[0].node.id;
+    const processId =
+      profileMeProcess && profileMeProcess.length ? profileMeProcess[0].node.id : undefined;
 
     if (processId && profile.Followers.includes(processId)) {
       return true;
@@ -285,135 +300,149 @@ export const Profile = () => {
                 {profile?.Info?.name || abbreviateAddress({ address: address })}
               </Text>
             </Flex>
-            {profile && (
-              <Flex
-                align="center"
-                gap="2"
-                mt="1"
-                pl="1"
-                style={css({
-                  color: "var(--white-a10)",
-                })}
-              >
-                {profile.Info?.handle && (
-                  <>
-                    <Text size="2">
-                      {profile.Info.handle.startsWith("@")
-                        ? profile.Info.handle
-                        : `@${profile.Info.handle}`}
-                    </Text>
-                    <RxDotFilled style={css({ color: "var(--white-a8)" })} />
-                  </>
-                )}
-                {profile.Info?.name && (
-                  <>
-                    <Text
-                      size="2"
+
+            <Flex
+              align="center"
+              gap="2"
+              mt="1"
+              pl="1"
+              style={css({
+                color: "var(--white-a10)",
+              })}
+            >
+              {profile?.Info?.handle && (
+                <>
+                  <Text size="2">
+                    {profile.Info.handle.startsWith("@")
+                      ? profile.Info.handle
+                      : `@${profile.Info.handle}`}
+                  </Text>
+                  <RxDotFilled style={css({ color: "var(--white-a8)" })} />
+                </>
+              )}
+              {profile?.Info?.name && (
+                <>
+                  <Text
+                    size="2"
+                    style={css({
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      maxWidth: "20ch",
+                    })}
+                  >
+                    {abbreviateAddress({ address: address })}
+                  </Text>
+                  <AlphaIconButton
+                    onClick={() => copyToClipboard(address)}
+                    size="1"
+                    color="gray"
+                    variant="ghost"
+                  >
+                    {isCopied ? <BsCheck /> : <BsCopy />}
+                  </AlphaIconButton>
+                  {/* <RxDotFilled style={css({ color: "var(--white-a8)" })} /> */}
+                </>
+              )}
+              <Flex ml={profile ? "3" : "0"} align="center" gap="3">
+                {isUserMe ? (
+                  <EditProfileDialog
+                    address={address}
+                    noProfile={noProfile}
+                    profile={profile ? profile.Info : undefined}
+                  >
+                    <Button
+                      size="1"
+                      variant="solid"
                       style={css({
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        maxWidth: "20ch",
+                        backgroundColor: "var(--white-a3)",
+                        color: "var(--white-a12)",
+                        "&:hover": { backgroundColor: "var(--white-a4)" },
                       })}
                     >
-                      {abbreviateAddress({ address: address })}
-                    </Text>
-                    <AlphaIconButton
-                      onClick={() => copyToClipboard(address)}
-                      size="1"
-                      color="gray"
-                      variant="ghost"
-                    >
-                      {isCopied ? <BsCheck /> : <BsCopy />}
-                    </AlphaIconButton>
-                    <RxDotFilled style={css({ color: "var(--white-a8)" })} />
-                  </>
+                      {noProfile ? "Create" : "Edit"} profile
+                    </Button>
+                  </EditProfileDialog>
+                ) : (
+                  <Button
+                    size="1"
+                    disabled={noProfileMe}
+                    onClick={() => {
+                      if (!profileProcess?.length) return;
+                      if (!profileMeProcess?.length) return;
+
+                      const sender = profileMeProcess[0].node.id;
+                      const target = profileProcess[0].node.id;
+
+                      if (isFollowing()) {
+                        unfollowMutation.mutate({ sender, target });
+                      } else {
+                        followMutation.mutate({ sender, target });
+                      }
+                    }}
+                    onMouseOver={() => setFollowingText("Unfollow")}
+                    onMouseLeave={() => setFollowingText("Following")}
+                    variant={isFollowing() ? "outline" : "solid"}
+                    color="gray"
+                    style={css({
+                      width: 86,
+                      backgroundColor: isFollowing() ? "transparent" : "var(--white-a12)",
+                      color: isFollowing() ? "var(--white-a12)" : "var(--black-a12)",
+                      boxShadow: isFollowing() ? "0 0 0 1px var(--white-a7)" : "none",
+                      "&:hover": {
+                        backgroundColor: isFollowing() ? "var(--white-a4)" : "var(--white-a11)",
+                      },
+                    })}
+                  >
+                    {isFollowing() ? followingText : "Follow"}
+                  </Button>
                 )}
-                <Flex align="center" gap="3" style={css({ color: "var(--white-a10)" })}>
-                  <Text as="p" size="2">
-                    <Text weight="medium" style={css({ color: "var(--white-a12)" })}>
-                      {profile ? profile.Followers?.length : 0}
-                    </Text>{" "}
-                    Followers
-                  </Text>
-                  <Text as="p" size="2">
-                    <Text weight="medium" style={css({ color: "var(--white-a12)" })}>
-                      {profile ? profile.Following?.length : 0}
-                    </Text>{" "}
-                    Following
-                  </Text>
-                </Flex>
               </Flex>
-            )}
+            </Flex>
           </Flex>
         </Flex>
 
-        <Flex
-          style={css({
-            position: "absolute",
-            bottom: "var(--space-3)",
-            right: "var(--space-3)",
-            height: "max-content",
-          })}
-          align="center"
-          gap="3"
-        >
-          {isUserMe ? (
-            <EditProfileDialog
-              address={address}
-              noProfile={noProfile}
-              profile={profile ? profile.Info : undefined}
-            >
-              <Button
-                variant="solid"
-                style={css({
-                  backgroundColor: "var(--white-a3)",
-                  color: "var(--white-a12)",
-                  "&:hover": { backgroundColor: "var(--white-a4)" },
-                })}
-              >
-                {noProfile ? "Create" : "Edit"} profile
-              </Button>
-            </EditProfileDialog>
-          ) : profile ? (
-            <Button
-              disabled={noProfileMe}
-              onClick={() => {
-                if (!profileProcess?.length) return;
-                if (!profileMeProcess?.length) return;
-
-                const sender = profileMeProcess[0].node.id;
-                const target = profileProcess[0].node.id;
-
-                console.log("sender: ", sender);
-                console.log("target: ", target);
-
-                if (isFollowing()) {
-                  console.log("unfollow...");
-                  unfollowMutation.mutate({ sender, target });
-                } else {
-                  console.log("following...");
-                  followMutation.mutate({ sender, target });
-                }
-              }}
-              onMouseOver={() => setFollowingText("Unfollow")}
-              onMouseLeave={() => setFollowingText("Following")}
-              variant={isFollowing() ? "outline" : "solid"}
-              color="gray"
+        {profile && (
+          <Flex
+            style={css({
+              position: "absolute",
+              bottom: "var(--space-3)",
+              right: "var(--space-5)",
+              height: "max-content",
+              color: "var(--white-a10)",
+            })}
+            align="center"
+            gap="5"
+          >
+            <Flex direction="column" align="start" gap="1">
+              <FollowerDialog profile={profile} followerTab="followers">
+                <AlphaButton variant="ghost" color="gray" size="1">
+                  Followers
+                </AlphaButton>
+              </FollowerDialog>
+              <Text size="6" style={css({ color: "var(--white-a12)" })}>
+                {profile ? profile.Followers?.length : 0}
+              </Text>{" "}
+            </Flex>
+            <StyledSeparator
+              orientation="vertical"
+              size="2"
               style={css({
-                width: 86,
-                backgroundColor: isFollowing() ? "transparent" : "var(--white-a12)",
-                color: isFollowing() ? "var(--white-a12)" : "var(--black-a12)",
-                boxShadow: isFollowing() ? "0 0 0 1px var(--white-a7)" : "none",
-                "&:hover": {
-                  backgroundColor: isFollowing() ? "var(--white-a4)" : "var(--white-a11)",
-                },
+                backgroundColor: "var(--white-a5)",
               })}
-            >
-              {isFollowing() ? followingText : "Follow"}
-            </Button>
-          ) : null}
-        </Flex>
+            />
+            <Flex direction="column" align="start" gap="1">
+              <FollowerDialog profile={profile} followerTab="following">
+                <AlphaButton variant="ghost" color="gray" size="1">
+                  Following
+                </AlphaButton>
+              </FollowerDialog>
+              <Text size="6" weight="medium" style={css({ color: "var(--white-a12)" })}>
+                {profile ? profile.Following?.length : 0}
+              </Text>{" "}
+            </Flex>
+          </Flex>
+        )}
       </Box>
 
       <TabsRoot defaultValue="releases">

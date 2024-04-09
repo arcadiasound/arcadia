@@ -220,44 +220,42 @@ export const EditProfileDialog = (props: EditProfileDialogProps) => {
     // set context state optimistically
     onMutate: async (newProfile) => {
       // prevent overwriting optimistic update
-      await queryClient.cancelQueries({ queryKey: ["profile", props.address] });
+      await queryClient.cancelQueries({ queryKey: ["profile", newProfile.processId] });
 
       // snapshot prev value
-      const prevProfile = queryClient.getQueryData<ProfileInfo>(["profile", props.address]);
+      const prevProfile = queryClient.getQueryData<ProfileInfo>(["profile", newProfile.processId]);
 
       // optimistically update
-      queryClient.setQueryData(["profile", props.address], {
+      queryClient.setQueryData(["profile", newProfile.processId], {
         ...prevProfile,
         ...newProfile.profile,
       });
 
       // return ctx obj with snapshot
-      return { prevProfile };
+      return { prevProfile, processId: newProfile.processId };
     },
     onSuccess: (data) => {
-      // debounceSuccess();
-      queryClient.invalidateQueries({ queryKey: ["profile", { owner: props.address }] });
       setLocalAvatarUrl("");
       setLocalBannerUrl("");
       toast.success("Profile updated");
       setOpen(false);
     },
-    onError: (error: any, newTodo, ctx: any) => {
+    onError: (error: any, newProfile, ctx: any) => {
       document.body.style.pointerEvents = "none";
       console.error(error);
 
       if (ctx) {
-        queryClient.setQueryData(["profile", props.address], ctx.prevProfile);
+        queryClient.setQueryData(["profile", ctx.processId], ctx.prevProfile);
       }
     },
-    onSettled: () => {
+    onSettled: (res, err, data) => {
       setIsSubmitting(false);
 
       queryClient.invalidateQueries({
-        queryKey: ["profile", props.address],
+        queryKey: ["profile", data.processId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["process", props.address, { type: "profile" }],
+        queryKey: ["process", data.processId, { type: "profile" }],
       });
     },
   });
