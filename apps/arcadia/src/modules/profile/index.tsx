@@ -5,6 +5,10 @@ import {
   Avatar,
   Box,
   Button,
+  DialogClose,
+  DialogContent,
+  DialogRoot,
+  DialogTrigger,
   Flex,
   Grid,
   IconButton,
@@ -23,8 +27,8 @@ import Avvvatars from "avvvatars-react";
 import { Releases } from "./components/Releases";
 import { Collection } from "./components/Collection";
 import { Likes } from "./components/Likes";
-import { useLocation } from "react-router-dom";
-import { RxDotFilled } from "react-icons/rx";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { RxCross2, RxDotFilled } from "react-icons/rx";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getProfileProcess } from "@/lib/user/profile";
@@ -99,11 +103,17 @@ export const Profile = () => {
     enabled: !!address,
   });
 
+  const processId =
+    profileProcess && profileProcess[0]?.node.id ? profileProcess[0].node.id : undefined;
+
   const { data: profileMeProcess, isSuccess: profileMeProcessSuccess } = useQuery({
     queryKey: ["process", connectedAddress, { type: "profile" }],
     queryFn: () => getProfileProcess(connectedAddress),
     enabled: !!connectedAddress && !isUserMe,
   });
+
+  const processIdMe =
+    profileMeProcess && profileMeProcess[0]?.node.id ? profileMeProcess[0].node.id : undefined;
 
   const noProfileMe = profileMeProcessSuccess && !profileMeProcess?.length;
   const noProfile = profileProcessSuccess && !profileProcess?.length;
@@ -177,10 +187,7 @@ export const Profile = () => {
     if (!profile?.Followers) return false;
     if (!connectedAddress) return false;
 
-    const processId =
-      profileMeProcess && profileMeProcess.length ? profileMeProcess[0].node.id : undefined;
-
-    if (processId && profile.Followers.includes(processId)) {
+    if (processIdMe && profile.Followers.includes(processIdMe)) {
       return true;
     } else {
       return false;
@@ -266,7 +273,7 @@ export const Profile = () => {
               color: "var(--white-a12)",
             })}
           >
-            <Flex align="center" gap="1">
+            {/* <Flex align="center" gap="1">
               <Text size="1" weight="medium">
                 Verified
               </Text>
@@ -276,30 +283,21 @@ export const Profile = () => {
                   height: VOUCHED_ICON_SIZE,
                 })}
               />
-            </Flex>
-            <Flex
-              align="center"
-              gap="3"
+            </Flex> */}
+            <Text
+              size="9"
+              weight="medium"
               style={css({
-                backdropFilter: "blur(4px)",
-                borderRadius: BANNER_RADIUS,
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                maxWidth: "15ch",
+                // solves issue of overflow cutting off text
+                lineHeight: 1.15,
               })}
             >
-              <Text
-                size="9"
-                weight="medium"
-                style={css({
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  maxWidth: "15ch",
-                  // solves issue of overflow cutting off text
-                  lineHeight: 1.15,
-                })}
-              >
-                {profile?.Info?.name || abbreviateAddress({ address: address })}
-              </Text>
-            </Flex>
+              {profile?.Info?.name || abbreviateAddress({ address: address })}
+            </Text>
 
             <Flex
               align="center"
@@ -364,38 +362,123 @@ export const Profile = () => {
                     </Button>
                   </EditProfileDialog>
                 ) : (
-                  <Button
-                    size="1"
-                    disabled={noProfileMe}
-                    onClick={() => {
-                      if (!profileProcess?.length) return;
-                      if (!profileMeProcess?.length) return;
+                  <>
+                    {processId && processIdMe ? (
+                      <Button
+                        size="1"
+                        onClick={() => {
+                          if (!processId) return;
+                          if (!processIdMe) return;
 
-                      const sender = profileMeProcess[0].node.id;
-                      const target = profileProcess[0].node.id;
+                          const sender = processIdMe;
+                          const target = processId;
 
-                      if (isFollowing()) {
-                        unfollowMutation.mutate({ sender, target });
-                      } else {
-                        followMutation.mutate({ sender, target });
-                      }
-                    }}
-                    onMouseOver={() => setFollowingText("Unfollow")}
-                    onMouseLeave={() => setFollowingText("Following")}
-                    variant={isFollowing() ? "outline" : "solid"}
-                    color="gray"
-                    style={css({
-                      width: 86,
-                      backgroundColor: isFollowing() ? "transparent" : "var(--white-a12)",
-                      color: isFollowing() ? "var(--white-a12)" : "var(--black-a12)",
-                      boxShadow: isFollowing() ? "0 0 0 1px var(--white-a7)" : "none",
-                      "&:hover": {
-                        backgroundColor: isFollowing() ? "var(--white-a4)" : "var(--white-a11)",
-                      },
-                    })}
-                  >
-                    {isFollowing() ? followingText : "Follow"}
-                  </Button>
+                          if (isFollowing()) {
+                            unfollowMutation.mutate({ sender, target });
+                          } else {
+                            followMutation.mutate({ sender, target });
+                          }
+                        }}
+                        onMouseOver={() => setFollowingText("Unfollow")}
+                        onMouseLeave={() => setFollowingText("Following")}
+                        variant={isFollowing() ? "outline" : "solid"}
+                        color="gray"
+                        style={css({
+                          minWidth: 64,
+                          backgroundColor: isFollowing() ? "transparent" : "var(--white-a12)",
+                          color: isFollowing() ? "var(--white-a12)" : "var(--black-a12)",
+                          boxShadow: isFollowing() ? "0 0 0 1px var(--white-a7)" : "none",
+                          "&:hover": {
+                            backgroundColor: isFollowing() ? "var(--white-a4)" : "var(--white-a11)",
+                          },
+                        })}
+                      >
+                        {isFollowing() ? followingText : "Follow"}
+                      </Button>
+                    ) : (
+                      <DialogRoot>
+                        <DialogTrigger>
+                          <Button
+                            size="1"
+                            style={css({
+                              minWidth: 64,
+                              backgroundColor: "var(--white-a12)",
+                              color: "var(--black-a12)",
+                              "&:hover": {
+                                backgroundColor: "var(--white-a11)",
+                              },
+                            })}
+                          >
+                            Follow
+                          </Button>
+                        </DialogTrigger>
+
+                        <DialogContent
+                          style={css({
+                            position: "relative",
+                            maxWidth: 450,
+                            overflow: "hidden",
+                          })}
+                        >
+                          <DialogClose>
+                            <IconButton
+                              size="1"
+                              color="gray"
+                              variant="soft"
+                              style={css({
+                                position: "absolute",
+                                right: "var(--space-4)",
+                                top: "var(--space-4)",
+                              })}
+                            >
+                              <RxCross2 style={css({ width: 14, height: 14 })} />
+                            </IconButton>
+                          </DialogClose>
+
+                          <Flex mt="3" direction="column" gap="5" justify="between" align="center">
+                            <Text weight="medium">You need to create a profile to follow:</Text>
+                            <Flex align="center" gap="3">
+                              <StyledAvatar
+                                src={avatarUrl}
+                                fallback={
+                                  <Avvvatars
+                                    style="shape"
+                                    value={address}
+                                    size={AVATAR_SIZE / 2}
+                                    radius={0}
+                                  />
+                                }
+                                style={css({
+                                  width: AVATAR_SIZE / 2,
+                                  height: AVATAR_SIZE / 2,
+                                  borderRadius: AVATAR_RADIUS,
+                                  outline: `${OUTLINE_OFFSET}px solid var(--white-a3)`,
+                                  outlineOffset: -OUTLINE_OFFSET,
+                                  overflow: "hidden",
+                                })}
+                                css={{
+                                  ".rt-AvatarFallback > div": {
+                                    borderRadius: 0,
+                                  },
+                                }}
+                              />
+                              <Flex direction="column">
+                                <Text weight="medium" size="5">
+                                  {profile?.Info?.name || abbreviateAddress({ address })}
+                                </Text>
+                                {profile?.Info?.handle && (
+                                  <Text color="gray">@{profile?.Info?.handle}</Text>
+                                )}
+                              </Flex>
+                            </Flex>
+                            <Button variant="solid" asChild>
+                              <RouterLink to={"/profile"}>Go to profile</RouterLink>
+                            </Button>
+                          </Flex>
+                        </DialogContent>
+                      </DialogRoot>
+                    )}
+                  </>
                 )}
               </Flex>
             </Flex>

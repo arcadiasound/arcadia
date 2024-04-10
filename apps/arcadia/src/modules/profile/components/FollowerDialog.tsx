@@ -95,10 +95,20 @@ export const FollowerDialog = (props: FollowerDialogProps) => {
   const { profile } = props;
   const [open, setOpen] = useState(false);
   const [followerTab, setFollowerTab] = useState<FollowerTab>(props.followerTab);
+  const connectedAddress = useActiveAddress();
 
   if (!profile) {
     return null;
   }
+
+  const { data: profileMeProcess, isSuccess: profileMeProcessSuccess } = useQuery({
+    queryKey: ["process", connectedAddress, { type: "profile" }],
+    queryFn: () => getProfileProcess(connectedAddress),
+    enabled: !!connectedAddress,
+  });
+
+  const processIdMe =
+    profileMeProcess && profileMeProcess[0]?.node.id ? profileMeProcess[0].node.id : undefined;
 
   return (
     <DialogRoot open={open} onOpenChange={setOpen}>
@@ -231,8 +241,11 @@ const Follower = (props: FollowProps) => {
     enabled: !!connectedAddress,
   });
 
+  const processIdMe =
+    profileMeProcess && profileMeProcess[0]?.node.id ? profileMeProcess[0].node.id : undefined;
+
   const { data: profileMe } = useGetUserProfile({
-    processId: profileMeProcess?.[0].node.id,
+    processId: processIdMe,
     address: connectedAddress || "",
   });
 
@@ -316,16 +329,16 @@ const Follower = (props: FollowProps) => {
           </Flex>
         </Flex>
 
-        {!isUserMe && (
+        {!isUserMe && profileMe && (
           <Button
             disabled={isLoading}
             onClick={() => {
-              if (!profileMeProcess?.length) return;
+              if (!processIdMe) return;
 
               if (isFollowing()) {
-                unfollow.mutate({ sender: profileMeProcess[0].node.id, target: processId });
+                unfollow.mutate({ sender: processIdMe, target: processId });
               } else {
-                follow.mutate({ sender: profileMeProcess[0].node.id, target: processId });
+                follow.mutate({ sender: processIdMe, target: processId });
               }
             }}
             color="gray"
