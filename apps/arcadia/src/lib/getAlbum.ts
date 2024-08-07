@@ -1,4 +1,4 @@
-import { appConfig } from "@/apps/arcadia/appConfig";
+import { appConfig } from "../config";
 import { GQLQuery } from "@/types";
 import { GetTransactionsQuery } from "arweave-graphql";
 import { arweave } from "./arweave";
@@ -15,16 +15,10 @@ export const getAlbum = async (txid: string) => {
       .filter((edge) => edge.node.tags.find((x) => x.name === "Title"))
       .map((edge) => {
         const title = edge.node.tags.find((x) => x.name === "Title")?.value;
-        const description = edge.node.tags.find(
-          (x) => x.name === "Description"
-        )?.value;
+        const description = edge.node.tags.find((x) => x.name === "Description")?.value;
         const id = edge.node.id;
-        const artworkId = edge.node.tags.find(
-          (x) => x.name === "Thumbnail"
-        )?.value;
-        const genre = edge.node.tags.find(
-          (x) => x.name === "Topic:genre"
-        )?.value;
+        const artworkId = edge.node.tags.find((x) => x.name === "Thumbnail")?.value;
+        const genre = edge.node.tags.find((x) => x.name === "Topic:genre")?.value;
         const topics = edge.node.tags
           .filter((tag) => tag.name.includes("Topic"))
           .map((tag) => tag.value);
@@ -47,13 +41,9 @@ export const getAlbum = async (txid: string) => {
         let creator: string;
 
         try {
-          const creatorTag = edge.node.tags.find(
-            (x) => x.name === "Creator"
-          )?.value;
+          const creatorTag = edge.node.tags.find((x) => x.name === "Creator")?.value;
           // find owner from balances
-          const initStateTag = edge.node.tags.find(
-            (x) => x.name === "Init-State"
-          )?.value;
+          const initStateTag = edge.node.tags.find((x) => x.name === "Init-State")?.value;
 
           const initState = initStateTag ? JSON.parse(initStateTag) : undefined;
 

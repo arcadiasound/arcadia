@@ -1,4 +1,4 @@
-import { CSS, keyframes, styled } from "@/apps/arcadia/stitches.config";
+import { CSS, keyframes, styled } from "../stitches.config";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 const slideUpAndFade = keyframes({
@@ -41,10 +41,7 @@ const contentStyles: CSS = {
 };
 
 export const DropdownMenuContent = styled(DropdownMenu.Content, contentStyles);
-export const DropdownMenuSubContent = styled(
-  DropdownMenu.SubContent,
-  contentStyles
-);
+export const DropdownMenuSubContent = styled(DropdownMenu.SubContent, contentStyles);
 
 export const DropdownMenuArrow = styled(DropdownMenu.Arrow, { fill: "white" });
 
@@ -74,10 +71,7 @@ export const itemStyles: CSS = {
 };
 
 export const DropdownMenuItem = styled(DropdownMenu.Item, itemStyles);
-export const DropdownMenuCheckboxItem = styled(
-  DropdownMenu.CheckboxItem,
-  itemStyles
-);
+export const DropdownMenuCheckboxItem = styled(DropdownMenu.CheckboxItem, itemStyles);
 export const DropdownMenuRadioItem = styled(DropdownMenu.RadioItem, itemStyles);
 export const DropdownMenuSubTrigger = styled(DropdownMenu.SubTrigger, {
   '&[data-state="open"]': {

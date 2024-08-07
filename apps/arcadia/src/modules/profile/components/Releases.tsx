@@ -127,7 +127,7 @@ export const Releases = (props: ReleasesProps) => {
   return (
     <Box mt="5">
       <Heading as="h3" size="5" weight="medium">
-        {profile?.name || abbreviateAddress({ address: props.address })}'s Discography
+        {profile?.Info?.name || abbreviateAddress({ address: props.address })}'s Discography
       </Heading>
       <StyledTabsRoot defaultValue="all" mt="4">
         <TabsList>

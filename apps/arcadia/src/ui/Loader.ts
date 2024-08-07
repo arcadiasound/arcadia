@@ -1,4 +1,4 @@
-import { keyframes, styled } from "@/apps/arcadia/stitches.config";
+import { keyframes, styled } from "../stitches.config";
 
 const spin = keyframes({
   to: { transform: "rotate(360deg)" },

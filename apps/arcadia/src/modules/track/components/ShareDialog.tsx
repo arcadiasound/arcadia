@@ -153,7 +153,7 @@ export const ShareDialog = (props: ShareDialogProps) => {
                   display: "block",
                 })}
               >
-                {profile?.name || abbreviateAddress({ address: props.track.creator })}
+                {profile?.Info?.name || abbreviateAddress({ address: props.track.creator })}
               </Text>
             </Box>
             {audioData?.duration && (

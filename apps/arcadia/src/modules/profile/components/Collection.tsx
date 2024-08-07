@@ -24,7 +24,7 @@ export const Collection = (props: CollectionProps) => {
       <Grid asChild columns="6" gapX="2" gapY="7" width="auto">
         <ul>
           <Text weight="medium">
-            {profile?.name || abbreviateAddress({ address: props.address })}'s Collection
+            {profile?.Info?.name || abbreviateAddress({ address: props.address })}'s Collection
           </Text>
         </ul>
       </Grid>

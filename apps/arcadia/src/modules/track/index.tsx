@@ -154,7 +154,7 @@ export const Track = () => {
     address: tracks?.length ? tracks[0].creator : undefined,
   });
 
-  const avatarUrl = gateway() + "/" + profile?.avatar;
+  const avatarUrl = gateway() + "/" + profile?.Info?.avatar;
 
   const isUserMe = useIsUserMe(tracks ? tracks[0].creator : undefined);
 
@@ -273,7 +273,7 @@ export const Track = () => {
                     asChild
                   >
                     <RouterLink to={`/profile?addr=${track.creator}`}>
-                      {profile?.name || abbreviateAddress({ address: track.creator })}
+                      {profile?.Info?.name || abbreviateAddress({ address: track.creator })}
                     </RouterLink>
                   </Link>
                 </Box>
@@ -340,7 +340,7 @@ export const Track = () => {
               <Flex direction="column">
                 <Link color="gray" highContrast size="2" weight="medium" asChild>
                   <RouterLink to={`/profile?addr=${track.creator}`}>
-                    {profile?.name || abbreviateAddress({ address: track.creator })}
+                    {profile?.Info?.name || abbreviateAddress({ address: track.creator })}
                   </RouterLink>
                 </Link>
                 <Text size="1" color="gray">

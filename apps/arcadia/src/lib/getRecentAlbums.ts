@@ -40,7 +40,7 @@ export const getRecentAlbums = async (gateway: string) => {
     return Promise.all(data);
   } catch (error: any) {
     console.error(error);
-    throw new Error("Error occured whilst fetching data:", error.message);
+    throw new Error("Error occured whilst fetching data: " + error.message);
   }
 };
 
@@ -74,7 +74,7 @@ const setAlbumInfo = async (node: Transaction, gateway: string) => {
     const res = await arweave.api.get(txid);
     tracks = res.data;
   } catch (error) {
-    throw new Error("An error occured getting album tracks: ", error as any);
+    throw new Error(("An error occured getting album tracks: " + error) as any);
   }
 
   return {

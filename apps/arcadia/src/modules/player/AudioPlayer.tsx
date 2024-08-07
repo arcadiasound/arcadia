@@ -8,7 +8,7 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { css } from "@/styles/css";
 import { abbreviateAddress, formatTime } from "@/utils";
 import { Avatar, Box, Flex, Grid, IconButton, Link, Slider, Text } from "@radix-ui/themes";
-import { keyframes, styled } from "@stitches/react";
+import { styled } from "@stitches/react";
 import { useEffect, useRef, useState } from "react";
 import { BsMusicNote } from "react-icons/bs";
 import {
@@ -70,7 +70,6 @@ export const AudioPlayer = () => {
     audioRef,
     gainRef,
     audioCtxRef,
-    setCurrentTrackId,
     tracklist,
     playing,
     togglePlaying,
@@ -130,8 +129,8 @@ export const AudioPlayer = () => {
   const handleValueChange = (e: number[]) => {
     if (!gainRef.current) return;
 
-    setVolume(e[0] / 100);
-    gainRef.current.gain.value = e[0] / 100;
+    setVolume(e[0] ?? 0 / 100);
+    gainRef.current.gain.value = e[0] ?? 0 / 100;
   };
 
   const handleProgressChange = (e: number[]) => {
@@ -145,8 +144,8 @@ export const AudioPlayer = () => {
     if (!audioRef.current) return;
 
     setScrubbing(false);
-    audioRef.current.currentTime = e[0];
-    setCurrentTime?.(e[0]);
+    audioRef.current.currentTime = e[0] ?? 0;
+    setCurrentTime?.(e[0] ?? 0);
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {

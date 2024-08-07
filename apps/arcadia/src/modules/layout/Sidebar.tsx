@@ -94,10 +94,10 @@ export const Sidebar = () => {
                   {pathname === "/" ? <GoHomeFill /> : <GoHome />}
                   Home
                 </NavItem>
-                <NavItem path="/search" active={pathname === "/search"}>
+                {/* <NavItem path="/search" active={pathname === "/search"}>
                   {pathname === "/search" ? <RiSearchFill /> : <RiSearchLine />}
                   Search
-                </NavItem>
+                </NavItem> */}
                 {address && (
                   <NavItem path="/library" active={pathname === "/library"}>
                     {pathname === "/library" ? <MdLibraryMusic /> : <MdOutlineLibraryMusic />}

@@ -1,4 +1,3 @@
-import { getProfile } from "@/lib/getProfile";
 import { Flex } from "@/ui/Flex";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMotionAnimate } from "motion-hooks";
@@ -10,11 +9,10 @@ import { Button } from "@/ui/Button";
 import { BsPatchCheckFill, BsSuitHeart } from "react-icons/bs";
 import { Box } from "@/ui/Box";
 import { Image } from "@/ui/Image";
-import { appConfig } from "@/apps/arcadia/appConfig";
+import { appConfig } from "@/config";
 import { timeAgo } from "@/utils";
-import { ReplyItem } from "./TrackReplyItem";
 import { IconButton } from "@/ui/IconButton";
-import { LikeButton } from "./components/LikeButton";
+import { useGetUserProfile } from "@/hooks/appData";
 
 interface CommentItemProps {
   owner: string | undefined;
@@ -37,16 +35,7 @@ export const TrackCommentItem = forwardRef<HTMLDivElement, CommentItemProps>(
       }
     );
 
-    const { data: account } = useQuery({
-      queryKey: [`profile-${owner}`],
-      queryFn: () => {
-        if (!owner) {
-          return;
-        }
-
-        return getProfile(owner);
-      },
-    });
+    const { data: profile } = useGetUserProfile({ address: owner });
 
     const {
       data: repliesData,
@@ -110,16 +99,15 @@ export const TrackCommentItem = forwardRef<HTMLDivElement, CommentItemProps>(
               height: 28,
             }}
             src={
-              account?.profile.avatarURL !== appConfig.accountAvatarDefault
-                ? account?.profile?.avatarURL
+              profile?.Info?.avatar !== appConfig.accountAvatarDefault
+                ? profile?.Info?.avatar
                 : `https://source.boringavatars.com/marble/28/${owner}`
             }
           />
           {hasReplies && !isLastItem && (
             <Box
               css={{
-                background:
-                  "linear-gradient(to bottom, #313538 0%, rgba(49, 53, 56, 0) 100%)",
+                background: "linear-gradient(to bottom, #313538 0%, rgba(49, 53, 56, 0) 100%)",
                 flex: 1,
                 width: 3,
                 height: "100%",
@@ -135,7 +123,7 @@ export const TrackCommentItem = forwardRef<HTMLDivElement, CommentItemProps>(
             gap="1"
           >
             <Typography size="1" weight="6">
-              {account?.profile?.handleName || account?.handle}
+              {profile?.Info?.handle || profile?.Info?.handle}
             </Typography>
 
             {/* <Flex
@@ -171,14 +159,14 @@ export const TrackCommentItem = forwardRef<HTMLDivElement, CommentItemProps>(
           > */}
 
           {/* </Flex> */}
-          {repliesData &&
+
+          {/* {repliesData &&
             repliesData.pages.map((infinitePage, i) => (
               <Flex
                 key={i}
                 css={{ my: hasReplies ? "$3" : 0 }}
                 direction="column"
               >
-                {/* <React.Fragment key={i}> */}
                 {infinitePage.data.map((comment) => (
                   <ReplyItem
                     key={comment.txid}
@@ -191,12 +179,10 @@ export const TrackCommentItem = forwardRef<HTMLDivElement, CommentItemProps>(
                     ref={replyRef}
                   />
                 ))}
-                {/* </React.Fragment> */}
               </Flex>
-            ))}
+            ))} */}
         </Flex>
-
-        <LikeButton txid={txid} size="1" />
+        // add like button here
       </Flex>
     );
   }

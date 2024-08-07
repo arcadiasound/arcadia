@@ -1,5 +1,5 @@
 import * as Slider from "@radix-ui/react-slider";
-import { styled } from "@/apps/arcadia/stitches.config";
+import { styled } from "../stitches.config";
 
 export const SliderRoot = styled(Slider.Root, {
   position: "relative",

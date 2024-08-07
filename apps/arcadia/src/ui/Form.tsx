@@ -1,4 +1,4 @@
-import { CSS, styled } from "@/apps/arcadia/stitches.config";
+import { CSS, styled } from "../stitches.config";
 import { Flex } from "./Flex";
 import { Typography } from "./Typography";
 
@@ -12,13 +12,7 @@ const FormHelperErrorText = styled("p", {
   bottom: 0,
 });
 
-export const FormHelperError = ({
-  children,
-  css,
-}: {
-  children: React.ReactNode;
-  css?: CSS;
-}) => (
+export const FormHelperError = ({ children, css }: { children: React.ReactNode; css?: CSS }) => (
   <FormHelperErrorText css={css} role="alert" aria-live="polite">
     {children}
   </FormHelperErrorText>

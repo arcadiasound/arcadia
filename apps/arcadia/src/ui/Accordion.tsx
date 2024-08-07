@@ -1,4 +1,4 @@
-import { keyframes, styled } from "@/apps/arcadia/stitches.config";
+import { keyframes, styled } from "../stitches.config";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ComponentProps, forwardRef } from "react";
 import { RxTriangleRight } from "react-icons/rx";
@@ -82,19 +82,18 @@ const StyledIcon = styled("span", {
   "[data-state=open] &": { transform: "rotate(90deg)", color: "$slate12" },
 });
 
-export const AccordionTrigger = forwardRef<
-  HTMLButtonElement,
-  ComponentProps<typeof StyledTrigger>
->(({ children, ...props }, forwardedRef) => (
-  <StyledHeader>
-    <StyledTrigger {...props} ref={forwardedRef}>
-      <StyledIcon>
-        <RxTriangleRight aria-hidden />
-      </StyledIcon>
-      {children}
-    </StyledTrigger>
-  </StyledHeader>
-));
+export const AccordionTrigger = forwardRef<HTMLButtonElement, ComponentProps<typeof StyledTrigger>>(
+  ({ children, ...props }, forwardedRef) => (
+    <StyledHeader>
+      <StyledTrigger {...props} ref={forwardedRef}>
+        <StyledIcon>
+          <RxTriangleRight aria-hidden />
+        </StyledIcon>
+        {children}
+      </StyledTrigger>
+    </StyledHeader>
+  )
+);
 
 const StyledContentWrapper = styled("div", {
   p: "$3",
@@ -120,12 +119,11 @@ const StyledContent = styled(AccordionPrimitive.Content, {
   },
 });
 
-export const AccordionContent = forwardRef<
-  HTMLDivElement,
-  ComponentProps<typeof StyledContent>
->(({ children, ...props }, forwardedRef) => (
-  <StyledContent {...props} ref={forwardedRef}>
-    {/* <Box css={{ height: 1, backgroundColor: "$slate5" }} /> */}
-    <StyledContentWrapper>{children}</StyledContentWrapper>
-  </StyledContent>
-));
+export const AccordionContent = forwardRef<HTMLDivElement, ComponentProps<typeof StyledContent>>(
+  ({ children, ...props }, forwardedRef) => (
+    <StyledContent {...props} ref={forwardedRef}>
+      {/* <Box css={{ height: 1, backgroundColor: "$slate5" }} /> */}
+      <StyledContentWrapper>{children}</StyledContentWrapper>
+    </StyledContent>
+  )
+);

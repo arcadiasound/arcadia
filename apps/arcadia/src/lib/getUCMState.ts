@@ -1,11 +1,9 @@
-import { appConfig } from "@/apps/arcadia/appConfig";
+import { appConfig } from "@/config";
 import { UCMContract } from "@/types";
 
 export const getUCMState = async () => {
   try {
-    const res = await fetch(
-      `${appConfig.dreU}/contract?id=${appConfig.UCM}&errorMessages=true`
-    );
+    const res = await fetch(`${appConfig.dreU}/contract?id=${appConfig.UCM}&errorMessages=true`);
 
     if (!res.ok) {
       throw new Error(

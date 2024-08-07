@@ -33,7 +33,9 @@ export const Library = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { id: processId, exists: processExists } = useGetProcessId(address);
+  const { data } = useGetProcessId(address);
+  const processId = data?.id;
+  const processExists = data?.exists;
 
   const createProcess = useMutation({
     mutationFn: createTracksProcess,
@@ -46,7 +48,11 @@ export const Library = () => {
 
   const { data: likedTrackTxs, isSuccess: likedTrackTxsSuccess } = useQuery({
     queryKey: [`likedTracksTxs`, address],
-    queryFn: async () => getLikedTracksIds(processId),
+    queryFn: async () => {
+      if (!processId) return;
+
+      return getLikedTracksIds(processId);
+    },
     enabled: currentTab === "liked-tracks" && !!processId,
     refetchOnWindowFocus: false,
     onSuccess: (data) => console.log(data),

@@ -182,7 +182,7 @@ export const AlbumCard = (props: AlbumCardProps) => {
                     maxWidth: "20ch",
                   })}
                 >
-                  {profile?.name || abbreviateAddress({ address: props.album.creator })}
+                  {profile?.Info?.name || abbreviateAddress({ address: props.album.creator })}
                 </Link>
               </Flex>
             )}

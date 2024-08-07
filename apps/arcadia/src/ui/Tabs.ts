@@ -1,4 +1,4 @@
-import { styled } from "@/apps/arcadia/stitches.config";
+import { styled } from "../stitches.config";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 
 export const Tabs = styled(TabsPrimitive.Root);

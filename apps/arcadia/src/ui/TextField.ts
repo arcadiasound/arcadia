@@ -1,4 +1,4 @@
-import { styled } from "@/apps/arcadia/stitches.config";
+import { styled } from "../stitches.config";
 
 export const TextField = styled("input", {
   "&[type]": {
@@ -31,8 +31,7 @@ export const TextField = styled("input", {
     },
 
     "&:focus": {
-      boxShadow:
-        "inset 0px 0px 0px 1px $colors$focus, 0px 0px 0px 1px $colors$focus",
+      boxShadow: "inset 0px 0px 0px 1px $colors$focus, 0px 0px 0px 1px $colors$focus",
     },
 
     "&:disabled": {
@@ -108,8 +107,7 @@ export const TextField = styled("input", {
           boxShadow: "inset 0 0 0 1px $colors$green7",
 
           "&:focus": {
-            boxShadow:
-              "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
+            boxShadow: "inset 0px 0px 0px 1px $colors$green8, 0px 0px 0px 1px $colors$green8",
           },
         },
       },
@@ -118,8 +116,7 @@ export const TextField = styled("input", {
           boxShadow: "inset 0 0 0 1px $colors$red7",
 
           "&:focus": {
-            boxShadow:
-              "inset 0px 0px 0px 1px $colors$red8, 0px 0px 0px 1px $colors$red8",
+            boxShadow: "inset 0px 0px 0px 1px $colors$red8, 0px 0px 0px 1px $colors$red8",
           },
         },
       },

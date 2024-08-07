@@ -54,8 +54,8 @@ function App() {
           height: "100vh",
         })}
       >
-        <Grid columns="fit-content(420px) 1fr" style={css({ flex: 1, overflow: "hidden" })}>
-          <Sidebar />
+        <Grid columns="1fr" style={css({ flex: 1, overflow: "hidden" })}>
+          {/* <Sidebar /> */}
           <Grid rows="auto 1fr">
             <AppHeader />
             <ScrollArea

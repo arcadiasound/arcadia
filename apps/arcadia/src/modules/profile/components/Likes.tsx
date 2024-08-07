@@ -24,7 +24,7 @@ export const Likes = (props: LikesProps) => {
       <Grid asChild columns="6" gapX="2" gapY="7" width="auto">
         <ul>
           <Text weight="medium">
-            {profile?.name || abbreviateAddress({ address: props.address })}'s Likes
+            {profile?.Info?.name || abbreviateAddress({ address: props.address })}'s Likes
           </Text>
         </ul>
       </Grid>

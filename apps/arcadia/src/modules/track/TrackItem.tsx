@@ -236,7 +236,7 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackCardProps) => {
             asChild
           >
             <RouterLink to={`/profile?addr=${track.creator}`}>
-              {profile?.name || abbreviateAddress({ address: track.creator })}
+              {profile?.Info?.name || abbreviateAddress({ address: track.creator })}
             </RouterLink>
           </Link>
         </Flex>

@@ -62,7 +62,7 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
     return null;
   }
 
-  const avatarUrl = gateway() + "/" + profile?.avatar;
+  const avatarUrl = gateway() + "/" + profile?.Info?.avatar;
 
   const { data: arBalance } = useQuery({
     queryKey: ["arBalance", props.address],
@@ -155,7 +155,7 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
                   maxWidth: "15ch",
                 })}
               >
-                {profile?.name || abbreviateAddress({ address: props.address })}
+                {profile?.Info?.name || abbreviateAddress({ address: props.address })}
               </Text>
             </Flex>
           </RouterLink>

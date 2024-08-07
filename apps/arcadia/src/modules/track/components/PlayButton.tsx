@@ -1,4 +1,4 @@
-import { styled } from "@/apps/arcadia/stitches.config";
+import { styled } from "@stitches/react";
 import { IconButton } from "@/ui/IconButton";
 
 export const PlayButton = styled(IconButton, {
