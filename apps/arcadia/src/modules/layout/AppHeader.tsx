@@ -8,6 +8,7 @@ import AppLogo from "@/assets/icons/AppLogo";
 
 const StyledList = styled("ul", {
   display: "flex",
+  gap: "var(--space-2)",
 
   "& svg": {
     fontSize: "var(--font-size-5)",
@@ -27,8 +28,7 @@ const NavItem = (props: NavItemProps) => (
         <Flex
           gap="2"
           align="center"
-          py="2"
-          px="3"
+          px="1"
           style={css({
             alignSelf: "stretch",
             color: props.active ? "var(--slate-12)" : "var(--slate-11)",
@@ -82,7 +82,7 @@ export const AppHeader = () => {
           <nav style={css({ width: "100%" })}>
             <StyledList>
               <NavItem path="/" active={pathname === "/"}>
-                Home
+                Discover
               </NavItem>
               {/* <NavItem path="/search" active={pathname === "/search"}>
                   {pathname === "/search" ? <RiSearchFill /> : <RiSearchLine />}

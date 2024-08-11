@@ -48,6 +48,7 @@ const AVATAR_SIZE = 24;
 
 interface TrackCommentsProps {
   track: Track;
+  css?: React.CSSProperties;
 }
 
 export const TrackComments = (props: TrackCommentsProps) => {
@@ -82,10 +83,11 @@ export const TrackComments = (props: TrackCommentsProps) => {
     <Flex
       direction="column"
       gap="3"
-      p="5"
+      height="100%"
       style={css({
-        borderRadius: "max(var(--radius-3), var(--radius-4))",
-        backgroundColor: "var(--side-panel-background)",
+        ...props.css,
+        // borderRadius: "max(var(--radius-3), var(--radius-4))",
+        // backgroundColor: "var(--side-panel-background)",
         minHeight: "100%",
       })}
     >

@@ -87,6 +87,15 @@ export const timeAgo = (unixTimestamp: number | string | undefined) => {
   else return Math.floor(differenceInSeconds / year) + "y";
 };
 
+export const formatISOToCustomDate = (isoString: number) => {
+  const date = new Date(isoString * 1000);
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "long" });
+  const year = date.getFullYear();
+
+  return `${day} ${month} ${year}`;
+};
+
 export function mapKeys(obj: Object) {
   const keys = Object.keys(obj).map((key) => {
     // console.log(key);

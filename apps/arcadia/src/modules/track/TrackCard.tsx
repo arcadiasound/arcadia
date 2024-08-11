@@ -68,7 +68,7 @@ const AlphaIconButton = styled(IconButton, {
   },
 });
 
-const TRACK_ITEM_SIZE = 180;
+const TRACK_ITEM_SIZE = 250;
 const OUTLINE_OFFSET = 1;
 const TRACK_ITEM_RADIUS = `max(var(--radius-1), var(--radius-4) * 0.5)`;
 
@@ -233,7 +233,7 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
           {children || (
             <Flex direction="column">
               <Link
-                size="2"
+                // size="2"
                 weight="medium"
                 style={css({
                   color: isPlaying ? "var(--accent-11)" : "var(--gray-12)",
@@ -243,7 +243,7 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
                 <RouterLink to={`/track?id=${track.txid}`}>{track.title}</RouterLink>
               </Link>
               <Link
-                size="1"
+                size="2"
                 color="gray"
                 style={css({
                   textOverflow: "ellipsis",
