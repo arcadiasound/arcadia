@@ -284,7 +284,7 @@ export const Track = () => {
           <Flex
             gap="6"
             p="3"
-            m="2"
+            // m="2"
             style={css({
               borderRadius: "max(var(--radius-3), var(--radius-4) * 0.8)",
               position: "relative",
@@ -473,8 +473,8 @@ export const Track = () => {
               <TabsList style={{ marginBlockEnd: "var(--space-5)" }}>
                 <TabsTrigger value="details">DETAILS</TabsTrigger>
                 <TabsTrigger value="comments">COMMENTS</TabsTrigger>
+                <TabsTrigger value="downloads">ACTIVITY</TabsTrigger>
                 <TabsTrigger value="credits">CREDITS</TabsTrigger>
-                <TabsTrigger value="downloads">DOWNLOADS</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details">
