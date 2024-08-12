@@ -88,7 +88,7 @@ export const HeaderDropdown = (props: HeaderDropdownProps) => {
   return (
     <DropdownMenuRoot>
       <DropdownMenuTrigger>
-        <IconButton variant="ghost" color="gray" size="1">
+        <IconButton m="2" variant="ghost" color="gray" size="1">
           <StyledAvatar
             size="1"
             src={avatarUrl}

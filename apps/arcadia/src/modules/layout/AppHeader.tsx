@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Grid, Link } from "@radix-ui/themes";
+import { Box, Button, Flex, Grid, Link, Separator } from "@radix-ui/themes";
 import { css } from "../../styles/css";
 import { useConnection, useActiveAddress } from "arweave-wallet-kit";
 import { Link as HashLink, useLocation } from "react-router-dom";
@@ -8,10 +8,28 @@ import AppLogo from "@/assets/icons/AppLogo";
 
 const StyledList = styled("ul", {
   display: "flex",
-  gap: "var(--space-2)",
 
   "& svg": {
     fontSize: "var(--font-size-5)",
+  },
+});
+
+const StyledNavItem = styled(Flex, {
+  alignSelf: "stretch",
+  borderInlineStart: "1px solid var(--gray-4)",
+  height: "100%",
+
+  "&:hover": {
+    color: "var(--gray-11)",
+  },
+
+  variants: {
+    active: {
+      true: {
+        backgroundColor: "var(--gray-3)",
+        color: "var(--gray-12)",
+      },
+    },
   },
 });
 
@@ -19,28 +37,27 @@ interface NavItemProps {
   path: string;
   active: boolean;
   children: React.ReactNode;
+  // temp
+  isLast?: boolean;
 }
 
 const NavItem = (props: NavItemProps) => (
   <li>
     <Link asChild>
       <HashLink to={props.path}>
-        <Flex
+        <StyledNavItem
           gap="2"
           align="center"
-          px="1"
-          style={css({
-            alignSelf: "stretch",
+          justify="center"
+          px="3"
+          active={props.active}
+          css={{
             color: props.active ? "var(--slate-12)" : "var(--slate-11)",
-
-            "&:hover": {
-              // backgroundColor: "var(--slate-3)",
-              color: "var(--slate-12)",
-            },
-          })}
+            borderInlineEnd: props.isLast ? "1px solid var(--gray-4)" : undefined,
+          }}
         >
           {props.children}
-        </Flex>
+        </StyledNavItem>
       </HashLink>
     </Link>
   </li>
@@ -55,7 +72,6 @@ export const AppHeader = () => {
     <Grid
       columns="1fr 1fr 1fr"
       align="center"
-      p="3"
       asChild
       style={css({
         backgroundColor: "var(--gray-2)",
@@ -65,7 +81,7 @@ export const AppHeader = () => {
     >
       <header>
         <Link
-          ml="3"
+          m="3"
           style={css({
             color: "var(--slate-12)",
             display: "grid",
@@ -78,8 +94,8 @@ export const AppHeader = () => {
             <AppLogo />
           </HashLink>
         </Link>
-        <Flex justify="center" gap="3" asChild>
-          <nav style={css({ width: "100%" })}>
+        <Flex justify="center" gap="3" width="100%" height="100%" asChild>
+          <nav>
             <StyledList>
               <NavItem path="/" active={pathname === "/"}>
                 Discover
@@ -89,7 +105,7 @@ export const AppHeader = () => {
                   Search
                 </NavItem> */}
               {address && (
-                <NavItem path="/library" active={pathname === "/library"}>
+                <NavItem path="/library" active={pathname === "/library"} isLast>
                   Library
                 </NavItem>
               )}
