@@ -1,4 +1,4 @@
-import { styled, ComponentProps } from "@/apps/arcadia/stitches.config";
+import { styled, ComponentProps } from "../stitches.config";
 
 export type IconButtonVariants = ComponentProps<typeof IconButton>;
 

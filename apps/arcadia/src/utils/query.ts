@@ -3,7 +3,7 @@ import { Track } from "@/types";
 // Function to remove duplicates by the "value" property
 export const removeDuplicatesByTxid = (arr: Track[]) => {
   const uniqueValues: string[] = [];
-  const resultArray = [];
+  const resultArray: Track[] = [];
 
   for (const item of arr) {
     if (!uniqueValues.includes(item.txid)) {
@@ -32,10 +32,7 @@ export const removeDuplicatesByCreator = (arr: Track[]) => {
   });
 };
 
-export const reorderArrayByTxid = (
-  tracksArray: Track[],
-  txidArray: string[]
-) => {
+export const reorderArrayByTxid = (tracksArray: Track[], txidArray: string[]) => {
   const txidMap = new Map<string, Track>();
 
   // Map each txid to its corresponding object

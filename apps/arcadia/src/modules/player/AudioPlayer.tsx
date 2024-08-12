@@ -8,9 +8,10 @@ import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { css } from "@/styles/css";
 import { abbreviateAddress, formatTime } from "@/utils";
 import { Avatar, Box, Flex, Grid, IconButton, Link, Slider, Text } from "@radix-ui/themes";
-import { keyframes, styled } from "@stitches/react";
+import { styled } from "@stitches/react";
 import { useEffect, useRef, useState } from "react";
 import { BsMusicNote } from "react-icons/bs";
+import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import {
   MdLoop,
   MdPause,
@@ -21,7 +22,7 @@ import {
 } from "react-icons/md";
 import { Link as RouterLink } from "react-router-dom";
 
-const ARTWORK_SIZE = 48;
+const ARTWORK_SIZE = 60;
 const OUTLINE_OFFSET = 1;
 const TRACK_ITEM_RADIUS = `max(var(--radius-1), var(--radius-4) * 0.5)`;
 
@@ -70,7 +71,6 @@ export const AudioPlayer = () => {
     audioRef,
     gainRef,
     audioCtxRef,
-    setCurrentTrackId,
     tracklist,
     playing,
     togglePlaying,
@@ -90,15 +90,15 @@ export const AudioPlayer = () => {
   const [scrubbing, setScrubbing] = useState<boolean>();
   const [duration, setDuration] = useState<number>();
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const [volume, setVolume] = useState(gainRef?.current?.gain.value);
+  const [volume, setVolume] = useState(50);
+  const [liked, setLiked] = useState(false);
 
   const isMediaSessionAvailable =
     typeof window !== "undefined" && "mediaSession" in window.navigator;
 
   const currentTrack = tracklist.length > 0 ? tracklist[currentTrackIndex] : null;
 
-  const { data } = useGetUserProfile({ address: currentTrack?.creator });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address: currentTrack?.creator });
 
   // Do we need this? Can it be moved to hook?
   useEffect(() => {
@@ -109,7 +109,10 @@ export const AudioPlayer = () => {
     // set gain node
     if (!gainRef.current) {
       gainRef.current = audioCtxRef.current.createGain();
-      setVolume(gainRef.current.gain.value);
+
+      // todo: read val from localstorage
+      gainRef.current.gain.value = 0.5;
+      // setVolume(gainRef.current.gain.value);
     }
 
     // set media element source
@@ -131,8 +134,10 @@ export const AudioPlayer = () => {
   const handleValueChange = (e: number[]) => {
     if (!gainRef.current) return;
 
-    setVolume(e[0] / 100);
-    gainRef.current.gain.value = e[0] / 100;
+    setVolume(e[0] ?? 0 / 100);
+    gainRef.current.gain.value = e[0] / 100 ?? 0;
+
+    // todo: save each update to localstorage
   };
 
   const handleProgressChange = (e: number[]) => {
@@ -146,8 +151,8 @@ export const AudioPlayer = () => {
     if (!audioRef.current) return;
 
     setScrubbing(false);
-    audioRef.current.currentTime = e[0];
-    setCurrentTime?.(e[0]);
+    audioRef.current.currentTime = e[0] ?? 0;
+    setCurrentTime?.(e[0] ?? 0);
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -240,32 +245,47 @@ export const AudioPlayer = () => {
           })}
         />
         {currentTrack && (
-          <Flex direction="column">
-            <Link
-              style={css({ color: "var(--gray-12)" })}
-              size="1"
-              weight="medium"
-              color="gray"
-              asChild
-            >
-              <RouterLink to={`/track?id=${currentTrack.txid}`}>{currentTrack.title}</RouterLink>
-            </Link>
-            <Link
-              size="1"
-              color="gray"
-              style={css({
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                maxWidth: "16ch",
-              })}
-              asChild
-            >
-              <RouterLink to={`/profile?addr=${currentTrack.creator}`}>
-                {profile?.name || abbreviateAddress({ address: currentTrack?.creator })}
-              </RouterLink>
-            </Link>
-          </Flex>
+          <>
+            <Flex direction="column">
+              <Link
+                style={css({ color: "var(--gray-12)" })}
+                size="2"
+                weight="medium"
+                color="gray"
+                asChild
+              >
+                <RouterLink to={`/track?id=${currentTrack.txid}`}>{currentTrack.title}</RouterLink>
+              </Link>
+              <Link
+                size="1"
+                color="gray"
+                style={css({
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  maxWidth: "16ch",
+                })}
+                asChild
+              >
+                <RouterLink to={`/profile?addr=${currentTrack.creator}`}>
+                  {profile?.Info?.name || abbreviateAddress({ address: currentTrack?.creator })}
+                </RouterLink>
+              </Link>
+            </Flex>
+            <Flex ml="2" gap="2">
+              <IconButton
+                onClick={() => setLiked(!liked)}
+                // size="1"
+                variant="ghost"
+                color={liked ? undefined : "gray"}
+                style={{
+                  color: liked ? "var(--accent-11)" : undefined,
+                }}
+              >
+                {liked ? <IoMdHeart /> : <IoMdHeartEmpty />}
+              </IconButton>
+            </Flex>
+          </>
         )}
       </Flex>
 
@@ -448,7 +468,7 @@ export const AudioPlayer = () => {
             })}
           >
             <Slider
-              value={volume ? [volume * 100] : [0]}
+              value={volume ? [volume] : [0]}
               max={100}
               step={progressStep}
               aria-label="Volume"

@@ -13,9 +13,25 @@ export interface GetUserProfileProps {
 export interface SetProfile {
   name: string;
   handle: string;
-  bio: string;
-  avatar: File | undefined;
-  banner: File | undefined;
+  bio?: string;
+  avatar?: File | undefined;
+  banner?: File | undefined;
+}
+
+export interface AOProfile {
+  Owner: string;
+  Info: ProfileInfo | undefined;
+  Followers: string[];
+  Following: string[];
+}
+
+//temp
+export interface ProfileInfo {
+  name: string | undefined;
+  handle: string | undefined;
+  bio: string | undefined;
+  avatar: string | undefined;
+  banner: string | undefined;
 }
 
 export interface Profile {

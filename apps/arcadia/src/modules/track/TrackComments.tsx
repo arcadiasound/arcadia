@@ -48,6 +48,7 @@ const AVATAR_SIZE = 24;
 
 interface TrackCommentsProps {
   track: Track;
+  css?: React.CSSProperties;
 }
 
 export const TrackComments = (props: TrackCommentsProps) => {
@@ -75,18 +76,18 @@ export const TrackComments = (props: TrackCommentsProps) => {
     refetchInterval: 5000,
   });
 
-  const { data: userMeData } = useGetUserProfile({ address: connectedAddress });
-  const userMe = userMeData?.profiles.length ? userMeData.profiles[0] : undefined;
-  const userMeAvatarUrl = gateway() + "/" + userMe?.avatarId;
+  const { data: userMe } = useGetUserProfile({ address: connectedAddress });
+  const userMeAvatarUrl = gateway() + "/" + userMe?.Info?.avatar;
 
   return (
     <Flex
       direction="column"
       gap="3"
-      p="5"
+      height="100%"
       style={css({
-        borderRadius: "max(var(--radius-3), var(--radius-4))",
-        backgroundColor: "var(--side-panel-background)",
+        ...props.css,
+        // borderRadius: "max(var(--radius-3), var(--radius-4))",
+        // backgroundColor: "var(--side-panel-background)",
         minHeight: "100%",
       })}
     >
@@ -159,8 +160,9 @@ interface CommentItemProps {
 const CommentItem = (props: CommentItemProps) => {
   const [liked, setLiked] = useState(false);
   const { data } = useGetUserProfile({ address: props.comment.author });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
-  const avatarUrl = gateway() + "/" + profile?.avatarId;
+  const { data: profile } = useGetUserProfile({ address: props.comment.author });
+
+  const avatarUrl = gateway() + "/" + profile?.Info?.avatar;
 
   return (
     <Flex gap="2" width="100%" align="center" asChild>
@@ -201,8 +203,8 @@ const CommentItem = (props: CommentItemProps) => {
               asChild
             >
               <RouterLink to={`/profile?addr=${props.comment.author}`}>
-                {(profile?.handle && `@${profile?.handle}`) ||
-                  profile?.name ||
+                {(profile?.Info?.handle && `@${profile?.Info?.handle}`) ||
+                  profile?.Info?.name ||
                   abbreviateAddress({ address: props.comment.author })}
               </RouterLink>
             </Link>

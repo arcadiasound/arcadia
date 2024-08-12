@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLikedTracksIds, removeTrack, saveTrack } from "@/lib/library/likedTracks";
 import { useActiveAddress } from "arweave-wallet-kit";
 import { toast } from "sonner";
+import { getProfileProcess } from "@/lib/user/profile";
 
 const ActionsOverlay = styled(Flex, {
   width: "100%",
@@ -67,7 +68,7 @@ const AlphaIconButton = styled(IconButton, {
   },
 });
 
-const TRACK_ITEM_SIZE = 180;
+const TRACK_ITEM_SIZE = 250;
 const OUTLINE_OFFSET = 1;
 const TRACK_ITEM_RADIUS = `max(var(--radius-1), var(--radius-4) * 0.5)`;
 
@@ -93,17 +94,20 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
   const queryClient = useQueryClient();
   const address = useActiveAddress();
 
-  const { data } = useGetUserProfile({ address: track.creator });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address: track.creator });
 
   const isPlaying = playing && currentTrackId === track.txid && compareArrays(tracks, tracklist);
 
-  const { id: processId } = useGetProcessId(address);
+  const { data: trackProcess } = useGetProcessId(address);
 
   const { data: likedTrackTxs } = useQuery({
     queryKey: [`likedTracksTxs`, address],
-    queryFn: async () => getLikedTracksIds(processId),
-    enabled: !!processId,
+    queryFn: async () => {
+      if (!trackProcess?.id) return;
+
+      return getLikedTracksIds(trackProcess.id);
+    },
+    enabled: !!trackProcess?.id,
     refetchOnWindowFocus: false,
     onSuccess: (data) => console.log(data),
     onError: (error) => console.error(error),
@@ -184,17 +188,17 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
               </IconButton>
               <Flex align="center" gap="3">
                 <AlphaIconButton
-                  disabled={!processId}
+                  disabled={!trackProcess?.id}
                   onClick={() =>
                     liked
                       ? unlike.mutate({
                           txid: track.txid,
-                          processId,
+                          processId: trackProcess?.id,
                           owner: address,
                         })
                       : like.mutate({
                           txid: track.txid,
-                          processId,
+                          processId: trackProcess?.id,
                           owner: address,
                         })
                   }
@@ -229,7 +233,7 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
           {children || (
             <Flex direction="column">
               <Link
-                size="2"
+                // size="2"
                 weight="medium"
                 style={css({
                   color: isPlaying ? "var(--accent-11)" : "var(--gray-12)",
@@ -239,7 +243,7 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
                 <RouterLink to={`/track?id=${track.txid}`}>{track.title}</RouterLink>
               </Link>
               <Link
-                size="1"
+                size="2"
                 color="gray"
                 style={css({
                   textOverflow: "ellipsis",
@@ -250,7 +254,7 @@ export const TrackCard = ({ track, tracks, trackIndex, children }: TrackCardProp
                 asChild
               >
                 <RouterLink to={`/profile?addr=${track.creator}`}>
-                  {profile?.name || abbreviateAddress({ address: track.creator })}
+                  {profile?.Info?.name || abbreviateAddress({ address: track.creator })}
                 </RouterLink>
               </Link>
             </Flex>

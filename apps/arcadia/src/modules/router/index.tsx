@@ -1,14 +1,11 @@
 import { HashRouter, useLocation } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import { AppHeader } from "../layout/AppHeader";
-import { Discover } from "../discover";
 import { Profile } from "../profile";
 import { Box } from "@/ui/Box";
 import { Track } from "../track";
 import { appConfig } from "@/config";
-import { Search } from "../search";
 import { AudioPlayer } from "../player/AudioPlayer";
-import { Album } from "../album";
 
 export const AppRouter = () => (
   <HashRouter>
@@ -38,11 +35,11 @@ export const AppRouter = () => (
       }}
     >
       <Routes>
-        <Route path={"/"} element={<Discover />} />
+        {/* <Route path={"/"} element={<Discover />} /> */}
         <Route path={"/profile"} element={<Profile />} />
         <Route path={"/track"} element={<Track />} />
-        <Route path={"/album"} element={<Album />} />
-        <Route path={"/search"} element={<Search />} />
+        {/* <Route path={"/album"} element={<Album />} /> */}
+        {/* <Route path={"/search"} element={<Search />} /> */}
       </Routes>
       <AudioPlayer />
     </Box>

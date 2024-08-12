@@ -1,17 +1,15 @@
 import { useGetUserProfile } from "@/hooks/appData";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { getAlbumsByOwner } from "@/lib/track/getAlbumsByOwner";
-import { getTrack } from "@/lib/track/getTrack";
 import { getTracksByOwner } from "@/lib/track/getTracksByOwner";
 import { TrackCard } from "@/modules/track/TrackCard";
 import { css } from "@/styles/css";
-import { Album, Track, Tracklist } from "@/types";
+import { Album, Track } from "@/types";
 import { abbreviateAddress, compareArrays, formatReleaseDate, isAlbum } from "@/utils";
 import {
   Box,
   Flex,
   Heading,
-  IconButton,
   TabsContent,
   TabsList,
   TabsRoot,
@@ -19,9 +17,8 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
-import { useInfiniteQuery, useQueries, useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { MdPause, MdPlayArrow } from "react-icons/md";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { AlbumCard } from "./AlbumCard";
 
 const StyledTabsRoot = styled(TabsRoot, {
@@ -60,6 +57,7 @@ interface ReleasesProps {
 
 export const Releases = (props: ReleasesProps) => {
   const { playing, currentTrackId, tracklist } = useAudioPlayer();
+  const { address } = props;
 
   const {
     data: tracksData,
@@ -124,14 +122,12 @@ export const Releases = (props: ReleasesProps) => {
     [combinedData]
   );
 
-  const { data: profileData } = useGetUserProfile({ address: props.address });
-
-  const profile = profileData?.profiles.length ? profileData.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address });
 
   return (
     <Box mt="5">
       <Heading as="h3" size="5" weight="medium">
-        {profile?.name || abbreviateAddress({ address: props.address })}'s Discography
+        {profile?.Info?.name || abbreviateAddress({ address: props.address })}'s Discography
       </Heading>
       <StyledTabsRoot defaultValue="all" mt="4">
         <TabsList>
@@ -142,7 +138,7 @@ export const Releases = (props: ReleasesProps) => {
 
         <Box mt="3" pb="2">
           <TabsContent value="all">
-            <Flex mt="4" gap="7" asChild>
+            <Flex wrap="wrap" mt="4" gap="7" asChild>
               <ul>
                 {combinedData.map((data, idx) => (
                   <>

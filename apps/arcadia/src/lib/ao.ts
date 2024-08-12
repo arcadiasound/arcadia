@@ -42,9 +42,9 @@ export const sendMessage = async ({ processId, action, data, tags = [] }: SendMe
     });
     console.log("Message sent:", response);
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending message:", error);
-    throw error;
+    throw new Error(error);
   }
 };
 

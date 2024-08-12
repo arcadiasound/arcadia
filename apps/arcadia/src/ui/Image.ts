@@ -1,4 +1,4 @@
-import { styled } from "@/apps/arcadia/stitches.config";
+import { styled } from "../stitches.config";
 
 export const Image = styled("img", {
   userSelect: "none",

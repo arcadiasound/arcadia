@@ -111,8 +111,7 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackCardProps) => {
   const address = useActiveAddress();
   const queryClient = useQueryClient();
 
-  const { data } = useGetUserProfile({ address: track.creator });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address: track.creator });
 
   const { data: audioData } = useQuery({
     queryKey: [`peaks-${track.txid}`],
@@ -126,7 +125,7 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackCardProps) => {
     },
   });
 
-  const { id: processId } = useGetProcessId(address);
+  const { data: likedSongsProcess } = useGetProcessId(address);
 
   const unlike = useMutation({
     mutationFn: removeTrack,
@@ -237,7 +236,7 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackCardProps) => {
             asChild
           >
             <RouterLink to={`/profile?addr=${track.creator}`}>
-              {profile?.name || abbreviateAddress({ address: track.creator })}
+              {profile?.Info?.name || abbreviateAddress({ address: track.creator })}
             </RouterLink>
           </Link>
         </Flex>
@@ -248,7 +247,9 @@ export const TrackItem = ({ track, tracks, trackIndex }: TrackCardProps) => {
         </Text>
         <Flex align="center" gap="3">
           <IconButton
-            onClick={() => unlike.mutate({ txid: track.txid, processId, owner: address })}
+            onClick={() =>
+              unlike.mutate({ txid: track.txid, processId: likedSongsProcess?.id, owner: address })
+            }
             variant="ghost"
             size="1"
             color="gray"

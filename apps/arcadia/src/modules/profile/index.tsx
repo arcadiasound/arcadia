@@ -1,12 +1,14 @@
-import { appConfig } from "@/config";
 import { useGetUserProfile, useIsUserMe } from "@/hooks/appData";
 import { css } from "@/styles/css";
 import { abbreviateAddress, gateway } from "@/utils";
 import {
-  AspectRatio,
   Avatar,
   Box,
   Button,
+  DialogClose,
+  DialogContent,
+  DialogRoot,
+  DialogTrigger,
   Flex,
   Grid,
   IconButton,
@@ -19,15 +21,21 @@ import {
 } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
 import { useActiveAddress } from "arweave-wallet-kit";
-import BoringAvatar from "boring-avatars";
-import { useEffect, useState } from "react";
-import { BsCopy, BsPatchCheckFill } from "react-icons/bs";
+import { BsCheck, BsCopy, BsPatchCheckFill } from "react-icons/bs";
 import { EditProfileDialog } from "./components/EditProfileDialog";
 import Avvvatars from "avvvatars-react";
 import { Releases } from "./components/Releases";
 import { Collection } from "./components/Collection";
 import { Likes } from "./components/Likes";
-import { useLocation } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { RxCross2, RxDotFilled } from "react-icons/rx";
+import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getProfileProcess } from "@/lib/user/profile";
+import { followUser, unfollowUser } from "@/lib/user/follow";
+import { AOProfile, ProfileInfo } from "@/types";
+import { useState } from "react";
+import { FollowerDialog } from "./components/FollowerDialog";
 
 const StyledAvatar = styled(Avatar);
 
@@ -51,17 +59,32 @@ const AlphaIconButton = styled(IconButton, {
   },
 });
 
+const AlphaButton = styled(Button, {
+  color: "var(--white-a11)",
+
+  "&:hover": {
+    background: "var(--white-a2)",
+    color: "var(--white-a12)",
+  },
+});
+
+const StyledSeparator = styled(Separator, {
+  "--separator-size": "40px",
+});
+
 export const Profile = () => {
-  const address = useActiveAddress();
+  const connectedAddress = useActiveAddress();
   const location = useLocation();
   const query = location.search;
   const urlParams = new URLSearchParams(query);
   const addressFromParams = urlParams.get("addr");
-  const [showEditProfileDialog, setShowEditProfileDialog] = useState(false);
+  const { copyToClipboard, isCopied } = useCopyToClipboard();
+  const queryClient = useQueryClient();
+  const [followingText, setFollowingText] = useState<"Following" | "Unfollow">("Following");
 
-  const addr = addressFromParams || address;
+  const address = addressFromParams || connectedAddress;
 
-  if (!addr) {
+  if (!address) {
     // temp
     return (
       <Grid>
@@ -70,13 +93,109 @@ export const Profile = () => {
     );
   }
 
-  const isUserMe = useIsUserMe(addr);
+  const isUserMe = useIsUserMe(address);
 
-  const { data } = useGetUserProfile({ address: addr });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address });
 
-  const bannerUrl = gateway() + "/" + profile?.bannerId;
-  const avatarUrl = gateway() + "/" + profile?.avatarId;
+  const { data: profileProcess, isSuccess: profileProcessSuccess } = useQuery({
+    queryKey: ["process", address, { type: "profile" }],
+    queryFn: () => getProfileProcess(address),
+    enabled: !!address,
+  });
+
+  const processId =
+    profileProcess && profileProcess[0]?.node.id ? profileProcess[0].node.id : undefined;
+
+  const { data: profileMeProcess, isSuccess: profileMeProcessSuccess } = useQuery({
+    queryKey: ["process", connectedAddress, { type: "profile" }],
+    queryFn: () => getProfileProcess(connectedAddress),
+    enabled: !!connectedAddress && !isUserMe,
+  });
+
+  const processIdMe =
+    profileMeProcess && profileMeProcess[0]?.node.id ? profileMeProcess[0].node.id : undefined;
+
+  const noProfileMe = profileMeProcessSuccess && !profileMeProcess?.length;
+  const noProfile = profileProcessSuccess && !profileProcess?.length;
+
+  const followMutation = useMutation({
+    mutationFn: followUser,
+    onMutate: async (data) => {
+      // prevent overwriting optimistic update
+      await queryClient.cancelQueries({
+        queryKey: ["profile", address],
+      });
+
+      // snapshot prev value
+      const prevProfile = queryClient.getQueryData<AOProfile>(["profile", address]);
+
+      // optimistically update
+      queryClient.setQueryData<AOProfile>(["profile", address], (oldProfile) => {
+        return {
+          Owner: oldProfile?.Owner || address,
+          Info: oldProfile?.Info || { name: "", handle: "", bio: "", avatar: "", banner: "" },
+          Followers: oldProfile?.Followers ? [...oldProfile.Followers, data.sender] : [data.sender],
+          Following: oldProfile?.Following || [],
+        };
+      });
+
+      // return ctx obj with snapshot
+      return { prevProfile };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile", address],
+      });
+    },
+    onError: (error, data, ctx: any) => {
+      queryClient.setQueryData(["profile", address], ctx.prevProfile);
+    },
+  });
+
+  const unfollowMutation = useMutation({
+    mutationFn: unfollowUser,
+    onMutate: async (data) => {
+      await queryClient.cancelQueries({
+        queryKey: ["profile", address],
+      });
+
+      const prevProfile = queryClient.getQueryData<AOProfile>(["profile", address]);
+
+      queryClient.setQueryData<AOProfile>(["profile", address], (oldProfile) => {
+        return {
+          Owner: oldProfile?.Owner || address,
+          Info: oldProfile?.Info || { name: "", handle: "", bio: "", avatar: "", banner: "" },
+          Followers: oldProfile?.Followers?.filter((follower) => follower !== data.sender) || [],
+          Following: oldProfile?.Following || [],
+        };
+      });
+
+      return { prevProfile };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile", address],
+      });
+    },
+    onError: (error, data, ctx: any) => {
+      queryClient.setQueryData(["profile", address], ctx.prevProfile);
+    },
+  });
+
+  const isFollowing = () => {
+    if (isUserMe) return false;
+    if (!profile?.Followers) return false;
+    if (!connectedAddress) return false;
+
+    if (processIdMe && profile.Followers.includes(processIdMe)) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const bannerUrl = profile ? gateway() + "/" + profile.Info?.banner : undefined;
+  const avatarUrl = profile ? gateway() + "/" + profile.Info?.avatar : undefined;
 
   return (
     <Flex direction="column">
@@ -124,15 +243,16 @@ export const Profile = () => {
           gap="3"
           mx="4"
           pb="4"
-          align="end"
+          align="center"
           style={css({
             position: "absolute",
             inset: 0,
+            alignSelf: "end",
           })}
         >
           <StyledAvatar
             src={avatarUrl}
-            fallback={<Avvvatars style="shape" value={addr} size={AVATAR_SIZE} radius={0} />}
+            fallback={<Avvvatars style="shape" value={address} size={AVATAR_SIZE} radius={0} />}
             style={css({
               width: AVATAR_SIZE,
               height: AVATAR_SIZE,
@@ -153,7 +273,7 @@ export const Profile = () => {
               color: "var(--white-a12)",
             })}
           >
-            <Flex align="center" gap="1">
+            {/* <Flex align="center" gap="1">
               <Text size="1" weight="medium">
                 Verified
               </Text>
@@ -163,83 +283,248 @@ export const Profile = () => {
                   height: VOUCHED_ICON_SIZE,
                 })}
               />
-            </Flex>
-            <Flex
-              align="center"
-              gap="3"
+            </Flex> */}
+            <Text
+              size="9"
+              weight="medium"
               style={css({
-                backdropFilter: "blur(4px)",
-                borderRadius: BANNER_RADIUS,
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                maxWidth: "15ch",
+                // solves issue of overflow cutting off text
+                lineHeight: 1.15,
               })}
             >
-              <Text
-                size="9"
-                weight="medium"
-                style={css({
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  maxWidth: "15ch",
-                  // solves issue of overflow cutting off text
-                  lineHeight: 1.15,
-                })}
-              >
-                {profile?.name || abbreviateAddress({ address: addr })}
-              </Text>
-            </Flex>
-            {profile?.name && (
-              <Flex
-                align="center"
-                gap="2"
-                mt="1"
-                pl="1"
-                style={css({
-                  color: "var(--white-a10)",
-                })}
-              >
-                {profile?.handle && (
+              {profile?.Info?.name || abbreviateAddress({ address: address })}
+            </Text>
+
+            <Flex
+              align="center"
+              gap="2"
+              mt="1"
+              pl="1"
+              style={css({
+                color: "var(--white-a10)",
+              })}
+            >
+              {profile?.Info?.handle && (
+                <>
+                  <Text size="2">
+                    {profile.Info.handle.startsWith("@")
+                      ? profile.Info.handle
+                      : `@${profile.Info.handle}`}
+                  </Text>
+                  <RxDotFilled style={css({ color: "var(--white-a8)" })} />
+                </>
+              )}
+              {profile?.Info?.name && (
+                <>
+                  <Text
+                    size="2"
+                    style={css({
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      maxWidth: "20ch",
+                    })}
+                  >
+                    {abbreviateAddress({ address: address })}
+                  </Text>
+                  <AlphaIconButton
+                    onClick={() => copyToClipboard(address)}
+                    size="1"
+                    color="gray"
+                    variant="ghost"
+                  >
+                    {isCopied ? <BsCheck /> : <BsCopy />}
+                  </AlphaIconButton>
+                  {/* <RxDotFilled style={css({ color: "var(--white-a8)" })} /> */}
+                </>
+              )}
+              <Flex ml={profile ? "3" : "0"} align="center" gap="3">
+                {isUserMe ? (
+                  <EditProfileDialog
+                    address={address}
+                    noProfile={noProfile}
+                    profile={profile ? profile.Info : undefined}
+                  >
+                    <Button
+                      size="1"
+                      variant="solid"
+                      style={css({
+                        backgroundColor: "var(--white-a3)",
+                        color: "var(--white-a12)",
+                        "&:hover": { backgroundColor: "var(--white-a4)" },
+                      })}
+                    >
+                      {noProfile ? "Create" : "Edit"} profile
+                    </Button>
+                  </EditProfileDialog>
+                ) : (
                   <>
-                    <Text size="2">
-                      {profile.handle.startsWith("@") ? profile.handle : `@${profile.handle}`}
-                    </Text>
-                    <Separator orientation="vertical" />
+                    {processId && processIdMe ? (
+                      <Button
+                        size="1"
+                        onClick={() => {
+                          if (!processId) return;
+                          if (!processIdMe) return;
+
+                          const sender = processIdMe;
+                          const target = processId;
+
+                          if (isFollowing()) {
+                            unfollowMutation.mutate({ sender, target });
+                          } else {
+                            followMutation.mutate({ sender, target });
+                          }
+                        }}
+                        onMouseOver={() => setFollowingText("Unfollow")}
+                        onMouseLeave={() => setFollowingText("Following")}
+                        variant={isFollowing() ? "outline" : "solid"}
+                        color="gray"
+                        style={css({
+                          minWidth: 64,
+                          backgroundColor: isFollowing() ? "transparent" : "var(--white-a12)",
+                          color: isFollowing() ? "var(--white-a12)" : "var(--black-a12)",
+                          boxShadow: isFollowing() ? "0 0 0 1px var(--white-a7)" : "none",
+                          "&:hover": {
+                            backgroundColor: isFollowing() ? "var(--white-a4)" : "var(--white-a11)",
+                          },
+                        })}
+                      >
+                        {isFollowing() ? followingText : "Follow"}
+                      </Button>
+                    ) : (
+                      <DialogRoot>
+                        <DialogTrigger>
+                          <Button
+                            size="1"
+                            style={css({
+                              minWidth: 64,
+                              backgroundColor: "var(--white-a12)",
+                              color: "var(--black-a12)",
+                              "&:hover": {
+                                backgroundColor: "var(--white-a11)",
+                              },
+                            })}
+                          >
+                            Follow
+                          </Button>
+                        </DialogTrigger>
+
+                        <DialogContent
+                          style={css({
+                            position: "relative",
+                            maxWidth: 450,
+                            overflow: "hidden",
+                          })}
+                        >
+                          <DialogClose>
+                            <IconButton
+                              size="1"
+                              color="gray"
+                              variant="soft"
+                              style={css({
+                                position: "absolute",
+                                right: "var(--space-4)",
+                                top: "var(--space-4)",
+                              })}
+                            >
+                              <RxCross2 style={css({ width: 14, height: 14 })} />
+                            </IconButton>
+                          </DialogClose>
+
+                          <Flex mt="3" direction="column" gap="5" justify="between" align="center">
+                            <Text weight="medium">You need to create a profile to follow:</Text>
+                            <Flex align="center" gap="3">
+                              <StyledAvatar
+                                src={avatarUrl}
+                                fallback={
+                                  <Avvvatars
+                                    style="shape"
+                                    value={address}
+                                    size={AVATAR_SIZE / 2}
+                                    radius={0}
+                                  />
+                                }
+                                style={css({
+                                  width: AVATAR_SIZE / 2,
+                                  height: AVATAR_SIZE / 2,
+                                  borderRadius: AVATAR_RADIUS,
+                                  outline: `${OUTLINE_OFFSET}px solid var(--white-a3)`,
+                                  outlineOffset: -OUTLINE_OFFSET,
+                                  overflow: "hidden",
+                                })}
+                                css={{
+                                  ".rt-AvatarFallback > div": {
+                                    borderRadius: 0,
+                                  },
+                                }}
+                              />
+                              <Flex direction="column">
+                                <Text weight="medium" size="5">
+                                  {profile?.Info?.name || abbreviateAddress({ address })}
+                                </Text>
+                                {profile?.Info?.handle && (
+                                  <Text color="gray">@{profile?.Info?.handle}</Text>
+                                )}
+                              </Flex>
+                            </Flex>
+                            <Button variant="solid" asChild>
+                              <RouterLink to={"/profile"}>Go to profile</RouterLink>
+                            </Button>
+                          </Flex>
+                        </DialogContent>
+                      </DialogRoot>
+                    )}
                   </>
                 )}
-                <Text
-                  size="2"
-                  style={css({
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    maxWidth: "20ch",
-                  })}
-                >
-                  {abbreviateAddress({ address: addr })}
-                </Text>
-                <AlphaIconButton size="1" color="gray" variant="ghost">
-                  <BsCopy />
-                </AlphaIconButton>
               </Flex>
-            )}
+            </Flex>
           </Flex>
         </Flex>
 
-        {isUserMe && (
-          <EditProfileDialog address={addr} hasProfile={data?.hasProfile} profile={profile}>
-            <Button
-              variant="solid"
+        {profile && (
+          <Flex
+            style={css({
+              position: "absolute",
+              bottom: "var(--space-3)",
+              right: "var(--space-5)",
+              height: "max-content",
+              color: "var(--white-a10)",
+            })}
+            align="center"
+            gap="5"
+          >
+            <Flex direction="column" align="start" gap="1">
+              <FollowerDialog profile={profile} followerTab="followers">
+                <AlphaButton variant="ghost" color="gray" size="1">
+                  Followers
+                </AlphaButton>
+              </FollowerDialog>
+              <Text size="6" style={css({ color: "var(--white-a12)" })}>
+                {profile ? profile.Followers?.length : 0}
+              </Text>{" "}
+            </Flex>
+            <StyledSeparator
+              orientation="vertical"
+              size="2"
               style={css({
-                position: "absolute",
-                bottom: "var(--space-3)",
-                right: "var(--space-3)",
-                backgroundColor: "var(--white-a3)",
-                color: "var(--white-a12)",
-                "&:hover": { backgroundColor: "var(--white-a4)" },
+                backgroundColor: "var(--white-a5)",
               })}
-            >
-              Edit profile
-            </Button>
-          </EditProfileDialog>
+            />
+            <Flex direction="column" align="start" gap="1">
+              <FollowerDialog profile={profile} followerTab="following">
+                <AlphaButton variant="ghost" color="gray" size="1">
+                  Following
+                </AlphaButton>
+              </FollowerDialog>
+              <Text size="6" weight="medium" style={css({ color: "var(--white-a12)" })}>
+                {profile ? profile.Following?.length : 0}
+              </Text>{" "}
+            </Flex>
+          </Flex>
         )}
       </Box>
 
@@ -252,15 +537,15 @@ export const Profile = () => {
 
         <Box px="4" pt="3" pb="2">
           <TabsContent value="releases">
-            <Releases address={addr} />
+            <Releases address={address} />
           </TabsContent>
 
           <TabsContent value="collection">
-            <Collection address={addr} />
+            <Collection address={address} />
           </TabsContent>
 
           <TabsContent value="likes">
-            <Likes address={addr} />
+            <Likes address={address} />
           </TabsContent>
         </Box>
       </TabsRoot>

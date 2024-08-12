@@ -1,18 +1,15 @@
 import { useGetUserProfile } from "@/hooks/appData";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import { getTrack } from "@/lib/track/getTrack";
 import { getTracks } from "@/lib/track/getTracks";
-import { ActionsDropdown } from "@/modules/track/components/ActionsDropdown";
 import { css } from "@/styles/css";
-import { Album, Track } from "@/types";
+import { Album } from "@/types";
 import { abbreviateAddress, compareArrayLengths, compareArrays } from "@/utils";
 import { Box, Flex, IconButton, Link, Text } from "@radix-ui/themes";
 import { styled } from "@stitches/react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { MdPause, MdPlayArrow } from "react-icons/md";
-import { RxDotsHorizontal } from "react-icons/rx";
 
 const StyledWrapperDiv = styled(Box);
 
@@ -46,8 +43,7 @@ export const AlbumCard = (props: AlbumCardProps) => {
     refetchOnWindowFocus: false,
   });
 
-  const { data } = useGetUserProfile({ address: props.album.creator });
-  const profile = data?.profiles.length ? data.profiles[0] : undefined;
+  const { data: profile } = useGetUserProfile({ address: props.album.creator });
 
   const isPlaying =
     playing &&
@@ -186,7 +182,7 @@ export const AlbumCard = (props: AlbumCardProps) => {
                     maxWidth: "20ch",
                   })}
                 >
-                  {profile?.name || abbreviateAddress({ address: props.album.creator })}
+                  {profile?.Info?.name || abbreviateAddress({ address: props.album.creator })}
                 </Link>
               </Flex>
             )}

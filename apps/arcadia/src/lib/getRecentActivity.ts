@@ -1,4 +1,4 @@
-import { appConfig } from "@/apps/arcadia/appConfig";
+import { appConfig } from "../config";
 import { Transaction, TransactionEdge } from "arweave-graphql";
 
 interface RecentActivityResults {
@@ -47,15 +47,13 @@ export const getRecentActivity = async (txid: string) => {
 const fillterResults = (node: Transaction): RecentActivityResults => {
   let activityType: RecentActivityResults["type"];
 
-  const isStamp =
-    node.tags.find((x) => x.name === "Protocol-Name")?.value === "Stamp";
+  const isStamp = node.tags.find((x) => x.name === "Protocol-Name")?.value === "Stamp";
 
   if (isStamp) {
     activityType = "liked";
   }
 
-  const isComment =
-    node.tags.find((x) => x.name === "Data-Protocol")?.value === "Comment";
+  const isComment = node.tags.find((x) => x.name === "Data-Protocol")?.value === "Comment";
 
   if (isComment) {
     activityType = "commented";

@@ -1,4 +1,4 @@
-import { appConfig } from "@/apps/arcadia/appConfig";
+import { appConfig } from "../config";
 import { warp } from "./arweave";
 
 export const getAssetOwners = async (assetId: string) => {

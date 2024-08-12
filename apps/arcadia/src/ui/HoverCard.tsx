@@ -1,4 +1,4 @@
-import { keyframes, styled } from "@/apps/arcadia/stitches.config";
+import { keyframes, styled } from "../stitches.config";
 import * as HoverCard from "@radix-ui/react-hover-card";
 
 const slideUpAndFade = keyframes({

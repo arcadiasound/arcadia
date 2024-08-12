@@ -47,7 +47,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
               position="bottom-center"
               toastOptions={{
                 style: css({
-                  left: "40%",
+                  // left: "40%",
                   padding: "var(--space-3)",
                   width: "max-content",
                   borderRadius: "max(var(--radius-2), var(--radius-full))",
